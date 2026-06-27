@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bigtree Agarwood — ไม้กฤษณาและน้ำมันกฤษณาพรีเมียม</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --black: #0a0a0a;
+    --dark: #0d1117;
+    --card: #0e1e35;
+    --border: #1e3a5f;
+    --blue-pastel: #b8d8f0;
+    --blue-mid: #7ab5d4;
+    --blue-dim: #3a7aa0;
+    --gold: #e8b84b;
+    --gold-dim: #a07a20;
+    --text: #c8e6f5;
+    --muted: #5a90b0;
+    --white: #f0f8ff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 60px;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e8b84b55; }
+  .nav-brand { color: var(--gold); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--blue-pastel); }
+  .nav-cta {
+    background: transparent; border: 0.5px solid var(--gold);
+    color: var(--gold); font-size: 13px; padding: 7px 20px;
+    border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.2s;
+  }
+  .nav-cta:hover { background: #e8b84b18; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center;
+    padding: 100px 20px 60px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(184,216,240,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #0e1e35; border: 0.5px solid var(--border);
+    border-radius: 20px; padding: 5px 16px; margin-bottom: 28px;
+    color: var(--gold); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .hero-eyebrow span { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; display: inline-block; }
+  .hero-logo { width: 120px; height: 120px; border-radius: 20px; object-fit: cover; border: 1px solid #e8b84b44; margin-bottom: 28px; }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 700; color: var(--white);
+    line-height: 1.1; margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+  .hero-title span { color: var(--gold); }
+  .hero-sub {
+    color: var(--muted); font-size: 16px; max-width: 480px;
+    margin: 0 auto 36px; line-height: 1.8;
+  }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--gold); color: #0a0a0a; font-weight: 600;
+    font-size: 14px; padding: 12px 28px; border-radius: 8px;
+    border: none; cursor: pointer; text-decoration: none; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-outline {
+    background: transparent; color: var(--blue-pastel);
+    border: 0.5px solid var(--border); font-size: 14px;
+    padding: 12px 28px; border-radius: 8px; cursor: pointer;
+    text-decoration: none; transition: border-color 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--blue-mid); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--card); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);
+    display: flex; justify-content: center; flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1; min-width: 140px; padding: 24px 20px; text-align: center;
+    border-right: 0.5px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--gold); font-weight: 700; line-height: 1; }
+  .stat-label { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* ── SECTIONS ── */
+  section { padding: 80px 40px; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    color: var(--blue-dim); font-size: 11px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif; font-size: clamp(26px, 4vw, 42px);
+    color: var(--white); font-weight: 700; margin-bottom: 16px; line-height: 1.2;
+  }
+  .section-title span { color: var(--gold); }
+  .section-desc { color: var(--muted); max-width: 520px; line-height: 1.8; margin-bottom: 48px; }
+
+  /* ── MENU CARDS (เมนูหลัก) ── */
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .menu-card {
+    background: var(--card); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 28px 24px; cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none; display: block;
+  }
+  .menu-card:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
+  .menu-card-icon { font-size: 36px; margin-bottom: 14px; }
+  .menu-card-title { color: var(--white); font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+  .menu-card-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px; }
+  .menu-card-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .menu-tag {
+    background: #1e3a5f; color: var(--blue-pastel); font-size: 11px;
+    padding: 4px 12px; border-radius: 20px; border: 0.5px solid #2a5080;
+  }
+
+  /* ── DEBT CARDS ── */
+  .debt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .debt-card {
+    background: var(--card); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 24px 20px;
+  }
+  .debt-card.red { border-color: #5a2020; }
+  .debt-card.green { border-color: #1a4030; }
+  .debt-card-icon { font-size: 28px; margin-bottom: 10px; }
+  .debt-card-title { color: var(--white); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .debt-card-sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  .debt-amount { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
+  .debt-amount.red { color: #f07070; }
+  .debt-amount.green { color: #6db88a; }
+  .debt-unit { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  /* ── PROFIT DASHBOARD ── */
+  .profit-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .profit-card {
+    background: var(--card); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 24px 20px;
+  }
+  .profit-card.highlight { border-color: var(--gold-dim); background: #0d1a08; }
+  .profit-label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .profit-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; }
+  .profit-num.gold { color: var(--gold); }
+  .profit-num.blue { color: var(--blue-pastel); }
+  .profit-num.green { color: #6db88a; }
+  .profit-note { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+  /* ── RICH MENU GRID (bottom section) ── */
+  .rich-section {
+    background: #080e1a; border-top: 0.5px solid var(--border);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0; max-width: 100%;
+  }
+  .rich-section-inner { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+  .rich-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 0 0;
+  }
+  .rich-top img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e8b84b44; }
+  .rich-top-name { color: var(--gold); font-size: 14px; font-weight: 500; }
+  .rich-top-sub { color: var(--muted); font-size: 11px; }
+  .rich-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    border-top: 0.5px solid var(--border); margin-top: 16px;
+  }
+  .rich-item {
+    padding: 24px 12px 20px; display: flex; flex-direction: column;
+    align-items: center; gap: 8px; cursor: pointer;
+    border-right: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);
+    transition: background 0.15s; text-decoration: none;
+  }
+  .rich-item:nth-child(3n) { border-right: none; }
+  .rich-item:nth-last-child(-n+3) { border-bottom: none; }
+  .rich-item:hover { background: #0e1e35; }
+  .rich-icon { font-size: 36px; }
+  .rich-label { color: var(--white); font-size: 13px; font-weight: 500; text-align: center; }
+  .rich-sub { color: var(--muted); font-size: 11px; text-align: center; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #070a10; border-top: 0.5px solid var(--border);
+    padding: 48px 40px 32px; text-align: center;
+  }
+  .footer-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
+  .footer-logo img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 0.5px solid #e8b84b44; }
+  .footer-brand { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 20px; }
+  .footer-desc { color: var(--muted); font-size: 13px; max-width: 400px; margin: 0 auto 24px; line-height: 1.7; }
+  .footer-copy { color: #2a3a50; font-size: 12px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 0 40px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    nav { padding: 0 16px; }
+    .nav-links { display: none; }
+    section { padding: 60px 16px; }
+    .debt-grid, .profit-grid { grid-template-columns: 1fr; }
+    .rich-grid { grid-template-columns: repeat(2,1fr); }
+    .rich-item:nth-child(3n) { border-right: 0.5px solid var(--border); }
+    .rich-item:nth-child(2n) { border-right: none; }
+    .stats-bar { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 0.5px solid var(--border); }
+    .stat-item:last-child { border-bottom: none; }
+    footer { padding: 40px 16px 24px; }
+    .rich-section-inner { padding: 0 16px; }
+    .divider { margin: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="https://i.imgur.com/placeholder.png" alt="Bigtree Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+    <span style="display:none;width:36px;height:36px;background:#0e1e35;border:0.5px solid #e8b84b44;border-radius:8px;align-items:center;justify-content:center;font-size:18px;">🌿</span>
+    <span class="nav-brand">Bigtree Agarwood</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#menu">เมนูหลัก</a></li>
+    <li><a href="#debt">หนี้สิน</a></li>
+    <li><a href="#profit">กำไร</a></li>
+  </ul>
+  <a class="nav-cta" href="#menu">เริ่มใช้งาน</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow"><span></span> ไม้กฤษณาและน้ำมันกฤษณาพรีเมียม</div>
+  <div style="width:120px;height:120px;border-radius:20px;background:#0e1e35;border:1px solid #e8b84b44;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:28px;">🌿</div>
+  <h1 class="hero-title">Bigtree<br /><span>Agarwood</span></h1>
+  <p class="hero-sub">ระบบจัดการธุรกิจไม้น้ำหอมและน้ำมันกฤษณา<br />ติดตามสต็อก ซื้อ-ขาย หนี้สิน และกำไรแบบเรียลไทม์</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="#menu">เริ่มบันทึกซื้อ-ขาย</a>
+    <a class="btn-outline" href="#profit">ดูภาพรวมกำไร</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">2</div>
+    <div class="stat-label">ประเภทสินค้า</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">kg / tl</div>
+    <div class="stat-label">หน่วยวัด</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">เมนูหลัก</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">Real-time</div>
+    <div class="stat-label">อัปเดตสต็อกอัตโนมัติ</div>
+  </div>
+</div>
+
+<!-- MENU SECTION -->
+<section id="menu">
+  <div class="section-label">เมนูหลัก</div>
+  <h2 class="section-title">จัดการธุรกิจ<br /><span>ครบในที่เดียว</span></h2>
+  <p class="section-desc">บันทึกซื้อ-ขาย ดูสต็อก ติดตามหนี้สิน และวิเคราะห์กำไร ทั้งหมดในระบบเดียว</p>
+  <div class="menu-grid">
+    <div class="menu-card">
+      <div class="menu-card-icon">🛒</div>
+      <div class="menu-card-title">บันทึกซื้อสินค้า</div>
+      <div class="menu-card-desc">บันทึกรายการซื้อเข้า ระบุ Supplier ปริมาณ ราคา และสถานะการชำระเงิน ระบบคำนวณยอดค้างจ่ายอัตโนมัติ</div>
+      <div class="menu-card-links">
+        <span class="menu-tag">ไม้ (kg)</span>
+        <span class="menu-tag">น้ำมัน (tl)</span>
+        <span class="menu-tag">ค้างชำระ</span>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-card-icon">💰</div>
+      <div class="menu-card-title">บันทึกขายสินค้า</div>
+      <div class="menu-card-desc">บันทึกรายการขายออก ระบุชื่อลูกค้า วันกำหนดชำระ และติดตามยอดค้างรับได้ทันที</div>
+      <div class="menu-card-links">
+        <span class="menu-tag">Due Date</span>
+        <span class="menu-tag">ลูกหนี้</span>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-card-icon">📦</div>
+      <div class="menu-card-title">สต็อกสินค้าคงเหลือ</div>
+      <div class="menu-card-desc">ดูยอดคงเหลือปัจจุบัน แยกตามชนิดและเกรดสินค้า คำนวณจากยอดซื้อและขายอัตโนมัติ</div>
+      <div class="menu-card-links">
+        <span class="menu-tag">เกรด A</span>
+        <span class="menu-tag">เกรด B</span>
+        <span class="menu-tag">Super Premium</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- DEBT SECTION -->
+<section id="debt">
+  <div class="section-label">ติดตามหนี้สิน</div>
+  <h2 class="section-title">รู้ทันทีว่า<br /><span>ใครติดหนี้ใคร</span></h2>
+  <p class="section-desc">แยกชัดเจนระหว่างเจ้าหนี้และลูกหนี้ พร้อมชื่อและยอดเงินที่ต้องตามทวง</p>
+  <div class="debt-grid">
+    <div class="debt-card red">
+      <div class="debt-card-icon">🏦</div>
+      <div class="debt-card-title">เจ้าหนี้ (เราค้างจ่าย)</div>
+      <div class="debt-card-sub">Accounts Payable</div>
+      <div class="debt-amount red">฿ 0</div>
+      <div class="debt-unit">ยอดค้างชำระทั้งหมด</div>
+    </div>
+    <div class="debt-card green">
+      <div class="debt-card-icon">👥</div>
+      <div class="debt-card-title">ลูกหนี้ (ค้างจ่ายเรา)</div>
+      <div class="debt-card-sub">Accounts Receivable</div>
+      <div class="debt-amount green">฿ 0</div>
+      <div class="debt-unit">ยอดค้างรับทั้งหมด</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PROFIT SECTION -->
+<section id="profit">
+  <div class="section-label">ภาพรวมการเงิน</div>
+  <h2 class="section-title">กำไรสุทธิ<br /><span>แบบเรียลไทม์</span></h2>
+  <p class="section-desc">สรุปยอดซื้อ ยอดขาย และกำไรสุทธิ คำนวณอัตโนมัติจากรายการทั้งหมด</p>
+  <div class="profit-grid">
+    <div class="profit-card">
+      <div class="profit-label">ต้นทุนซื้อทั้งหมด</div>
+      <div class="profit-num blue">฿ 0</div>
+      <div class="profit-note">Total Purchase Cost</div>
+    </div>
+    <div class="profit-card">
+      <div class="profit-label">รายได้ขายทั้งหมด</div>
+      <div class="profit-num blue">฿ 0</div>
+      <div class="profit-note">Total Revenue</div>
+    </div>
+    <div class="profit-card highlight">
+      <div class="profit-label">กำไรสุทธิ</div>
+      <div class="profit-num gold">฿ 0</div>
+      <div class="profit-note">Net Profit</div>
+    </div>
+  </div>
+</section>
+
+<!-- RICH MENU -->
+<div class="rich-section">
+  <div class="rich-section-inner">
+    <div class="rich-top">
+      <div style="width:36px;height:36px;background:#0e1e35;border:0.5px solid #e8b84b44;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🌿</div>
+      <div>
+        <div class="rich-top-name">Bigtree Agarwood</div>
+        <div class="rich-top-sub">เมนูหลัก — แตะเพื่อใช้งาน</div>
+      </div>
+    </div>
+    <div class="rich-grid">
+      <a class="rich-item" href="#menu">
+        <span class="rich-icon">🛒</span>
+        <span class="rich-label">บันทึกซื้อ</span>
+        <span class="rich-sub">รายการซื้อเข้า</span>
+      </a>
+      <a class="rich-item" href="#menu">
+        <span class="rich-icon">💰</span>
+        <span class="rich-label">บันทึกขาย</span>
+        <span class="rich-sub">รายการขายออก</span>
+      </a>
+      <a class="rich-item" href="#menu">
+        <span class="rich-icon">📦</span>
+        <span class="rich-label">สต็อกสินค้า</span>
+        <span class="rich-sub">คงเหลือปัจจุบัน</span>
+      </a>
+      <a class="rich-item" href="#profit">
+        <span class="rich-icon">📊</span>
+        <span class="rich-label">กำไร / รายได้</span>
+        <span class="rich-sub">ภาพรวมการเงิน</span>
+      </a>
+      <a class="rich-item" href="#debt">
+        <span class="rich-icon">👥</span>
+        <span class="rich-label">ลูกหนี้</span>
+        <span class="rich-sub">Accounts Receivable</span>
+      </a>
+      <a class="rich-item" href="#debt">
+        <span class="rich-icon">🏦</span>
+        <span class="rich-label">เจ้าหนี้</span>
+        <span class="rich-sub">Accounts Payable</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div style="width:40px;height:40px;background:#0e1e35;border:0.5px solid #e8b84b44;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;">🌿</div>
+    <span class="footer-brand">Bigtree Agarwood</span>
+  </div>
+  <p class="footer-desc">ไม้กฤษณาและน้ำมันกฤษณาคุณภาพพรีเมียม<br />ระบบจัดการธุรกิจครบวงจร</p>
+  <p class="footer-copy">© 2026 Bigtree Agarwood. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
