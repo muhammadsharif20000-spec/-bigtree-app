@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Bigtree Agarwood</title>
+<style>
+:root{
+  --black:#0a0a0a;--card:#0e1e35;--border:#1e3a5f;
+  --blue:#b8d8f0;--mid:#7ab5d4;--dim:#3a7aa0;
+  --gold:#e8b84b;--text:#c8e6f5;--muted:#5a90b0;
+  --red:#f07070;--green:#6db88a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:var(--black);color:var(--text);font-size:14px;}
+
+/* SETUP SCREEN */
+#setup-screen{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+}
+.setup-card{background:var(--card);border:.5px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:420px;}
+.setup-logo{font-size:48px;text-align:center;margin-bottom:12px;}
+.setup-title{color:var(--gold);font-size:18px;font-weight:600;text-align:center;margin-bottom:6px;}
+.setup-sub{color:var(--muted);font-size:12px;text-align:center;margin-bottom:20px;line-height:1.6;}
+.setup-label{color:var(--mid);font-size:11px;font-weight:500;margin-bottom:5px;display:block;}
+.setup-input{width:100%;background:#071628;border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;outline:none;font-family:inherit;margin-bottom:14px;}
+.setup-input:focus{border-color:var(--mid);}
+.setup-btn{width:100%;background:var(--gold);border:none;border-radius:10px;color:#0a0a0a;font-size:14px;font-weight:600;padding:13px;cursor:pointer;}
+.setup-btn:hover{opacity:.88;}
+.setup-steps{margin-top:20px;background:#071628;border-radius:10px;padding:14px;}
+.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.step:last-child{margin-bottom:0;}
+.step-num{background:var(--border);color:var(--blue);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px;}
+.step-text{color:var(--muted);font-size:12px;line-height:1.6;}
+.step-text b{color:var(--text);}
+.step-text code{background:#1e3a5f;color:var(--blue);padding:1px 6px;border-radius:4px;font-size:11px;}
+
+/* APP */
+#app{display:none;}
+.page{display:none;min-height:100vh;flex-direction:column;}
+.page.active{display:flex;}
+
+.topbar{background:#0a1628;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px;padding:10px 14px;position:sticky;top:0;z-index:50;}
+.back{color:var(--blue);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;}
+.t-icon{width:32px;height:32px;border-radius:8px;background:var(--card);border:.5px solid #e8b84b44;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.t-name{color:#fff;font-size:14px;font-weight:500;}
+.t-sub{color:var(--muted);font-size:10px;}
+.t-right{margin-left:auto;}
+.icon-btn{background:none;border:none;color:var(--mid);font-size:18px;cursor:pointer;padding:4px;}
+
+.warn{background:#111d2e;border-left:3px solid var(--gold);margin:8px 10px;border-radius:6px;padding:7px 10px;display:flex;align-items:center;gap:7px;}
+.warn span{color:var(--muted);font-size:11px;flex:1;}
+
+.chat{flex:1;padding:10px 12px;}
+.bubble-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:10px;}
+.av{width:30px;height:30px;border-radius:50%;background:var(--card);border:.5px solid #e8b84b44;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.bubble{background:var(--card);border:.5px solid var(--border);border-radius:0 12px 12px 12px;padding:10px 14px;max-width:270px;}
+.b-name{color:var(--gold);font-size:10px;font-weight:500;margin-bottom:4px;}
+.b-text{color:var(--text);font-size:13px;line-height:1.6;}
+
+.rich{border-top:.5px solid var(--border);flex-shrink:0;}
+.rich-hd{background:#0a1628;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:.5px solid var(--border);}
+.rich-hd-brand{color:var(--gold);font-size:12px;font-weight:500;}
+.rich-hd-sub{color:#3a5a70;font-size:10px;}
+.rich-grid{display:grid;grid-template-columns:repeat(3,1fr);background:#080e1a;}
+.ri{padding:18px 6px 14px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;border-right:.5px solid var(--border);border-bottom:.5px solid var(--border);transition:background .15s;}
+.ri:nth-child(3n){border-right:none;}
+.ri:nth-child(n+4){border-bottom:none;}
+.ri:hover,.ri:active{background:var(--card);}
+.ri-icon{font-size:28px;line-height:1;}
+.ri-lbl{color:var(--text);font-size:12px;font-weight:500;text-align:center;}
+.ri-sub{color:#3a5a70;font-size:10px;text-align:center;}
+
+.body{flex:1;padding:14px 14px 30px;overflow-y:auto;}
+.sec{color:var(--dim);font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 8px;padding-bottom:5px;border-bottom:.5px solid #1a2e45;}
+.field{margin-bottom:11px;}
+.field label{display:block;color:var(--mid);font-size:11px;font-weight:500;margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;background:var(--card);border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--mid);}
+.field textarea{resize:none;height:62px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pill{display:inline-block;background:#1e3a5f;color:var(--mid);font-size:10px;padding:2px 8px;border-radius:20px;margin-top:4px;}
+
+.cbox{background:#0a1628;border:.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:11px;}
+.crow{display:flex;justify-content:space-between;padding:3px 0;}
+.clbl{color:var(--muted);font-size:11px;}
+.cval{color:var(--text);font-size:12px;font-weight:500;}
+.cval.r{color:var(--red);}
+.cval.g{color:var(--green);}
+.chr{border:none;border-top:.5px solid var(--border);margin:4px 0;}
+
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px;}
+.srow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:11px;}
+.sb{padding:9px;border-radius:8px;border:.5px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;text-align:center;cursor:pointer;}
+.sb.sg{background:#0a2218;border-color:#2e7d52;color:var(--green);}
+.sb.sy{background:#2a2008;border-color:#a07a20;color:var(--gold);}
+.sb.sr{background:#2a0e0e;border-color:#7d2e2e;color:var(--red);}
+
+.savebtn{width:100%;background:#1e3a5f;border:none;border-radius:10px;color:var(--blue);font-size:14px;font-weight:500;padding:13px;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.savebtn:hover{background:#254e7a;}
+.savebtn:disabled{opacity:.5;cursor:not-allowed;}
+
+.loader{display:inline-block;width:14px;height:14px;border:2px solid #ffffff44;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
+.delbtn{width:100%;background:#2a0e0e;border:.5px solid #7d2e2e;border-radius:10px;color:var(--red);font-size:13px;font-weight:500;padding:11px;cursor:pointer;margin-top:8px;}
+.delbtn:hover{background:#3a1414;}
+.cancelbtn{width:100%;background:transparent;border:.5px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;padding:11px;cursor:pointer;margin-top:8px;}
+.cancelbtn:hover{background:var(--card);}
+.row-edit{cursor:pointer;font-size:14px;padding:4px;}
+.stockbtn{background:#1e3a5f;border:.5px solid var(--border);border-radius:6px;color:var(--blue);font-size:10px;padding:5px 8px;cursor:pointer;white-space:nowrap;}
+.stockbtn:hover{background:#254e7a;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.card{background:var(--card);border:.5px solid var(--border);border-radius:12px;padding:14px 15px;margin-bottom:9px;}
+.card.gr{border-color:#1a4030;}
+.card.rd{border-color:#5a2020;}
+
+.tbl{width:100%;border-collapse:collapse;margin-top:6px;}
+.tbl th{color:var(--dim);font-size:10px;font-weight:500;text-align:left;padding:6px 4px;border-bottom:.5px solid var(--border);}
+.tbl td{color:var(--text);font-size:12px;padding:8px 4px;border-bottom:.5px solid #0f1e30;vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;}
+.bg{background:#0a2218;color:var(--green);}
+.br{background:#2a0e0e;color:var(--red);}
+
+.empty{text-align:center;color:#2a4a60;padding:30px 0;font-size:13px;}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.pc{background:var(--card);border:.5px solid var(--border);border-radius:12px;padding:15px 13px;}
+.pc.full{grid-column:1/-1;}
+.pc-lbl{color:var(--muted);font-size:11px;margin-bottom:6px;}
+.pc-num{font-size:24px;font-weight:700;}
+.pc-num.b{color:var(--blue);}
+.pc-num.g{color:var(--green);}
+.pc-num.gold{color:var(--gold);}
+.pc-note{color:var(--muted);font-size:10px;margin-top:3px;}
+
+.drow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid #0f1e30;}
+.drow:last-child{border-bottom:none;}
+.d-name{color:var(--text);font-size:13px;}
+.d-info{color:var(--muted);font-size:10px;margin-top:2px;}
+.d-amt{font-size:14px;font-weight:600;}
+.d-amt.r{color:var(--red);}
+.d-amt.g{color:var(--green);}
+.dtotal{display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:.5px solid #1e3a5f;}
+.dt-lbl{color:var(--mid);font-size:12px;}
+.dt-num{font-size:17px;font-weight:700;}
+.dt-num.r{color:var(--red);}
+.dt-num.g{color:var(--green);}
+
+.sk-row{display:flex;justify-content:space-between;align-items:center;}
+.sk-name{color:var(--text);font-size:13px;font-weight:500;}
+.sk-grade{color:var(--muted);font-size:11px;margin-top:2px;}
+.sk-num{font-size:22px;font-weight:700;}
+.sk-unit{color:#3a5a70;font-size:11px;text-align:right;}
+
+.loading-overlay{position:fixed;inset:0;background:#0a0a0acc;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;}
+.loading-overlay.hidden{display:none;}
+.loading-text{color:var(--mid);font-size:13px;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0e2a18;border:.5px solid #2e7d52;color:var(--green);padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;}
+.toast.show{opacity:1;}
+.toast.err{background:#2a0e0e;border-color:#7d2e2e;color:var(--red);}
+
+@media(max-width:400px){.row2{grid-template-columns:1fr;}.pgrid{grid-template-columns:1fr;}.pc.full{grid-column:1;}}
+
+/* ── PROFIT BREAKDOWN ── */
+.profit-toggle{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:.5px solid var(--border);border-radius:8px;padding:11px 14px;cursor:pointer;margin-bottom:11px;color:var(--mid);font-size:13px;font-weight:500;}
+.profit-toggle:hover{background:#142840;}
+.profit-box{background:#0a1628;border:.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:11px;}
+.profit-section-title{color:var(--gold);font-size:11px;font-weight:600;margin:10px 0 6px;}
+.profit-section-title:first-child{margin-top:0;}
+.profit-summary{background:var(--card);border-radius:8px;padding:10px 12px;margin-top:8px;}
+.profit-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:var(--muted);}
+.profit-total{font-weight:700;font-size:14px;color:var(--text);}
+.cval.gold{color:var(--gold);}
+
+/* ── RECEIPT / ใบเสร็จ ── */
+.receipt-wrap{flex:1;padding:16px 12px 30px;background:#f0f0f0;overflow-y:auto;}
+.receipt-paper{background:#fff;color:#1a1a2e;border-radius:8px;padding:28px 22px;max-width:480px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.3);font-family:'Segoe UI',sans-serif;}
+.receipt-head{display:flex;align-items:flex-start;gap:14px;border-bottom:2px solid #0a1628;padding-bottom:16px;margin-bottom:16px;}
+.receipt-logo{width:48px;height:48px;background:#0a1628;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.receipt-brand{flex:1;}
+.receipt-brand-name{color:#0a1628;font-size:16px;font-weight:700;letter-spacing:.5px;}
+.receipt-brand-sub{color:#666;font-size:10px;margin-top:2px;}
+.receipt-doc-info{text-align:right;}
+.receipt-doc-title{color:#0a1628;font-size:13px;font-weight:600;}
+.receipt-doc-no{color:#a07a20;font-size:11px;margin-top:3px;font-weight:600;}
+.receipt-doc-date{color:#666;font-size:10px;margin-top:2px;}
+.receipt-party{background:#f5f5f5;border-radius:8px;padding:10px 14px;margin-bottom:16px;}
+.receipt-party-label{color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px;}
+.receipt-party-name{color:#1a1a2e;font-size:14px;font-weight:600;margin-top:2px;}
+.receipt-party-date{color:#888;font-size:11px;margin-top:4px;}
+.receipt-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;}
+.receipt-tbl th{background:#0a1628;color:#e8b84b;font-size:11px;text-align:left;padding:8px 10px;}
+.receipt-tbl td{border-bottom:1px solid #e5e5e5;font-size:12px;padding:10px;color:#1a1a2e;}
+.receipt-summary{border-top:1px solid #e5e5e5;padding-top:12px;margin-bottom:14px;}
+.receipt-sum-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#444;}
+.receipt-sum-divider{border-top:1px dashed #ccc;margin-top:4px;padding-top:9px;font-weight:600;color:#1a1a2e;}
+.receipt-green{color:#2e7d52;font-weight:600;}
+.receipt-red{color:#c0392b;font-weight:600;}
+.receipt-status{font-size:11px;padding:2px 10px;border-radius:20px;font-weight:600;}
+.receipt-status-bg{background:#e2f5ea;color:#2e7d52;}
+.receipt-status-by{background:#fdf3da;color:#a07a20;}
+.receipt-status-br{background:#fde4e1;color:#c0392b;}
+.receipt-note{background:#fdf9ec;border-left:3px solid #e8b84b;padding:8px 12px;font-size:11px;color:#555;margin-bottom:18px;border-radius:4px;}
+.receipt-profit{background:#f5f5f5;border-radius:8px;padding:12px 14px;margin-bottom:18px;}
+.receipt-profit-title{color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.receipt-profit-tbl{width:100%;border-collapse:collapse;}
+.receipt-profit-tbl td{font-size:11px;color:#444;padding:4px 0;}
+.receipt-profit-tbl td:last-child{text-align:right;font-weight:600;}
+.receipt-profit-total td{border-top:1px dashed #ccc;padding-top:8px;margin-top:4px;font-weight:700;color:#1a1a2e;font-size:13px;}
+.receipt-footer{display:flex;justify-content:space-between;gap:30px;margin-top:30px;}
+.receipt-sign-box{flex:1;text-align:center;}
+.receipt-sign-line{border-bottom:1px solid #999;margin-bottom:6px;height:36px;}
+.receipt-sign-label{color:#888;font-size:10px;}
+.receipt-genby{text-align:center;color:#bbb;font-size:9px;margin-top:24px;}
+
+@media print{
+  body *{visibility:hidden;}
+  .receipt-wrap,.receipt-wrap *{visibility:visible;}
+  .receipt-wrap{position:absolute;left:0;top:0;width:100%;background:#fff;padding:0;}
+  .receipt-paper{box-shadow:none;max-width:100%;}
+  .no-print{display:none !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- =================== SETUP SCREEN =================== -->
+<div id="setup-screen" style="display:none">
+  <div class="setup-card">
+    <div class="setup-logo">🌿</div>
+    <div class="setup-title">Bigtree Agarwood</div>
+    <div class="setup-sub">ครั้งแรกที่ใช้งาน กรุณาใส่ลิงก์ Web App<br>จาก Google Apps Script ก่อนครับ</div>
+
+    <label class="setup-label">Google Apps Script Web App URL *</label>
+    <input class="setup-input" id="url-input" type="url" placeholder="https://script.google.com/macros/s/..." />
+    <button class="setup-btn" onclick="saveURL()">🚀 เริ่มใช้งาน</button>
+
+    <div class="setup-steps">
+      <div style="color:var(--gold);font-size:11px;font-weight:600;margin-bottom:10px;">📋 วิธีตั้งค่า Apps Script (ทำครั้งเดียว)</div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">เปิด Google Sheets → เมนู <b>Extensions</b> → <b>Apps Script</b></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">วางโค้ดจากไฟล์ <code>bigtree_apps_script.js</code> ที่ได้รับ</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">กด <b>Deploy</b> → <b>New Deployment</b> → เลือก <b>Web App</b></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">ตั้ง <b>Execute as: Me</b> และ <b>Who has access: Anyone</b></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">กด <b>Deploy</b> → คัดลอก URL มาวางด้านบน</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== LOADING =================== -->
+<div class="loading-overlay hidden" id="loader">
+  <div class="loader" style="width:32px;height:32px;border-width:3px;"></div>
+  <div class="loading-text" id="loader-text">กำลังโหลด...</div>
+</div>
+
+<!-- =================== TOAST =================== -->
+<div class="toast" id="toast"></div>
+
+<!-- =================== APP =================== -->
+<div id="app">
+
+<!-- HOME -->
+<div class="page" id="pg-home">
+  <div class="topbar">
+    <div class="t-icon">🌿</div>
+    <div style="flex:1"><div class="t-name">Bigtree Agarwood</div><div class="t-sub">Automated responses</div></div>
+    <button class="icon-btn t-right" onclick="refreshAll()" title="รีเฟรช">↻</button>
+    <button class="icon-btn" onclick="changeURL()" title="ตั้งค่า">⚙</button>
+  </div>
+  <div class="warn"><span>⚠</span><span>บัญชีธุรกิจ Bigtree Agarwood — ไม้น้ำหอม & น้ำมันกฤษณาพรีเมียม</span></div>
+  <div class="chat">
+    <div style="color:#2a4a60;font-size:10px;text-align:center;margin-bottom:10px;" id="home-date"></div>
+    <div class="bubble-row">
+      <div class="av">🌿</div>
+      <div class="bubble">
+        <div class="b-name">Bigtree Agarwood</div>
+        <div class="b-text">สวัสดีครับ 👋<br>ยินดีต้อนรับสู่ <span style="color:var(--gold);font-weight:500">Bigtree Agarwood</span><br>กดเมนูด้านล่างเพื่อเริ่มใช้งานได้เลยครับ<br><span style="color:var(--muted);font-size:11px;">ข้อมูลซิงค์กับ Google Sheets แบบ Real-time</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="rich">
+    <div class="rich-hd">
+      <div class="t-icon" style="width:26px;height:26px;font-size:13px;">🌿</div>
+      <div><div class="rich-hd-brand">Bigtree Agarwood</div><div class="rich-hd-sub">เมนูหลัก — แตะเพื่อใช้งาน</div></div>
+    </div>
+    <div class="rich-grid">
+      <div class="ri" onclick="go('pg-buy')"><span class="ri-icon">🛒</span><span class="ri-lbl">บันทึกซื้อ</span><span class="ri-sub">รายการซื้อเข้า</span></div>
+      <div class="ri" onclick="go('pg-sell')"><span class="ri-icon">💰</span><span class="ri-lbl">บันทึกขาย</span><span class="ri-sub">รายการขายออก</span></div>
+      <div class="ri" onclick="go('pg-stock')"><span class="ri-icon">📦</span><span class="ri-lbl">สต็อกสินค้า</span><span class="ri-sub">คงเหลือปัจจุบัน</span></div>
+      <div class="ri" onclick="go('pg-profit')"><span class="ri-icon">📊</span><span class="ri-lbl">กำไร / รายได้</span><span class="ri-sub">ภาพรวมการเงิน</span></div>
+      <div class="ri" onclick="go('pg-ar')"><span class="ri-icon">👥</span><span class="ri-lbl">ลูกหนี้</span><span class="ri-sub">Accounts Receivable</span></div>
+      <div class="ri" onclick="go('pg-ap')"><span class="ri-icon">🏦</span><span class="ri-lbl">เจ้าหนี้</span><span class="ri-sub">Accounts Payable</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUY -->
+<div class="page active" id="pg-buy">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">🛒</div>
+    <div><div class="t-name">บันทึกซื้อสินค้า</div><div class="t-sub">Bigtree Agarwood</div></div>
+  </div>
+  <div class="body">
+    <div class="sec">ข้อมูลการซื้อ</div>
+    <div class="field"><label>วันที่ซื้อ *</label><input type="date" id="b-date"/></div>
+    <div class="field"><label>ซื้อจาก (Supplier) *</label><input type="text" id="b-sup" placeholder="ชื่อผู้ขาย / คู่ค้า"/></div>
+    <div class="field">
+      <label>ประเภทสินค้า *</label>
+      <select id="b-type" onchange="bUnit()">
+        <option value="">— เลือกประเภท —</option>
+        <option value="wood">🌿 ไม้น้ำหอม (กฤษณา)</option>
+        <option value="oil">💧 น้ำมันกฤษณา</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ชนิด / เกรด *</label>
+      <input type="text" id="b-grade" placeholder="เช่น เกรด A, Super Premium, กฤษณาแก่..."/>
+    </div>
+    <div class="sec">ปริมาณ & ราคา</div>
+    <div class="row2">
+      <div class="field"><label>ปริมาณ *</label><input type="number" id="b-qty" placeholder="0" step="0.01" min="0" oninput="bCalc()"/><span class="pill" id="b-unit-pill">เลือกประเภทก่อน</span></div>
+      <div class="field"><label>ราคารวม (บาท) *</label><input type="number" id="b-total" placeholder="0" min="0" oninput="bCalc()"/></div>
+    </div>
+    <div class="field"><label>จ่ายแล้ว (บาท)</label><input type="number" id="b-paid" placeholder="0" min="0" oninput="bCalc()"/></div>
+    <div class="cbox">
+      <div class="crow"><span class="clbl">ราคารวม</span><span class="cval" id="bd-tot">฿ 0</span></div>
+      <div class="crow"><span class="clbl">จ่ายแล้ว</span><span class="cval g" id="bd-paid">฿ 0</span></div>
+      <hr class="chr"/>
+      <div class="crow"><span class="clbl">ค้างจ่าย</span><span class="cval r" id="bd-debt">฿ 0</span></div>
+    </div>
+    <div class="sec">สถานะ</div>
+    <div class="srow">
+      <div class="sb" id="bs-full" onclick="bSt('full')">✅ จ่ายครบ</div>
+      <div class="sb sr" id="bs-pend" onclick="bSt('pend')">⏳ ค้างชำระ</div>
+    </div>
+    <div class="field"><label>หมายเหตุ</label><textarea id="b-note" placeholder="บันทึกเพิ่มเติม (ถ้ามี)"></textarea></div>
+    <button class="savebtn" id="b-savebtn" onclick="bSave()"><span>💾</span><span>บันทึกรายการซื้อ</span></button>
+    <button class="delbtn" id="b-delbtn" onclick="deleteBuy()" style="display:none">🗑️ ลบรายการนี้</button>
+    <button class="cancelbtn" id="b-cancelbtn" onclick="cancelBuyEdit()" style="display:none">ยกเลิกการแก้ไข</button>
+    <div style="margin-top:16px;">
+      <div class="sec">รายการซื้อล่าสุด (จาก Google Sheets)</div>
+      <div id="buy-list"><div class="empty">กำลังโหลด...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELL -->
+<div class="page" id="pg-sell">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">💰</div>
+    <div><div class="t-name">บันทึกขายสินค้า</div><div class="t-sub">Bigtree Agarwood</div></div>
+  </div>
+  <div class="body">
+    <div class="sec">ข้อมูลการขาย</div>
+    <div class="field"><label>วันที่ขาย *</label><input type="date" id="s-date"/></div>
+    <div class="field"><label>ลูกค้า *</label><input type="text" id="s-cust" placeholder="ชื่อลูกค้า"/></div>
+    <div class="field">
+      <label>ประเภทสินค้า *</label>
+      <select id="s-type" onchange="sUnit()">
+        <option value="">— เลือกประเภท —</option>
+        <option value="wood">🌿 ไม้น้ำหอม (กฤษณา)</option>
+        <option value="oil">💧 น้ำมันกฤษณา</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ชนิด / เกรด *</label>
+      <input type="text" id="s-grade" placeholder="เช่น เกรด A, Super Premium, กฤษณาแก่..."/>
+    </div>
+    <div class="sec">ปริมาณ & ราคา</div>
+    <div class="row2">
+      <div class="field"><label>ปริมาณ *</label><input type="number" id="s-qty" placeholder="0" step="0.01" min="0" oninput="sCalc()"/><span class="pill" id="s-unit-pill">เลือกประเภทก่อน</span></div>
+      <div class="field"><label>ราคาขายรวม (บาท) *</label><input type="number" id="s-total" placeholder="0" min="0" oninput="sCalc()"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>รับชำระแล้ว (บาท)</label><input type="number" id="s-paid" placeholder="0" min="0" oninput="sCalc()"/></div>
+      <div class="field"><label>กำหนดชำระ (Due Date)</label><input type="date" id="s-due"/></div>
+    </div>
+    <div class="cbox">
+      <div class="crow"><span class="clbl">ราคาขายรวม</span><span class="cval" id="sd-tot">฿ 0</span></div>
+      <div class="crow"><span class="clbl">รับแล้ว</span><span class="cval g" id="sd-paid">฿ 0</span></div>
+      <hr class="chr"/>
+      <div class="crow"><span class="clbl">ลูกค้าค้างจ่าย</span><span class="cval r" id="sd-debt">฿ 0</span></div>
+    </div>
+    <div class="sec">สถานะ</div>
+    <div class="srow">
+      <div class="sb" id="ss-full" onclick="sSt('full')">✅ จ่ายครบ</div>
+      <div class="sb sr" id="ss-pend" onclick="sSt('pend')">⏳ ค้างชำระ</div>
+    </div>
+
+    <div class="profit-toggle" id="profit-toggle" onclick="toggleProfitBox()">
+      <span>📊 รายละเอียดกำไร (ไม่บังคับ)</span>
+      <span id="profit-toggle-arrow">▾</span>
+    </div>
+    <div class="profit-box" id="profit-box" style="display:none">
+      <div class="profit-section-title">1. กำไรส่วนต่างราคา (Retail Margin)</div>
+      <div class="field"><label>ราคาทุนรวม (บาท)</label><input type="number" id="s-cost" placeholder="0" min="0" oninput="sCalc()"/></div>
+
+      <div class="profit-section-title">2. กำไรค่าคอมมิชชั่น (Commission)</div>
+      <div class="field"><label>% คอมมิชชั่น</label><input type="number" id="s-comm-pct" placeholder="0" min="0" step="0.1" oninput="sCalc()"/></div>
+
+      <div class="profit-section-title">3. กำไรค่าขนส่ง/ดำเนินการ (Logistics)</div>
+      <div class="row2">
+        <div class="field"><label>ค่าส่งที่เก็บจากลูกค้า/หน่วย</label><input type="number" id="s-ship-charge" placeholder="0" min="0" step="0.01" oninput="sCalc()"/></div>
+        <div class="field"><label>ค่าส่งจริงที่จ่าย/หน่วย</label><input type="number" id="s-ship-cost" placeholder="0" min="0" step="0.01" oninput="sCalc()"/></div>
+      </div>
+
+      <div class="profit-summary">
+        <div class="profit-row"><span>กำไรส่วนต่างราคา</span><span class="cval g" id="pf-margin">฿ 0</span></div>
+        <div class="profit-row"><span>กำไรค่าคอมมิชชั่น</span><span class="cval g" id="pf-comm">฿ 0</span></div>
+        <div class="profit-row"><span>กำไรค่าขนส่ง</span><span class="cval g" id="pf-ship">฿ 0</span></div>
+        <hr class="chr"/>
+        <div class="profit-row profit-total"><span>กำไรสุทธิรวม</span><span class="cval gold" id="pf-total">฿ 0</span></div>
+      </div>
+    </div>
+
+    <div class="field"><label>หมายเหตุ</label><textarea id="s-note" placeholder="บันทึกเพิ่มเติม (ถ้ามี)"></textarea></div>
+    <button class="savebtn" id="s-savebtn" onclick="sSave()"><span>💾</span><span>บันทึกรายการขาย</span></button>
+    <button class="delbtn" id="s-delbtn" onclick="deleteSell()" style="display:none">🗑️ ลบรายการนี้</button>
+    <button class="cancelbtn" id="s-cancelbtn" onclick="cancelSellEdit()" style="display:none">ยกเลิกการแก้ไข</button>
+    <div style="margin-top:16px;">
+      <div class="sec">รายการขายล่าสุด (จาก Google Sheets)</div>
+      <div id="sell-list"><div class="empty">กำลังโหลด...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div class="page" id="pg-stock">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">📦</div>
+    <div><div class="t-name">สต็อกสินค้าคงเหลือ</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="go('pg-stock')">↻</button>
+  </div>
+  <div class="body" id="stock-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- PROFIT -->
+<div class="page" id="pg-profit">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">📊</div>
+    <div><div class="t-name">กำไร / รายได้</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="go('pg-profit')">↻</button>
+  </div>
+  <div class="body" id="profit-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- AR -->
+<div class="page" id="pg-ar">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">👥</div>
+    <div><div class="t-name">ลูกหนี้ค้างชำระ</div><div class="t-sub">Accounts Receivable</div></div>
+    <button class="icon-btn t-right" onclick="go('pg-ar')">↻</button>
+  </div>
+  <div class="body" id="ar-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- AP -->
+<div class="page" id="pg-ap">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">🏦</div>
+    <div><div class="t-name">เจ้าหนี้ที่เราค้างจ่าย</div><div class="t-sub">Accounts Payable</div></div>
+    <button class="icon-btn t-right" onclick="go('pg-ap')">↻</button>
+  </div>
+  <div class="body" id="ap-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- RECEIPT -->
+<div class="page" id="pg-receipt">
+  <div class="topbar no-print">
+    <span class="back" onclick="closeReceipt()">‹</span>
+    <div class="t-icon">🧾</div>
+    <div><div class="t-name">ใบเสร็จ</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="window.print()" title="พิมพ์ / บันทึก PDF">🖨️</button>
+  </div>
+  <div class="receipt-wrap" id="receipt-body"></div>
+</div>
+
+</div><!-- end #app -->
+
+<script>
+// ── CONFIG ──
+let API_URL = localStorage.getItem('bt_api_url') || 'https://script.google.com/macros/s/AKfycbx5jAhLJiBUY2EQuzMXJ9rHFGOYE_0v7JKWizqGT67bJZbU3yvPKhFaiyTP5HD5KtKCAw/exec';
+let cache = { buys:[], sells:[], inventory:[] };
+
+function saveURL(){
+  const url = document.getElementById('url-input').value.trim();
+  if(!url || !url.startsWith('https://script.google.com')){
+    showToast('กรุณาใส่ URL ที่ถูกต้องจาก Google Apps Script',true); return;
+  }
+  localStorage.setItem('bt_api_url', url);
+  API_URL = url;
+  initApp(); const hash=location.hash.replace("#",""); if(hash){setTimeout(()=>go("pg-"+hash),500);}else{setTimeout(()=>go("pg-buy"),500);}
+}
+function changeURL(){
+  localStorage.removeItem('bt_api_url');
+  location.reload();
+}
+
+// ── INIT ──
+function initApp(){
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const td=new Date().toISOString().split('T')[0];
+  ['b-date','s-date','s-due'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=td;});
+  document.getElementById('home-date').textContent=
+    new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  refreshAll();
+}
+
+initApp(); const hash=location.hash.replace("#",""); if(hash){setTimeout(()=>go("pg-"+hash),500);}else{setTimeout(()=>go("pg-buy"),500);}
+
+// ── API ──
+async function api(action, body=null){
+  const url = API_URL + '?action=' + action;
+  const opts = body ? {method:'POST',body:JSON.stringify({action,...body})} : {method:'GET'};
+  const res = await fetch(url, opts);
+  const text = await res.text();
+  return JSON.parse(text);
+}
+
+async function refreshAll(){
+  showLoader('กำลังซิงค์ข้อมูล...');
+  try{
+    const data = await api('getAll');
+    cache.buys = data.buys || [];
+    cache.sells = data.sells || [];
+    cache.inventory = data.inventory || [];
+    hideLoader();
+    showToast('ซิงค์ข้อมูลสำเร็จ ✓');
+  }catch(e){
+    hideLoader();
+    showToast('ไม่สามารถเชื่อมต่อได้ ลองใหม่อีกครั้ง',true);
+  }
+}
+
+// ── NAV ──
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='pg-stock') renderStock();
+  if(id==='pg-profit') renderProfit();
+  if(id==='pg-ar') renderAR();
+  if(id==='pg-ap') renderAP();
+  if(id==='pg-buy') renderBuyList();
+  if(id==='pg-sell') renderSellList();
+}
+
+// ── BUY ──
+let bStatus='pend';
+let bStatusManual=false;
+function bUnit(){
+  const t=document.getElementById('b-type').value;
+  document.getElementById('b-unit-pill').textContent=t==='wood'?'หน่วย: kg':t==='oil'?'หน่วย: tl':'เลือกประเภทก่อน';
+}
+function bCalc(){
+  const tot=parseFloat(document.getElementById('b-total').value)||0;
+  const paid=parseFloat(document.getElementById('b-paid').value)||0;
+  const debt=Math.max(0,tot-paid);
+  document.getElementById('bd-tot').textContent='฿ '+fmt(tot);
+  document.getElementById('bd-paid').textContent='฿ '+fmt(paid);
+  document.getElementById('bd-debt').textContent='฿ '+fmt(debt);
+  // Only auto-suggest status if user hasn't manually picked one
+  if(!bStatusManual && tot>0){
+    const auto = debt===0 ? 'full' : (paid>0 ? 'partial' : 'pend');
+    bSt(auto, false);
+  }
+}
+function bSt(s, manual=true){
+  bStatus=s;
+  if(manual) bStatusManual=true;
+  document.getElementById('bs-full').className='sb'+(s==='full'?' sg':'');
+  document.getElementById('bs-partial').className='sb'+(s==='partial'?' sy':'');
+  document.getElementById('bs-pend').className='sb'+(s==='pend'?' sr':'');
+}
+let editingBuyId=null;
+async function bSave(){
+  const sup=document.getElementById('b-sup').value.trim();
+  const type=document.getElementById('b-type').value;
+  const grade=document.getElementById('b-grade').value.trim();
+  const qty=parseFloat(document.getElementById('b-qty').value)||0;
+  const total=parseFloat(document.getElementById('b-total').value)||0;
+  if(!sup||!type||!grade||!qty||!total){showToast('กรุณากรอกข้อมูลให้ครบ',true);return;}
+  const btn=document.getElementById('b-savebtn');
+  btn.disabled=true; btn.innerHTML='<div class="loader"></div><span>กำลังบันทึก...</span>';
+  try{
+    const paid=parseFloat(document.getElementById('b-paid').value)||0;
+    const statusText = bStatus==='full'?'จ่ายครบ':bStatus==='partial'?'จ่ายบางส่วน':'ค้างชำระ';
+    const payload={
+      date:document.getElementById('b-date').value, supplier:sup,
+      type, grade, qty, unit:type==='wood'?'kg':'tl',
+      total, paid, status:statusText, note:document.getElementById('b-note').value
+    };
+    let res;
+    if(editingBuyId){
+      payload.id=editingBuyId;
+      res=await api('updateBuy',payload);
+      if(res.success){
+        const idx=cache.buys.findIndex(x=>x.id===editingBuyId);
+        if(idx>-1) cache.buys[idx]={...payload,debt:res.debt,status:res.status};
+        showToast('✅ แก้ไขรายการสำเร็จ!');
+      }
+    }else{
+      res=await api('addBuy',payload);
+      if(res.success){
+        cache.buys.unshift({id:res.id,...payload,debt:res.debt,status:res.status});
+        showToast('✅ บันทึกซื้อสำเร็จ! บันทึกใน Google Sheets แล้ว');
+      }
+    }
+    if(res.success){
+      cancelBuyEdit();
+      renderBuyList();
+    }
+  }catch(e){showToast('บันทึกไม่สำเร็จ กรุณาลองใหม่',true);}
+  btn.disabled=false; btn.innerHTML=editingBuyId?'<span>💾</span><span>บันทึกการแก้ไข</span>':'<span>💾</span><span>บันทึกรายการซื้อ</span>';
+}
+function statusLabel(s){
+  if(s==='full'||s==='จ่ายครบ') return {t:'ครบ',c:'bg'};
+  if(s==='partial'||s==='จ่ายบางส่วน') return {t:'บางส่วน',c:'by'};
+  return {t:'ค้าง',c:'br'};
+}
+function renderBuyList(){
+  const el=document.getElementById('buy-list');
+  if(!cache.buys.length){el.innerHTML='<div class="empty">ยังไม่มีรายการซื้อ</div>';return;}
+  el.innerHTML='<table class="tbl"><tr><th>วันที่</th><th>Supplier</th><th>สินค้า</th><th>ราคา</th><th>สถานะ</th><th>คลัง</th><th></th></tr>'+
+  cache.buys.slice(0,15).map((r,i)=>{
+    const sl=statusLabel(r.status);
+    const inStock=cache.inventory.some(inv=>inv.purchaseId===r.id);
+    const stockCell=inStock
+      ? `<span class="badge bg">✅ เข้าคลังแล้ว</span>`
+      : `<button class="stockbtn" onclick="addToInventory('${r.id}')">📦 เพิ่มเข้าคลัง</button>`;
+    return `<tr>
+    <td>${r.date}</td><td>${r.supplier}</td>
+    <td>${r.grade}<br><span style="color:var(--muted);font-size:10px">${r.qty} ${r.unit}</span></td>
+    <td>฿${fmt(r.total)}<br><span style="font-size:10px;color:${r.debt>0?'var(--red)':'var(--green)'}">${r.debt>0?'ค้าง ฿'+fmt(r.debt):'จ่ายครบ'}</span></td>
+    <td><span class="badge ${sl.c}">${sl.t}</span></td>
+    <td>${stockCell}</td>
+    <td><span class="row-edit" onclick="editBuy('${r.id}')">✏️</span> <span class="row-edit" onclick="openReceipt('buy','${r.id}')">🧾</span></td>
+  </tr>`;}).join('')+'</table>';
+}
+async function addToInventory(purchaseId){
+  const r=cache.buys.find(x=>x.id===purchaseId);
+  if(!r) return;
+  if(cache.inventory.some(inv=>inv.purchaseId===purchaseId)){
+    showToast('รายการนี้นำเข้าคลังแล้ว',true); return;
+  }
+  try{
+    const res=await api('addInventory',{
+      purchaseId:r.id, date:r.date, supplier:r.supplier, type:r.type,
+      grade:r.grade, qty:r.qty, unit:r.unit, costTotal:r.total
+    });
+    if(res.success){
+      cache.inventory.unshift({lotId:res.lotId,purchaseId:r.id,date:r.date,supplier:r.supplier,type:r.type,grade:r.grade,qty:r.qty,unit:r.unit,costTotal:r.total});
+      showToast('📦 เพิ่มเข้าคลังสำเร็จ! Lot: '+res.lotId);
+      renderBuyList();
+    }
+  }catch(e){showToast('เพิ่มเข้าคลังไม่สำเร็จ',true);}
+}
+function editBuy(id){
+  const r=cache.buys.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('b-date').value=r.date;
+  document.getElementById('b-sup').value=r.supplier;
+  document.getElementById('b-type').value=r.type; bUnit();
+  document.getElementById('b-grade').value=r.grade;
+  document.getElementById('b-qty').value=r.qty;
+  document.getElementById('b-total').value=r.total;
+  document.getElementById('b-paid').value=r.paid;
+  document.getElementById('b-note').value=r.note||'';
+  editingBuyId=id;
+  bStatusManual=true; bSt(r.status==='จ่ายครบ'?'full':r.status==='จ่ายบางส่วน'?'partial':r.status,true);
+  bCalc();
+  document.getElementById('b-savebtn').innerHTML='<span>💾</span><span>บันทึกการแก้ไข</span>';
+  document.getElementById('b-delbtn').style.display='block';
+  document.getElementById('b-cancelbtn').style.display='block';
+  go('pg-buy');
+  window.scrollTo(0,0);
+}
+async function deleteBuy(){
+  if(!editingBuyId) return;
+  if(!confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) return;
+  const btn=document.getElementById('b-delbtn');
+  btn.disabled=true;
+  try{
+    await api('deleteBuy',{id:editingBuyId});
+    cache.buys=cache.buys.filter(x=>x.id!==editingBuyId);
+    showToast('🗑️ ลบรายการสำเร็จ');
+    cancelBuyEdit();
+    renderBuyList();
+  }catch(e){showToast('ลบไม่สำเร็จ กรุณาลองใหม่',true);}
+  btn.disabled=false;
+}
+function cancelBuyEdit(){
+  editingBuyId=null;
+  ['b-sup','b-qty','b-total','b-paid','b-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('b-type').value=''; document.getElementById('b-grade').value='';
+  document.getElementById('b-unit-pill').textContent='เลือกประเภทก่อน';
+  bStatusManual=false; bCalc(); bSt('pend',false);
+  document.getElementById('b-savebtn').innerHTML='<span>💾</span><span>บันทึกรายการซื้อ</span>';
+  document.getElementById('b-delbtn').style.display='none';
+  document.getElementById('b-cancelbtn').style.display='none';
+}
+
+// ── SELL ──
+let sStatus='pend';
+let sStatusManual=false;
+function sUnit(){
+  const t=document.getElementById('s-type').value;
+  document.getElementById('s-unit-pill').textContent=t==='wood'?'หน่วย: kg':t==='oil'?'หน่วย: tl':'เลือกประเภทก่อน';
+}
+function sCalc(){
+  const tot=parseFloat(document.getElementById('s-total').value)||0;
+  const paid=parseFloat(document.getElementById('s-paid').value)||0;
+  const debt=Math.max(0,tot-paid);
+  document.getElementById('sd-tot').textContent='฿ '+fmt(tot);
+  document.getElementById('sd-paid').textContent='฿ '+fmt(paid);
+  document.getElementById('sd-debt').textContent='฿ '+fmt(debt);
+  if(!sStatusManual && tot>0){
+    const auto = debt===0 ? 'full' : (paid>0 ? 'partial' : 'pend');
+    sSt(auto, false);
+  }
+  calcProfit();
+}
+function toggleProfitBox(){
+  const box=document.getElementById('profit-box');
+  const arrow=document.getElementById('profit-toggle-arrow');
+  const showing = box.style.display!=='none';
+  box.style.display = showing ? 'none' : 'block';
+  arrow.textContent = showing ? '▾' : '▴';
+}
+function calcProfit(){
+  const qty = parseFloat(document.getElementById('s-qty').value)||0;
+  const total = parseFloat(document.getElementById('s-total').value)||0;
+  const cost = parseFloat(document.getElementById('s-cost').value)||0;
+  const commPct = parseFloat(document.getElementById('s-comm-pct').value)||0;
+  const shipCharge = parseFloat(document.getElementById('s-ship-charge').value)||0;
+  const shipCost = parseFloat(document.getElementById('s-ship-cost').value)||0;
+
+  // 1. กำไรส่วนต่างราคา = ราคาขายรวม - ราคาทุนรวม
+  const margin = total - cost;
+  // 2. กำไรคอมมิชชั่น = ยอดขาย * %คอมมิชชั่น
+  const comm = total * (commPct/100);
+  // 3. กำไรขนส่ง = (ค่าส่งเก็บ - ค่าส่งจริง) * จำนวนหน่วย
+  const shipProfit = (shipCharge - shipCost) * qty;
+
+  const totalProfit = margin + comm + shipProfit;
+
+  document.getElementById('pf-margin').textContent='฿ '+fmt(margin);
+  document.getElementById('pf-comm').textContent='฿ '+fmt(comm);
+  document.getElementById('pf-ship').textContent='฿ '+fmt(shipProfit);
+  document.getElementById('pf-total').textContent='฿ '+fmt(totalProfit);
+
+  return {margin, comm, shipProfit, totalProfit};
+}
+function sSt(s, manual=true){
+  sStatus=s;
+  if(manual) sStatusManual=true;
+  document.getElementById('ss-full').className='sb'+(s==='full'?' sg':'');
+  document.getElementById('ss-partial').className='sb'+(s==='partial'?' sy':'');
+  document.getElementById('ss-pend').className='sb'+(s==='pend'?' sr':'');
+}
+let editingSellId=null;
+async function sSave(){
+  const cust=document.getElementById('s-cust').value.trim();
+  const type=document.getElementById('s-type').value;
+  const grade=document.getElementById('s-grade').value.trim();
+  const qty=parseFloat(document.getElementById('s-qty').value)||0;
+  const total=parseFloat(document.getElementById('s-total').value)||0;
+  if(!cust||!type||!grade||!qty||!total){showToast('กรุณากรอกข้อมูลให้ครบ',true);return;}
+  const btn=document.getElementById('s-savebtn');
+  btn.disabled=true; btn.innerHTML='<div class="loader"></div><span>กำลังบันทึก...</span>';
+  try{
+    const paid=parseFloat(document.getElementById('s-paid').value)||0;
+    const statusText = sStatus==='full'?'จ่ายครบ':sStatus==='partial'?'จ่ายบางส่วน':'ค้างชำระ';
+    const cost=parseFloat(document.getElementById('s-cost').value)||0;
+    const commPct=parseFloat(document.getElementById('s-comm-pct').value)||0;
+    const shipCharge=parseFloat(document.getElementById('s-ship-charge').value)||0;
+    const shipCost=parseFloat(document.getElementById('s-ship-cost').value)||0;
+    const pf=calcProfit();
+    const payload={
+      date:document.getElementById('s-date').value, customer:cust,
+      type, grade, qty, unit:type==='wood'?'kg':'tl',
+      total, paid, due:document.getElementById('s-due').value,
+      status:statusText, note:document.getElementById('s-note').value,
+      cost, commPct, shipCharge, shipCost,
+      profitMargin:pf.margin, profitComm:pf.comm, profitShip:pf.shipProfit, profitTotal:pf.totalProfit
+    };
+    let res;
+    if(editingSellId){
+      payload.id=editingSellId;
+      res=await api('updateSell',payload);
+      if(res.success){
+        const idx=cache.sells.findIndex(x=>x.id===editingSellId);
+        if(idx>-1) cache.sells[idx]={...payload,debt:res.debt,status:res.status};
+        showToast('✅ แก้ไขรายการสำเร็จ!');
+      }
+    }else{
+      res=await api('addSell',payload);
+      if(res.success){
+        cache.sells.unshift({id:res.id,...payload,debt:res.debt,status:res.status});
+        showToast('✅ บันทึกขายสำเร็จ! บันทึกใน Google Sheets แล้ว');
+      }
+    }
+    if(res.success){
+      cancelSellEdit();
+      renderSellList();
+    }
+  }catch(e){showToast('บันทึกไม่สำเร็จ กรุณาลองใหม่',true);}
+  btn.disabled=false; btn.innerHTML=editingSellId?'<span>💾</span><span>บันทึกการแก้ไข</span>':'<span>💾</span><span>บันทึกรายการขาย</span>';
+}
+function renderSellList(){
+  const el=document.getElementById('sell-list');
+  if(!cache.sells.length){el.innerHTML='<div class="empty">ยังไม่มีรายการขาย</div>';return;}
+  el.innerHTML='<table class="tbl"><tr><th>วันที่</th><th>ลูกค้า</th><th>สินค้า</th><th>ราคา</th><th>กำไร</th><th>สถานะ</th><th></th></tr>'+
+  cache.sells.slice(0,15).map((r,i)=>{const sl=statusLabel(r.status);
+    const profitCell = r.profitTotal ? `<span style="color:var(--gold);font-size:11px;font-weight:600">฿${fmt(r.profitTotal)}</span>` : `<span style="color:#3a5a70;font-size:10px">—</span>`;
+    return `<tr>
+    <td>${r.date}</td><td>${r.customer}</td>
+    <td>${r.grade}<br><span style="color:var(--muted);font-size:10px">${r.qty} ${r.unit}</span></td>
+    <td>฿${fmt(r.total)}<br><span style="font-size:10px;color:${r.debt>0?'var(--red)':'var(--green)'}">${r.debt>0?'ค้าง ฿'+fmt(r.debt):'รับครบ'}</span></td>
+    <td>${profitCell}</td>
+    <td><span class="badge ${sl.c}">${sl.t}</span></td>
+    <td><span class="row-edit" onclick="editSell('${r.id}')">✏️</span> <span class="row-edit" onclick="openReceipt('sell','${r.id}')">🧾</span></td>
+  </tr>`;}).join('')+'</table>';
+}
+function editSell(id){
+  const r=cache.sells.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('s-date').value=r.date;
+  document.getElementById('s-cust').value=r.customer;
+  document.getElementById('s-type').value=r.type; sUnit();
+  document.getElementById('s-grade').value=r.grade;
+  document.getElementById('s-qty').value=r.qty;
+  document.getElementById('s-total').value=r.total;
+  document.getElementById('s-paid').value=r.paid;
+  document.getElementById('s-due').value=r.due||'';
+  document.getElementById('s-note').value=r.note||'';
+  document.getElementById('s-cost').value=r.cost||'';
+  document.getElementById('s-comm-pct').value=r.commPct||'';
+  document.getElementById('s-ship-charge').value=r.shipCharge||'';
+  document.getElementById('s-ship-cost').value=r.shipCost||'';
+  if(r.cost||r.commPct||r.shipCharge||r.shipCost){
+    document.getElementById('profit-box').style.display='block';
+    document.getElementById('profit-toggle-arrow').textContent='▴';
+  }
+  editingSellId=id;
+  sStatusManual=true; sSt(r.status==='จ่ายครบ'?'full':r.status==='จ่ายบางส่วน'?'partial':r.status,true);
+  sCalc();
+  document.getElementById('s-savebtn').innerHTML='<span>💾</span><span>บันทึกการแก้ไข</span>';
+  document.getElementById('s-delbtn').style.display='block';
+  document.getElementById('s-cancelbtn').style.display='block';
+  go('pg-sell');
+  window.scrollTo(0,0);
+}
+async function deleteSell(){
+  if(!editingSellId) return;
+  if(!confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) return;
+  const btn=document.getElementById('s-delbtn');
+  btn.disabled=true;
+  try{
+    await api('deleteSell',{id:editingSellId});
+    cache.sells=cache.sells.filter(x=>x.id!==editingSellId);
+    showToast('🗑️ ลบรายการสำเร็จ');
+    cancelSellEdit();
+    renderSellList();
+  }catch(e){showToast('ลบไม่สำเร็จ กรุณาลองใหม่',true);}
+  btn.disabled=false;
+}
+function cancelSellEdit(){
+  editingSellId=null;
+  ['s-cust','s-qty','s-total','s-paid','s-note','s-due','s-cost','s-comm-pct','s-ship-charge','s-ship-cost'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-type').value=''; document.getElementById('s-grade').value='';
+  document.getElementById('s-unit-pill').textContent='เลือกประเภทก่อน';
+  document.getElementById('profit-box').style.display='none';
+  document.getElementById('profit-toggle-arrow').textContent='▾';
+  sStatusManual=false; sCalc(); sSt('pend',false);
+  document.getElementById('s-savebtn').innerHTML='<span>💾</span><span>บันทึกรายการขาย</span>';
+  document.getElementById('s-delbtn').style.display='none';
+  document.getElementById('s-cancelbtn').style.display='none';
+}
+
+// ── STOCK ──
+function renderStock(){
+  const grades=['เกรด A (พรีเมียม)','เกรด B (มาตรฐาน)','เกรด C (ทั่วไป)','Super Premium'];
+  let html='';
+  ['wood','oil'].forEach(type=>{
+    const unit=type==='wood'?'kg':'tl';
+    const icon=type==='wood'?'🌿':'💧';
+    const label=type==='wood'?'ไม้น้ำหอม (กฤษณา)':'น้ำมันกฤษณา';
+    html+=`<div class="sec">${icon} ${label} — หน่วย: ${unit}</div>`;
+    grades.forEach(g=>{
+      const bought=cache.buys.filter(r=>r.type===type&&r.grade===g).reduce((a,r)=>a+(parseFloat(r.qty)||0),0);
+      const sold=cache.sells.filter(r=>r.type===type&&r.grade===g).reduce((a,r)=>a+(parseFloat(r.qty)||0),0);
+      const rem=bought-sold;
+      const col=rem>0?'var(--gold)':rem<0?'var(--red)':'var(--muted)';
+      html+=`<div class="card" style="margin-bottom:8px;">
+        <div class="sk-row">
+          <div><div class="sk-name">${g}</div><div class="sk-grade">${label}</div></div>
+          <div style="text-align:right"><div class="sk-num" style="color:${col}">${rem.toFixed(2)}</div><div class="sk-unit">${unit}</div></div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:14px;">
+          <span style="color:var(--muted);font-size:11px;">ซื้อรวม: <b style="color:var(--blue)">${bought.toFixed(2)}</b></span>
+          <span style="color:var(--muted);font-size:11px;">ขายรวม: <b style="color:var(--red)">${sold.toFixed(2)}</b></span>
+        </div>
+      </div>`;
+    });
+  });
+  if(!cache.buys.length&&!cache.sells.length) html='<div class="empty" style="padding-top:40px;">ยังไม่มีข้อมูล<br><span style="font-size:11px">บันทึกซื้อ-ขายเพื่อดูสต็อก</span></div>';
+  document.getElementById('stock-body').innerHTML=html;
+}
+
+// ── PROFIT ──
+function renderProfit(){
+  const totBuy=cache.buys.reduce((a,r)=>a+(parseFloat(r.total)||0),0);
+  const totSell=cache.sells.reduce((a,r)=>a+(parseFloat(r.total)||0),0);
+  const profit=totSell-totBuy;
+  const debtBuy=cache.buys.reduce((a,r)=>a+(parseFloat(r.debt)||0),0);
+  const debtSell=cache.sells.reduce((a,r)=>a+(parseFloat(r.debt)||0),0);
+  const paidBuy=cache.buys.reduce((a,r)=>a+(parseFloat(r.paid)||0),0);
+  const paidSell=cache.sells.reduce((a,r)=>a+(parseFloat(r.paid)||0),0);
+  const col=profit>=0?'g':'r';
+
+  // กำไร 3 ส่วนจากรายการขายที่กรอกรายละเอียดไว้
+  const sumMargin=cache.sells.reduce((a,r)=>a+(parseFloat(r.profitMargin)||0),0);
+  const sumComm=cache.sells.reduce((a,r)=>a+(parseFloat(r.profitComm)||0),0);
+  const sumShip=cache.sells.reduce((a,r)=>a+(parseFloat(r.profitShip)||0),0);
+  const sumProfitTotal=sumMargin+sumComm+sumShip;
+  const detailedCount=cache.sells.filter(r=>r.profitTotal).length;
+
+  document.getElementById('profit-body').innerHTML=`
+    <div class="sec">ภาพรวมการเงิน</div>
+    <div class="pgrid">
+      <div class="pc full" style="border-color:${profit>=0?'#2e7d52':'#7d2e2e'};">
+        <div class="pc-lbl">กำไรสุทธิ (Net Profit)</div>
+        <div class="pc-num ${col}" style="font-size:30px;">฿ ${fmt(profit)}</div>
+        <div class="pc-note">รายได้ขาย − ต้นทุนซื้อ</div>
+      </div>
+      <div class="pc"><div class="pc-lbl">ต้นทุนซื้อทั้งหมด</div><div class="pc-num b">฿ ${fmt(totBuy)}</div><div class="pc-note">${cache.buys.length} รายการ</div></div>
+      <div class="pc"><div class="pc-lbl">รายได้ขายทั้งหมด</div><div class="pc-num g">฿ ${fmt(totSell)}</div><div class="pc-note">${cache.sells.length} รายการ</div></div>
+    </div>
+
+    <div class="sec">กำไร 3 รูปแบบ (จากรายการที่กรอกรายละเอียด — ${detailedCount} รายการ)</div>
+    <div class="cbox">
+      <div class="crow"><span class="clbl">1. กำไรส่วนต่างราคา</span><span class="cval g">฿ ${fmt(sumMargin)}</span></div>
+      <div class="crow"><span class="clbl">2. กำไรค่าคอมมิชชั่น</span><span class="cval g">฿ ${fmt(sumComm)}</span></div>
+      <div class="crow"><span class="clbl">3. กำไรค่าขนส่ง/ดำเนินการ</span><span class="cval g">฿ ${fmt(sumShip)}</span></div>
+      <hr class="chr"/>
+      <div class="crow"><span class="clbl" style="color:var(--gold);font-weight:600">กำไรสุทธิรวม (3 ส่วน)</span><span class="cval gold" style="font-size:15px">฿ ${fmt(sumProfitTotal)}</span></div>
+    </div>
+
+    <div class="sec">รายละเอียดเงินสด</div>
+    <div class="cbox">
+      <div class="crow"><span class="clbl">จ่ายให้ Supplier แล้ว</span><span class="cval r">฿ ${fmt(paidBuy)}</span></div>
+      <div class="crow"><span class="clbl">เราค้างจ่าย Supplier</span><span class="cval r">฿ ${fmt(debtBuy)}</span></div>
+      <hr class="chr"/>
+      <div class="crow"><span class="clbl">รับจากลูกค้าแล้ว</span><span class="cval g">฿ ${fmt(paidSell)}</span></div>
+      <div class="crow"><span class="clbl">ลูกค้าค้างจ่ายเรา</span><span class="cval g">฿ ${fmt(debtSell)}</span></div>
+    </div>`;
+}
+
+// ── AR ──
+function renderAR(){
+  const pending=cache.sells.filter(r=>(parseFloat(r.debt)||0)>0);
+  const map={};
+  pending.forEach(r=>{if(!map[r.customer])map[r.customer]={total:0,items:[]};map[r.customer].total+=(parseFloat(r.debt)||0);map[r.customer].items.push(r);});
+  const keys=Object.keys(map);
+  const grand=pending.reduce((a,r)=>a+(parseFloat(r.debt)||0),0);
+  let html='<div class="sec">ใครติดหนี้เราบ้าง</div><div class="card gr">';
+  if(!keys.length) html+='<div class="empty">ไม่มีลูกหนี้ค้างชำระ 🎉</div>';
+  else html+=keys.sort((a,b)=>map[b].total-map[a].total).map(n=>`<div class="drow"><div><div class="d-name">👤 ${n}</div><div class="d-info">${map[n].items.length} รายการ${map[n].items[0].due?' · Due: '+map[n].items[0].due:''}</div></div><div class="d-amt g">฿ ${fmt(map[n].total)}</div></div>`).join('');
+  html+=`<div class="dtotal"><span class="dt-lbl">ยอดค้างรับรวม</span><span class="dt-num g">฿ ${fmt(grand)}</span></div></div>`;
+  if(pending.length) html+='<div class="sec">รายการทั้งหมด</div><table class="tbl"><tr><th>ลูกค้า</th><th>สินค้า</th><th>ค้างรับ</th><th>Due</th></tr>'+pending.map(r=>`<tr><td>${r.customer}</td><td>${r.grade}<br><span style="font-size:10px;color:var(--muted)">${r.qty} ${r.unit}</span></td><td class="cval g">฿${fmt(r.debt)}</td><td style="font-size:11px;color:var(--muted)">${r.due||'-'}</td></tr>`).join('')+'</table>';
+  document.getElementById('ar-body').innerHTML=html;
+}
+
+// ── AP ──
+function renderAP(){
+  const pending=cache.buys.filter(r=>(parseFloat(r.debt)||0)>0);
+  const map={};
+  pending.forEach(r=>{if(!map[r.supplier])map[r.supplier]={total:0,items:[]};map[r.supplier].total+=(parseFloat(r.debt)||0);map[r.supplier].items.push(r);});
+  const keys=Object.keys(map);
+  const grand=pending.reduce((a,r)=>a+(parseFloat(r.debt)||0),0);
+  let html='<div class="sec">เราติดหนี้ใครบ้าง</div><div class="card rd">';
+  if(!keys.length) html+='<div class="empty">ไม่มียอดค้างจ่าย 🎉</div>';
+  else html+=keys.sort((a,b)=>map[b].total-map[a].total).map(n=>`<div class="drow"><div><div class="d-name">🏦 ${n}</div><div class="d-info">${map[n].items.length} รายการ</div></div><div class="d-amt r">฿ ${fmt(map[n].total)}</div></div>`).join('');
+  html+=`<div class="dtotal"><span class="dt-lbl">ยอดค้างจ่ายรวม</span><span class="dt-num r">฿ ${fmt(grand)}</span></div></div>`;
+  if(pending.length) html+='<div class="sec">รายการทั้งหมด</div><table class="tbl"><tr><th>Supplier</th><th>สินค้า</th><th>ค้างจ่าย</th><th>วันที่ซื้อ</th></tr>'+pending.map(r=>`<tr><td>${r.supplier}</td><td>${r.grade}<br><span style="font-size:10px;color:var(--muted)">${r.qty} ${r.unit}</span></td><td class="cval r">฿${fmt(r.debt)}</td><td style="font-size:11px;color:var(--muted)">${r.date}</td></tr>`).join('')+'</table>';
+  document.getElementById('ap-body').innerHTML=html;
+}
+
+// ── RECEIPT / ใบเสร็จ ──
+function genDocNo(type, id){
+  const prefix = type==='buy' ? 'PO' : 'INV';
+  const datePart = (new Date()).toISOString().slice(0,10).replace(/-/g,'');
+  const short = String(id).slice(-5);
+  return `${prefix}-${datePart}-${short}`;
+}
+function openReceipt(type, id){
+  const r = type==='buy' ? cache.buys.find(x=>x.id===id) : cache.sells.find(x=>x.id===id);
+  if(!r) return;
+  const isBuy = type==='buy';
+  const docNo = genDocNo(type, id);
+  const partyLabel = isBuy ? 'ผู้ขาย (Supplier)' : 'ลูกค้า (Customer)';
+  const partyName = isBuy ? r.supplier : r.customer;
+  const docTitle = isBuy ? 'ใบสั่งซื้อ / Purchase Order' : 'ใบกำกับสินค้า / Invoice';
+  const sl = statusLabel(r.status);
+  const today = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('receipt-body').innerHTML = `
+    <div class="receipt-paper">
+      <div class="receipt-head">
+        <div class="receipt-logo">🌿</div>
+        <div class="receipt-brand">
+          <div class="receipt-brand-name">BIGTREE AGARWOOD</div>
+          <div class="receipt-brand-sub">ไม้น้ำหอม &amp; น้ำมันกฤษณาพรีเมียม</div>
+        </div>
+        <div class="receipt-doc-info">
+          <div class="receipt-doc-title">${docTitle}</div>
+          <div class="receipt-doc-no">เลขที่: ${docNo}</div>
+          <div class="receipt-doc-date">วันที่ออกเอกสาร: ${today}</div>
+        </div>
+      </div>
+
+      <div class="receipt-party">
+        <div class="receipt-party-label">${partyLabel}</div>
+        <div class="receipt-party-name">${partyName}</div>
+        <div class="receipt-party-date">วันที่รายการ: ${r.date}</div>
+      </div>
+
+      <table class="receipt-tbl">
+        <tr><th>รายการสินค้า</th><th>ชนิด/เกรด</th><th>จำนวน</th><th>หน่วย</th><th>ยอดรวม</th></tr>
+        <tr>
+          <td>${r.type==='wood'?'ไม้น้ำหอม (กฤษณา)':'น้ำมันกฤษณา'}</td>
+          <td>${r.grade}</td>
+          <td>${r.qty}</td>
+          <td>${r.unit}</td>
+          <td>฿${fmt(r.total)}</td>
+        </tr>
+      </table>
+
+      <div class="receipt-summary">
+        <div class="receipt-sum-row"><span>ยอดรวมทั้งหมด</span><span>฿ ${fmt(r.total)}</span></div>
+        <div class="receipt-sum-row"><span>${isBuy?'จ่ายแล้ว':'รับชำระแล้ว'}</span><span class="receipt-green">฿ ${fmt(r.paid)}</span></div>
+        <div class="receipt-sum-row receipt-sum-divider"><span>คงเหลือต้องชำระ</span><span class="receipt-red">฿ ${fmt(r.debt)}</span></div>
+        <div class="receipt-sum-row"><span>สถานะ</span><span class="receipt-status receipt-status-${sl.c}">${sl.t}</span></div>
+        ${!isBuy && r.due ? `<div class="receipt-sum-row"><span>กำหนดชำระ</span><span>${r.due}</span></div>` : ''}
+      </div>
+
+      ${(!isBuy && r.profitTotal) ? `
+      <div class="receipt-profit">
+        <div class="receipt-profit-title">สรุปกำไร (Internal Use)</div>
+        <table class="receipt-profit-tbl">
+          <tr><td>1. กำไรส่วนต่างราคา</td><td>฿ ${fmt(r.profitMargin||0)}</td></tr>
+          <tr><td>2. กำไรค่าคอมมิชชั่น (${r.commPct||0}%)</td><td>฿ ${fmt(r.profitComm||0)}</td></tr>
+          <tr><td>3. กำไรค่าขนส่ง/ดำเนินการ</td><td>฿ ${fmt(r.profitShip||0)}</td></tr>
+          <tr class="receipt-profit-total"><td>กำไรสุทธิรวม</td><td>฿ ${fmt(r.profitTotal||0)}</td></tr>
+        </table>
+      </div>` : ''}
+
+      ${r.note ? `<div class="receipt-note">หมายเหตุ: ${r.note}</div>` : ''}
+
+      <div class="receipt-footer">
+        <div class="receipt-sign-box">
+          <div class="receipt-sign-line"></div>
+          <div class="receipt-sign-label">ผู้จัดทำเอกสาร</div>
+        </div>
+        <div class="receipt-sign-box">
+          <div class="receipt-sign-line"></div>
+          <div class="receipt-sign-label">${isBuy?'ผู้ขาย':'ผู้รับสินค้า'}</div>
+        </div>
+      </div>
+
+      <div class="receipt-genby">เอกสารนี้สร้างโดยระบบ Bigtree Agarwood — ${docNo}</div>
+    </div>`;
+
+  go('pg-receipt');
+  window.scrollTo(0,0);
+}
+function closeReceipt(){
+  go('pg-home');
+}
+
+// ── UTIL ──
+function fmt(n){return (parseFloat(n)||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function showLoader(t){document.getElementById('loader-text').textContent=t||'กำลังโหลด...';document.getElementById('loader').classList.remove('hidden');}
+function hideLoader(){document.getElementById('loader').classList.add('hidden');}
+let toastTimer;
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(err?' err':'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='toast',3000);
+}
+</script>
+</body>
+</html>
