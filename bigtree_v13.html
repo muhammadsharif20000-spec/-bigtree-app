@@ -443,43 +443,6 @@ body{font-family:'Segoe UI',sans-serif;background:var(--black);color:var(--text)
         <div class="ac-list" id="b-sup-list"></div>
       </div>
     </div>
-    <div class="field">
-      <label>ประเภทสินค้า *</label>
-      <select id="b-type" onchange="bUnit()">
-        <option value="">— เลือกประเภท —</option>
-        <option value="wood">🌿 ไม้น้ำหอม (กฤษณา)</option>
-        <option value="oil">💧 น้ำมันกฤษณา</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>เกรด *</label>
-      <select id="b-grade">
-        <option value="">— เลือกเกรด —</option>
-        <option>พรีเมี่ยม</option>
-        <option>ธรรมชาติ</option>
-        <option>ไม้สวน</option>
-        <option>AAA</option>
-        <option>AA</option>
-        <option>A</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>ชนิดสินค้า (แหล่งที่มา)</label>
-      <select id="b-origin">
-        <option value="">— เลือกชนิดสินค้า —</option>
-        <option>เขาใหญ่</option>
-        <option>นครนายก</option>
-        <option>ปราจีน</option>
-        <option>ตราด</option>
-        <option>สระแก้ว</option>
-        <option>จันทบุรี</option>
-        <option>บ่อไร่</option>
-        <option>ลาว</option>
-        <option>กัมพูชา</option>
-        <option>เกาะกง</option>
-        <option>เกาะช้าง</option>
-      </select>
-    </div>
     <div class="sec">รายการสินค้า</div>
     <div id="b-items-wrap"></div>
     <button class="add-item-btn" onclick="addItem('b')">+ เพิ่มรายการสินค้า</button>
@@ -531,43 +494,6 @@ body{font-family:'Segoe UI',sans-serif;background:var(--black);color:var(--text)
         <input type="text" id="s-cust" placeholder="ชื่อลูกค้า" autocomplete="off" oninput="acFilter('s-cust','s-cust-list','customers')" onfocus="acFilter('s-cust','s-cust-list','customers')"/>
         <div class="ac-list" id="s-cust-list"></div>
       </div>
-    </div>
-    <div class="field">
-      <label>ประเภทสินค้า *</label>
-      <select id="s-type" onchange="sUnit()">
-        <option value="">— เลือกประเภท —</option>
-        <option value="wood">🌿 ไม้น้ำหอม (กฤษณา)</option>
-        <option value="oil">💧 น้ำมันกฤษณา</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>เกรด *</label>
-      <select id="s-grade">
-        <option value="">— เลือกเกรด —</option>
-        <option>พรีเมี่ยม</option>
-        <option>ธรรมชาติ</option>
-        <option>ไม้สวน</option>
-        <option>AAA</option>
-        <option>AA</option>
-        <option>A</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>ชนิดสินค้า (แหล่งที่มา)</label>
-      <select id="s-origin">
-        <option value="">— เลือกชนิดสินค้า —</option>
-        <option>เขาใหญ่</option>
-        <option>นครนายก</option>
-        <option>ปราจีน</option>
-        <option>ตราด</option>
-        <option>สระแก้ว</option>
-        <option>จันทบุรี</option>
-        <option>บ่อไร่</option>
-        <option>ลาว</option>
-        <option>กัมพูชา</option>
-        <option>เกาะกง</option>
-        <option>เกาะช้าง</option>
-      </select>
     </div>
     <div class="sec">รายการสินค้า</div>
     <div id="s-items-wrap"></div>
@@ -720,7 +646,10 @@ function initApp(){
     new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   refreshAll();
   // Add initial item row for both forms
-  setTimeout(()=>{addItem('b'); addItem('s');}, 100);
+  setTimeout(()=>{
+    if(document.getElementById('b-items-wrap')&&document.getElementById('b-items-wrap').children.length===0) addItem('b');
+    if(document.getElementById('s-items-wrap')&&document.getElementById('s-items-wrap').children.length===0) addItem('s');
+  }, 300);
 }
 
 initApp(); const hash=location.hash.replace("#",""); if(hash){setTimeout(()=>go("pg-"+hash),500);}else{setTimeout(()=>go("pg-buy"),500);}
@@ -909,7 +838,7 @@ async function bSave(){
       unit:firstItem.unit, priceUnit:firstItem.price,
       total:total0, extras:JSON.stringify(extras), paid,
       status:statusText, note:document.getElementById('b-note').value,
-      origin:firstItem.origin||document.getElementById('b-origin').value,
+      origin:firstItem.origin||'',
       items:JSON.stringify(items)
     };
     saveAccount('suppliers', sup);
@@ -1031,7 +960,6 @@ async function deleteBuy(){
 function cancelBuyEdit(){
   editingBuyId=null;
   ['b-sup','b-paid','b-note'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('b-origin').value='';
   document.getElementById('b-items-wrap').innerHTML=''; bItemCount=0;
   document.getElementById('b-extras').innerHTML=''; bExtraCount=0;
   bStatusManual=false; bCalc(); bSt('pend',false);
@@ -1131,7 +1059,7 @@ async function sSave(){
       total:total0, extras:JSON.stringify(extras), paid,
       due:document.getElementById('s-due').value,
       status:statusText, note:document.getElementById('s-note').value,
-      origin:firstItem.origin||document.getElementById('s-origin').value,
+      origin:firstItem.origin||'',
       items:JSON.stringify(items),
       cost, commPct, shipCharge, shipCost,
       profitMargin:pf.margin, profitComm:pf.comm, profitShip:pf.shipProfit, profitTotal:pf.totalProfit
@@ -1237,7 +1165,6 @@ async function deleteSell(){
 function cancelSellEdit(){
   editingSellId=null;
   ['s-cust','s-paid','s-note','s-due','s-cost','s-comm-pct','s-ship-charge','s-ship-cost'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('s-origin').value='';
   document.getElementById('s-items-wrap').innerHTML=''; sItemCount=0;
   document.getElementById('s-extras').innerHTML=''; sExtraCount=0;
   document.getElementById('profit-box').style.display='none';
