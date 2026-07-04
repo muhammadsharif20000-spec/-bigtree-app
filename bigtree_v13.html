@@ -765,10 +765,7 @@ function go(id){
 // ── BUY ──
 let bStatus='pend';
 let bStatusManual=false;
-function bUnit(){
-  const t=document.getElementById('b-type').value;
-  document.getElementById('b-unit-pill').textContent=t==='wood'?'หน่วย: kg':t==='oil'?'หน่วย: tl':'เลือกประเภทก่อน';
-}
+function bUnit(){} // deprecated - unit now handled per item row
 // ── MULTI-ITEM MANAGEMENT ──
 let bItemCount=0, sItemCount=0;
 const ITEM_TYPES = [
@@ -1047,10 +1044,7 @@ function cancelBuyEdit(){
 // ── SELL ──
 let sStatus='pend';
 let sStatusManual=false;
-function sUnit(){
-  const t=document.getElementById('s-type').value;
-  document.getElementById('s-unit-pill').textContent=t==='wood'?'หน่วย: kg':t==='oil'?'หน่วย: tl':'เลือกประเภทก่อน';
-}
+function sUnit(){} // deprecated - unit now handled per item row
 function sCalc(){
   updateItemSubtotals('s');
   const sub=getItemsTotal('s');
@@ -1078,8 +1072,9 @@ function toggleProfitBox(){
   arrow.textContent = showing ? '▾' : '▴';
 }
 function calcProfit(){
-  const qty = parseFloat(document.getElementById('s-qty').value)||0;
-  const total = parseFloat(document.getElementById('s-total').value)||0;
+  const items=getItemsData('s');
+  const qty = items.length ? items.reduce((a,i)=>a+i.qty,0) : 0;
+  const total = parseFloat(document.getElementById('sd-tot')?.textContent?.replace(/[^0-9.]/g,'')||'0')||0;
   const cost = parseFloat(document.getElementById('s-cost').value)||0;
   const commPct = parseFloat(document.getElementById('s-comm-pct').value)||0;
   const shipCharge = parseFloat(document.getElementById('s-ship-charge').value)||0;
