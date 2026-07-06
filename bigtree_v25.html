@@ -405,7 +405,7 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
 <div class="toast" id="toast"></div>
 <script>
 // ═══════════ CONFIG ═══════════
-const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbwdEousHkxe0Q8jbUtjsFnorM_iIk4qyZpVHs42wTiWk-75dl29681eBBtkmsTYoKwpYQ/exec';
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyUdeKQwPqTRqPtwxDhi_lzGmUhA8274VmmfQ8GEm9GkH48SnAJZMrQimVd_miPv7pWBg/exec';
 let API_URL = localStorage.getItem('bt_api_url') || DEFAULT_API;
 
 const COMPANY = {
@@ -643,7 +643,7 @@ function addPay(p, data){
     box._slip = d.slip;
     const drop = box.querySelector('.slip-drop');
     drop.classList.add('has');
-    box.querySelector('.slip-state').innerHTML = '📎 '+esc(d.slip.name||'สลิป')+' ✓ &nbsp;<a class="slip-view" href="'+esc(d.slip.url)+'" target="_blank" onclick="event.stopPropagation()">👁 ดูสลิป</a>';
+    box.querySelector('.slip-state').innerHTML = '📎 '+esc(d.slip.name||'สลิป')+' ✓ &nbsp;<a class="slip-view" href="'+esc(d.slip.url)+'" target="_blank" onclick="event.stopPropagation()">👁 ดูสลิป</a>&nbsp; <a class="slip-view" style="color:var(--bad)" href="#" onclick="event.preventDefault();event.stopPropagation();removeSlip(\''+id+'\')">🗑 ลบสลิป</a>';
   }
   payMethodChanged(box.querySelector('.p-method'), id);
   renumberPays(p);
@@ -699,6 +699,15 @@ function compressImageToB64(file){
     img.src = url;
   });
 }
+function removeSlip(boxId){
+  const box = $(boxId); if(!box) return;
+  box._slip = null;
+  const drop = box.querySelector('.slip-drop');
+  drop.classList.remove('has');
+  box.querySelector('.slip-state').textContent = '📎 แตะเพื่อเลือกไฟล์ หรือลากไฟล์มาวาง';
+  const f = box.querySelector('.p-file'); if(f) f.value = '';
+  showToast('🗑 ลบสลิปออกแล้ว — กดบันทึกรายการเพื่อยืนยัน');
+}
 async function handleSlipFile(file, boxId){
   const box = $(boxId); if(!box || !file) return;
   const state = box.querySelector('.slip-state');
@@ -724,7 +733,7 @@ async function handleSlipFile(file, boxId){
     if(j && j.success && j.url){
       box._slip = {url:j.url, name:name};
       drop.classList.add('has');
-      state.innerHTML = '📎 '+esc(name)+' ✓ &nbsp;<a class="slip-view" href="'+esc(j.url)+'" target="_blank" onclick="event.stopPropagation()">👁 ดูสลิป</a>';
+      state.innerHTML = '📎 '+esc(name)+' ✓ &nbsp;<a class="slip-view" href="'+esc(j.url)+'" target="_blank" onclick="event.stopPropagation()">👁 ดูสลิป</a>&nbsp; <a class="slip-view" style="color:var(--bad)" href="#" onclick="event.preventDefault();event.stopPropagation();removeSlip(\''+boxId+'\')">🗑 ลบสลิป</a>';
       showToast('✅ แนบสลิปเรียบร้อย (อย่าลืมกดบันทึกรายการ)');
     }else{
       state.textContent = '📎 แตะเพื่อเลือกไฟล์ หรือลากไฟล์มาวาง';
