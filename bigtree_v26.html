@@ -1314,19 +1314,8 @@ function openReceipt(p, id){
   rows += extras.map((x,i)=>
     '<tr><td>'+(items.length+i+1)+'</td><td style="color:#7a6a35">＋ '+esc(x.name)+'</td><td class="r">-</td><td class="r">-</td><td class="r"><b>'+fmt(x.amt)+'</b></td></tr>').join('');
 
+  // หมายเหตุ: ไม่แสดงข้อมูลกำไรบนใบเสร็จ (ข้อมูลภายในกิจการ ดูได้ในหน้ากำไรของแอป)
   let pfHtml = '';
-  const pf = n.pf;
-  if(!isBuy && pf && (pf.tola||pf.cost||pf.comm||pf.shipc||pf.shipa)){
-    const line1 = (pf.tola!=null)? '① '+t('pf1')+' (450฿ × '+fmt(pf.tola)+')' : '① '+t('pf1')+' ('+t('pf1b')+' '+fmt(itemsTotal)+' − '+t('pf1c')+' '+fmt(pf.cost)+')';
-    const unitRows = (pf.tola==null && q>0)
-      ? '<tr><td>'+t('rs_cpu')+'</td><td class="r">'+fmt(num(pf.cost)/q)+'</td></tr><tr><td>'+t('pf_pu')+'</td><td class="r">'+fmt(num(pf.mP)/q)+'</td></tr>'
-      : '';
-    pfHtml = '<div class="rp-pf"><div class="rp-pf-h">'+t('rp_pfh')+'</div>'+
-      '<table class="rp-t" style="margin-top:0"><tr><td>'+line1+'</td><td class="r"><b>'+fmt(pf.mP)+'</b></td></tr>'+unitRows+
-      '<tr><td>② '+t('pf2')+' ('+fmt(pf.comm)+'% × '+fmt(total)+')</td><td class="r"><b>'+fmt(pf.cP)+'</b></td></tr>'+
-      '<tr><td>③ '+t('pf3')+' ('+fmt(pf.shipc)+' − '+fmt(pf.shipa)+' '+t('per_unit')+')</td><td class="r"><b>'+fmt(pf.sP)+'</b></td></tr>'+
-      '<tr><td style="font-weight:800;color:#0a1628">'+t('pf_net')+'</td><td class="r" style="font-weight:800;color:#b8892b">'+fmt(pf.net)+' ฿</td></tr></table></div>';
-  }
 
   $('rp-paper').innerHTML =
     '<div class="rp-topline"></div>'+
