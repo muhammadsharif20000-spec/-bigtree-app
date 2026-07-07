@@ -106,6 +106,11 @@ details.xtr summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--
 .slip-drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;text-align:center;font-size:12.5px;color:var(--mut);cursor:pointer;background:var(--card);margin-top:4px}
 .slip-drop.has{border-color:var(--ok);border-style:solid}
 .slip-view{color:var(--gold);font-weight:700;text-decoration:underline}
+html[dir=rtl] .back{display:inline-block;transform:scaleX(-1)}
+html[dir=rtl] .t-right{margin-left:0;margin-right:auto}
+html[dir=rtl] .icon-btn[style*="margin-left"]{margin-left:0 !important;margin-right:8px}
+html[dir=rtl] table.tb th, html[dir=rtl] table.rp-t th{text-align:right}
+html[dir=rtl] .rp-doc{text-align:left}
 table.tb{width:100%;border-collapse:collapse;font-size:13px}
 table.tb th{color:var(--mut);font-size:11.5px;text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
 table.tb td{padding:8px 6px;border-bottom:1px solid rgba(34,52,90,.5)}
@@ -495,23 +500,98 @@ const I18N = {
  editing:['กำลังแก้ไขรายการ','Editing record'],
  loading:['กำลังโหลด...','Loading...']
 };
-function t(k){ const e=I18N[k]; return e ? e[LANG==='en'?1:0] : k; }
+const I18N_AR = {
+ m_buy:'المشتريات', m_sell:'المبيعات', m_stock:'المخزون', m_profit:'الأرباح / الإيرادات', m_ar:'الذمم المدينة', m_ap:'الذمم الدائنة',
+ t_ar:'الذمم المدينة المستحقة', t_ap:'الذمم الدائنة المستحقة',
+ sub_stock:'محسوب تلقائيًا: المشتريات − المبيعات',
+ settings:'إعدادات الاتصال بـ Google Sheets', latest_act:'النشاط الأخير',
+ add_buy_new:'إضافة عملية شراء جديدة', add_sell_new:'إضافة عملية بيع جديدة',
+ l_buydate:'تاريخ الشراء', l_selldate:'تاريخ البيع', l_supplier:'المورّد', l_customer:'العميل',
+ ph_supplier:'اسم المورّد / المتجر', ph_customer:'اسم العميل / الشركة',
+ add_item:'إضافة صنف', extras_t:'رسوم الخدمة / المصاريف', add_extra:'إضافة رسوم',
+ l_commp:'العمولة (%)', l_commmode:'طريقة احتساب العمولة', opt_inc:'تُضاف إلى التكلفة', opt_sep:'مصروف منفصل',
+ grand_t:'الإجمالي النهائي', l_pays:'دفعات السداد (اضغط ＋ للإضافة بلا حدود)', add_pay:'إضافة دفعة',
+ l_note:'ملاحظات', ph_optional:'اختياري', ph_ifany:'إن وجد',
+ btn_cancel:'إلغاء', save_buy:'حفظ الشراء', save_sell:'حفظ البيع', save_edit:'حفظ التعديلات', saving:'جارٍ الحفظ...',
+ latest_buy:'أحدث المشتريات', latest_sell:'أحدث المبيعات',
+ l_due:'تاريخ الاستحقاق', pf_t:'تفاصيل الربح', l_shipc:'الشحن المحصّل / وحدة', l_shipa:'الشحن الفعلي / وحدة',
+ item_t:'الصنف', f_type:'النوع', f_origin:'المصدر/الصنف', f_grade:'الدرجة', f_qty:'الكمية', f_price:'سعر الوحدة', f_amt:'الإجمالي',
+ wood_o:'خشب العود (كجم)', oil_o:'دهن العود (تولة)', sel_origin:'— اختر المصدر —',
+ x_name:'اسم الرسوم', ph_xname:'مثال: الشحن', x_amt:'المبلغ',
+ inst:'الدفعة', pay_date:'تاريخ الدفع', pay_amt:'المبلغ (بات)', pay_method:'طريقة الدفع', pay_bank:'البنك (للتحويل)', pay_ref:'رقم مرجع التحويل',
+ pm_cash:'نقدًا', pm_transfer:'تحويل بنكي', pm_cheque:'شيك', pm_other:'أخرى',
+ pay_slip:'إرفاق إيصال الدفع (JPG / PNG / PDF)', slip_drop:'📎 اضغط لاختيار ملف أو اسحبه هنا',
+ slip_view:'👁 عرض الإيصال', slip_del:'🗑 حذف الإيصال', slip_up:'⏳ جارٍ رفع الإيصال...',
+ paid_lbl:'المدفوع', inst_ct:'دفعة', debt_lbl:'الرصيد المستحق', status_lbl:'الحالة',
+ comm_lbl:'العمولة', inc_txt:'مضافة إلى تكلفة البضاعة', sep_txt:'مصروف منفصل، غير مشمول في الفاتورة',
+ cost_total:'إجمالي التكلفة', units_w:'وحدة', avg_cost:'متوسط التكلفة', per_unit:'بات/وحدة',
+ avg_hist:'متوسط التكلفة من سجل المشتريات', no_hist:'لا يوجد سجل شراء لهذا الصنف — تُعتبر التكلفة 0',
+ pf1:'ربح الفارق', pf1b:'البيع', pf1c:'متوسط التكلفة', pf_pu:'الربح لكل وحدة', pf2:'ربح العمولة', pf3:'ربح الشحن', pf_net:'صافي الربح',
+ k_latest:'الأحدث', k_owe:'مستحق', k_due:'الاستحقاق', k_receipt:'🧾 الإيصال', k_edit:'✏️ تعديل', k_del:'🗑️ حذف',
+ items_ct:'سجلات', k_more:'عرض آخر 30 سجلًا — الكل في Google Sheets',
+ empty_buy:'لا توجد مشتريات بعد<br>اضغط ➕ بالأعلى لإضافة أول سجل',
+ empty_sell:'لا توجد مبيعات بعد<br>اضغط ➕ بالأعلى لإضافة أول سجل',
+ k_wood:'خشب العود', k_oil:'دهن العود',
+ k_balsum:'إجمالي الرصيد', h_origin:'المصدر', h_grade:'الدرجة', h_buyq:'المشترى', h_sellq:'المباع', h_bal:'الرصيد', k_noorigin:'المصدر غير محدد', k_sum:'الإجمالي: ',
+ empty_stock:'لا توجد بيانات مخزون بعد<br>أضف أول عملية شراء',
+ p_rev:'إجمالي المبيعات (الإيرادات)', p_cost:'إجمالي المشتريات (التكلفة)', p_cin:'النقد المستلم', p_cout:'النقد المدفوع',
+ p_3t:'📊 الأرباح — ثلاثة أنواع (من المبيعات المفصّلة)',
+ p_l1:'① ربح الفارق (البيع − متوسط التكلفة)', p_l2:'② ربح العمولة', p_l3:'③ ربح الشحن/التشغيل', p_lnet:'صافي الربح (①+②+③)',
+ p_gross:'إجمالي الربح (المبيعات − المشتريات)',
+ d_ar_sum:'إجمالي الذمم المدينة', d_ap_sum:'إجمالي الذمم الدائنة', d_none:'🎉 لا توجد مستحقات',
+ rb_title:'الإيصال / المستند', btn_print:'🖨️ طباعة / PDF', btn_saveimg:'💾 حفظ صورة', btn_share:'📤 مشاركة',
+ hint_print:'في LINE اضغط 🖨️ لفتح متصفح خارجي للطباعة، أو 💾 لحفظ الفاتورة كصورة',
+ doc_buy:'إيصال شراء', doc_inv:'فاتورة / إشعار تسليم', doc_rec:'إيصال استلام',
+ rp_supplier:'المورّد / SUPPLIER', rp_customer:'العميل / CUSTOMER', rp_pay:'حالة السداد',
+ rp_no:'رقم', rp_date:'التاريخ', rp_due:'الاستحقاق',
+ rh_item:'وصف الصنف', rh_qty:'الكمية', rh_price:'سعر الوحدة', rh_total:'الإجمالي (بات)',
+ rs_items:'إجمالي الأصناف', rs_extras:'رسوم الخدمة', rs_grand:'الإجمالي النهائي', rs_paid:'المدفوع', rs_debt:'الرصيد المستحق', rs_cpu:'تكلفة الوحدة (متوسط)',
+ rp_incost:'(ضمن التكلفة)', rp_sepcost:'(منفصل)',
+ rp_payhist:'💳 سجل المدفوعات', rp_inst:'رقم', rp_slip:'الإيصال', rp_status:'الحالة', rp_ok:'ناجح', rp_method_ref:'الطريقة / المرجع', rp_ref:'مرجع',
+ rp_paysum:'إجمالي المدفوع', rp_left:'المتبقي', rp_paidfull:'مدفوع بالكامل ✓',
+ rp_slipnote:'📎 إثبات الدفع مرفق في النظام',
+ rp_note:'ملاحظات', rp_sign1:'المستلم', rp_payer:'الدافع', rp_cust2:'العميل', rp_sign2:'التوقيع المعتمد',
+ rp_footer:'صادر عن نظام Bigtree Agarwood', rp_taxid:'الرقم الضريبي', rp_docno:'رقم المستند',
+ tt_saved:'✅ تم الحفظ في Google Sheets!', tt_edited:'✅ تم حفظ التعديلات', tt_deleted:'🗑️ تم حذف السجل',
+ tt_updated:'تم تحديث البيانات ✅',
+ tt_needname_b:'يرجى إدخال اسم المورّد', tt_needname_s:'يرجى إدخال اسم العميل', tt_needitem:'يرجى إدخال الأصناف والأسعار',
+ tt_savefail:'فشل الحفظ، حاول مرة أخرى', tt_delfail:'فشل الحذف، حاول مرة أخرى',
+ tt_connfail:'تعذّر الاتصال بـ Google Sheets — تحقق من الإنترنت أو الرابط',
+ tt_editfail:'فشل الاتصال — اضغط ↻ وحاول مجددًا',
+ tt_slip_ok:'✅ تم إرفاق الإيصال (لا تنسَ حفظ السجل)', tt_slip_del:'🗑 تم حذف الإيصال — احفظ السجل للتأكيد',
+ tt_slip_type:'الملفات المدعومة: JPG وPNG وPDF فقط', tt_slip_big:'الملف أكبر من 8MB، يرجى تصغيره',
+ tt_slip_fail:'فشل الرفع — تأكد من تثبيت Script v5+', tt_slip_fail2:'فشل الرفع',
+ cf_del:'تأكيد حذف السجل', cf_del2:'لا يمكن التراجع بعد الحذف',
+ tt_notfound:'السجل غير موجود', editing:'جارٍ تعديل السجل', loading:'جارٍ التحميل...'
+};
+function t(k){
+  if(LANG==='ar' && I18N_AR[k]!==undefined) return I18N_AR[k];
+  const e = I18N[k]; if(!e) return k;
+  return e[(LANG==='en'||LANG==='ar')?1:0];
+}
 function stTxt(s){
-  if(LANG!=='en') return s;
-  if(s==='จ่ายครบ') return I18N.st_paid[1];
-  if(s==='จ่ายบางส่วน') return I18N.st_part[1];
-  if(s==='ค้างชำระ') return I18N.st_unpaid[1];
+  if(LANG==='en'){
+    if(s==='จ่ายครบ') return 'Paid';
+    if(s==='จ่ายบางส่วน') return 'Partial';
+    if(s==='ค้างชำระ') return 'Unpaid';
+  }
+  if(LANG==='ar'){
+    if(s==='จ่ายครบ') return 'مدفوع بالكامل';
+    if(s==='จ่ายบางส่วน') return 'مدفوع جزئيًا';
+    if(s==='ค้างชำระ') return 'غير مدفوع';
+  }
   return s;
 }
 function applyLang(){
   document.documentElement.lang = LANG;
+  document.documentElement.dir = (LANG==='ar') ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n')); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   const lb = document.getElementById('langbtn');
-  if(lb) lb.textContent = LANG==='th' ? '🌐 ภาษา: ไทย — Switch to English' : '🌐 Language: English — เปลี่ยนเป็นไทย';
+  if(lb) lb.textContent = LANG==='th' ? '🌐 ไทย ▸ English' : (LANG==='en' ? '🌐 English ▸ العربية' : '🌐 العربية ▸ ไทย');
 }
 function toggleLang(){
-  LANG = (LANG==='th') ? 'en' : 'th';
+  LANG = (LANG==='th') ? 'en' : (LANG==='en' ? 'ar' : 'th');
   localStorage.setItem('bt_lang', LANG);
   applyLang();
   renderAllPages();
@@ -546,10 +626,10 @@ function fdate(d){
   if(!d) return '-';
   const dt = new Date(d);
   if(isNaN(dt)) return String(d);
-  return dt.toLocaleDateString(LANG==='en'?'en-GB':'th-TH',{day:'numeric',month:'short',year:'2-digit'});
+  return dt.toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{day:'numeric',month:'short',year:'2-digit'});
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-const unitTh = u => u==='kg' ? (LANG==='en'?'kg':'กก.') : (u==='tl'?(LANG==='en'?'tola':'โตลา'):esc(u||''));
+const unitTh = u => u==='kg' ? (LANG==='en'?'kg':(LANG==='ar'?'كجم':'กก.')) : (u==='tl'?(LANG==='en'?'tola':(LANG==='ar'?'تولة':'โตลา')):esc(u||''));
 const typeTh = x => x==='wood' ? t('k_wood') : (x==='oil'?t('k_oil'):esc(x||'-'));
 
 let toastTimer;
@@ -1180,7 +1260,7 @@ function renderList(p){
     (arr.length>30 ? '<div class="empty">'+t('k_more')+'</div>' : '');
 }
 function renderHome(){
-  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':'th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const b = cache.buys[0], s = cache.sells[0];
   let h = '';
   if(b||s) h += '<div class="sec-head"><span class="sec-title">🕒 '+t('latest_act')+'</span></div>';
@@ -1301,7 +1381,7 @@ function openReceipt(p, id){
   const bcomm = n.bcomm || null;
   const cpuVal = (n.cpu!=null) ? num(n.cpu) : (q>0 ? total/q : 0);
   const docType = isBuy ? t('doc_buy') : (debt>0 ? t('doc_inv') : t('doc_rec'));
-  const docEn = LANG==='en' ? (isBuy ? 'ใบบันทึกซื้อ' : (debt>0 ? 'ใบแจ้งหนี้' : 'ใบเสร็จรับเงิน')) : (isBuy ? 'PURCHASE RECORD' : (debt>0 ? 'INVOICE' : 'RECEIPT'));
+  const docEn = LANG==='en' ? (isBuy ? 'ใบบันทึกซื้อ' : (debt>0 ? 'ใบแจ้งหนี้' : 'ใบเสร็จรับเงิน')) : (isBuy ? 'PURCHASE RECORD' : (debt>0 ? 'INVOICE' : 'RECEIPT')); // ar ใช้หัวอาหรับ + ซับอังกฤษ
   const party = isBuy ? (rec.supplier||'-') : (rec.customer||'-');
   const partyLabel = isBuy ? t('rp_supplier') : t('rp_customer');
 
