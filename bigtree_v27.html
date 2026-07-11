@@ -250,7 +250,7 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
 
         <label data-i18n="b_due">กำหนดจ่ายให้ผู้ขาย (Due Date)</label>
         <input type="date" id="b-due">
-        <label data-i18n="l_pays">งวดการชำระเงิน (กด ＋ เพิ่มได้ไม่จำกัดงวด)</label>
+        <label data-i18n="l_pays_b">งวดการชำระเงิน — เราจ่ายให้ผู้ขาย (กด ＋ เพิ่มได้ไม่จำกัด)</label>
         <div id="b-pays"></div>
         <button class="btn btn-ghost" style="margin-top:6px;padding:9px" onclick="addPay('b')">＋ <span data-i18n="add_pay">เพิ่มงวดการชำระ</span></button>
         <div class="pay-hint" id="b-payhint"></div>
@@ -307,7 +307,7 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
 
         <div class="grand"><span data-i18n="grand_t">ยอดรวมสุทธิ</span><b id="s-grand">0</b></div>
 
-        <label data-i18n="l_pays">งวดการรับชำระ (กด ＋ เพิ่มได้ไม่จำกัดงวด)</label>
+        <label data-i18n="l_pays_s">งวดการรับชำระ — ลูกค้าจ่ายเรา (กด ＋ เพิ่มได้ไม่จำกัด)</label>
         <div id="s-pays"></div>
         <button class="btn btn-ghost" style="margin-top:6px;padding:9px" onclick="addPay('s')">＋ <span data-i18n="add_pay">เพิ่มงวดการชำระ</span></button>
         <div class="pay-hint" id="s-payhint"></div>
@@ -490,6 +490,7 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
   <option value="A"></option>
 </datalist>
 <datalist id="dl-origin"></datalist>
+<datalist id="dl-origin-stock"></datalist>
 
 <div class="toast" id="toast"></div>
 <script>
@@ -514,7 +515,8 @@ const I18N = {
  l_commp:['ค่าคอมมิชชัน (%)','Commission (%)'], l_commmode:['วิธีคิดค่าคอม','Commission Mode'],
  opt_inc:['รวมเป็นต้นทุนสินค้า','Include in cost'], opt_sep:['แยกเป็นค่าใช้จ่าย','Separate expense'],
  grand_t:['ยอดรวมสุทธิ','Grand Total'],
- l_pays:['งวดการชำระเงิน (กด ＋ เพิ่มได้ไม่จำกัดงวด)','Payment Installments (tap ＋ to add, unlimited)'],
+ l_pays_b:['งวดการชำระเงิน — เราจ่ายให้ผู้ขาย (กด ＋ เพิ่มได้ไม่จำกัด)','Payments to Supplier (tap ＋, unlimited)'],
+ l_pays_s:['งวดการรับชำระ — ลูกค้าจ่ายเรา (กด ＋ เพิ่มได้ไม่จำกัด)','Payments from Customer (tap ＋, unlimited)'],
  add_pay:['เพิ่มงวดการชำระ','Add Installment'],
  l_note:['หมายเหตุ','Notes'], ph_optional:['ไม่บังคับ','Optional'], ph_ifany:['ถ้ามี','If any'],
  btn_cancel:['ยกเลิก','Cancel'], save_buy:['บันทึกรายการซื้อ','Save Purchase'], save_sell:['บันทึกรายการขาย','Save Sale'], save_edit:['บันทึกการแก้ไข','Save Changes'], saving:['กำลังบันทึก...','Saving...'],
@@ -609,6 +611,10 @@ const I18N = {
  st_ready:['พร้อมขาย','In Stock'], st_low:['ใกล้หมด','Low Stock'], st_out:['หมด/ติดลบ','Out of Stock'],
  inv_search:['🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง...','🔍 Search name / nickname / grade / origin...'],
  inv_total_val:['มูลค่ารวม','Total Value'],
+ pick_stock:['— 📦 เลือกสินค้าจากสต็อก (ไม่บังคับ) —','— 📦 Pick from stock (optional) —'],
+ stk_left:['คงเหลือในสต็อก','In stock'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
+ stk_over:['⚠️ เกินสต็อก! ขายได้สูงสุด {q}','⚠️ Exceeds stock! Max {q}'],
+ tt_overstock:['จำนวนสินค้าที่ขายเกินกว่าสินค้าคงเหลือในสต็อก กรุณาตรวจสอบจำนวนอีกครั้ง','Quantity exceeds available stock — please check again'],
  btn_pdf:['📄 ดาวน์โหลด PDF','📄 Download PDF'], btn_sendpdf:['📤 ส่ง PDF','📤 Send PDF'],
  tt_pdf_making:['⏳ กำลังสร้าง PDF...','⏳ Creating PDF...'], tt_pdf_ok:['✅ สร้าง PDF สำเร็จ','✅ PDF created'], tt_pdf_fail:['สร้าง PDF ไม่สำเร็จ ลองใหม่อีกครั้ง','PDF creation failed, please retry'],
  n_title:['🔔 แจ้งเตือนกำหนดชำระ','🔔 Payment Due Alerts'],
@@ -688,6 +694,7 @@ const I18N_AR = {
  d_inc:'الإيرادات', d_out:'المصروفات', d_pf:'الربح', d_target:'🎯 هدف المبيعات', d_left:'المتبقي',
  n_title:'🔔 تنبيهات الاستحقاق', n_today:'مستحق اليوم!', n_days:'باقٍ {d} يوم للاستحقاق', n_over:'متأخر {d} يوم',
  n_ar:'العميل مدين لنا', n_ap:'مستحق للمورّد', b_due:'تاريخ الاستحقاق للمورّد',
+ stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
  btn_pdf:'📄 تحميل PDF', btn_sendpdf:'📤 إرسال PDF', tt_pdf_making:'⏳ جارٍ إنشاء PDF...', tt_pdf_ok:'✅ تم إنشاء PDF',
  f_nick:'الاسم المستعار (اختياري)', inv_qty:'الرصيد', inv_avg:'متوسط التكلفة/وحدة', inv_val:'قيمة المخزون', inv_last:'آخر شراء', st_ready:'متوفر', st_out:'نفد'
 };
@@ -743,6 +750,7 @@ let cache = { buys:[], sells:[], expenses:[], loans:[], settings:{} };
 try{ const c = JSON.parse(localStorage.getItem('bt_cache')||'null'); if(c && c.buys) cache = c; }catch(e){}
 
 let editing = { b:null, s:null };
+let sellOver = false;
 let itemSeq = 0;
 
 // ═══════════ HELPERS ═══════════
@@ -845,6 +853,7 @@ async function refreshAll(manual){
       cache.loans = (d.loans||[]).filter(r=>r.id);
       cache.settings = d.settings || cache.settings || {};
       localStorage.setItem('bt_cache', JSON.stringify(cache));
+      fillNames();
       renderAllPages();
       if(manual) showToast(t('tt_updated')); else maybeAlertToast();
     } else if(manual){
@@ -888,13 +897,37 @@ function gradeOpts(sel){
   if(sel && !GRADES.includes(sel)) opts = '<option value="'+esc(sel)+'" selected>'+esc(sel)+'</option>' + opts;
   return opts;
 }
+function stockBalMap(){
+  const m = {};
+  try{ stockRows().forEach(r=>{ m[r.ckey] = r; }); }catch(e){}
+  return m;
+}
+function stockPickOpts(){
+  let rows = [];
+  try{ rows = stockRows().filter(r=>r.bal>0); }catch(e){}
+  return '<option value="">'+t('pick_stock')+'</option>' + rows.map(r=>
+    '<option value="'+esc(r.ckey)+'">'+esc(r.origin||'-')+' — '+esc(r.grade)+(r.nick?' ('+esc(r.nick)+')':'')+' · '+fmt(r.bal)+' '+unitTh(r.unit)+'</option>').join('');
+}
+function pickStock(sel, boxId){
+  const box = $(boxId); if(!box || !sel.value) return;
+  const r = stockBalMap()[sel.value]; if(!r) return;
+  box.querySelector('.f-type').value = r.type;
+  box.querySelector('.f-origin').value = r.origin;
+  const g = box.querySelector('.f-grade');
+  if(![...g.options].some(o=>o.value===r.grade)){ const o=document.createElement('option'); o.value=r.grade; o.textContent=r.grade; g.appendChild(o); }
+  g.value = r.grade;
+  const nk = box.querySelector('.f-nick'); if(nk && r.nick) nk.value = r.nick;
+  calc('s');
+}
 function addItem(p, data){
   const d = data||{};
   const id = 'it' + (++itemSeq);
+  const isSell = (p==='s');
   const box = document.createElement('div');
   box.className = 'item-box';
   box.id = id;
   box.innerHTML =
+    (isSell ? '<select class="f-pick" style="margin-top:4px" onchange="pickStock(this,\''+id+'\')">'+stockPickOpts()+'</select>' : '') +
     '<button class="item-x" onclick="delItem(\''+p+'\',\''+id+'\')">✕</button>'+
     '<div class="item-no" data-i18n="item_t">'+t('item_t')+'</div>'+
     '<div class="row2" style="margin-top:8px">'+
@@ -902,7 +935,7 @@ function addItem(p, data){
         '<option value="wood" data-i18n="wood_o"'+(d.type!=='oil'?' selected':'')+'>'+t('wood_o')+'</option>'+
         '<option value="oil" data-i18n="oil_o"'+(d.type==='oil'?' selected':'')+'>'+t('oil_o')+'</option>'+
       '</select></div>'+
-      '<div><label style="margin-top:0" data-i18n="f_origin">'+t('f_origin')+'</label><input class="f-origin" list="dl-origin" autocomplete="off" placeholder="'+t('sel_origin')+'" value="'+esc(d.origin||'')+'"></div>'+
+      '<div><label style="margin-top:0" data-i18n="f_origin">'+t('f_origin')+'</label><input class="f-origin" list="'+(isSell?'dl-origin-stock':'dl-origin')+'" autocomplete="off" placeholder="'+t('sel_origin')+'" value="'+esc(d.origin||'')+'"></div>'+
     '</div>'+
     '<label data-i18n="f_grade">'+t('f_grade')+'</label><select class="f-grade">'+gradeOpts(d.grade||'')+'</select>'+
     '<label data-i18n="f_nick">'+t('f_nick')+'</label><input class="f-nick" placeholder="'+t('ph_nick')+'" value="'+esc(d.nick||'')+'">'+
@@ -910,7 +943,8 @@ function addItem(p, data){
       '<div><label style="margin-top:0" data-i18n="f_qty">'+t('f_qty')+'</label><input type="number" class="f-qty" inputmode="decimal" placeholder="0" value="'+(d.qty||'')+'" oninput="calc(\''+p+'\')"></div>'+
       '<div><label style="margin-top:0" data-i18n="f_price">'+t('f_price')+'</label><input type="number" class="f-price" inputmode="decimal" placeholder="0" value="'+(d.price||'')+'" oninput="calc(\''+p+'\')"></div>'+
       '<div><label style="margin-top:0" data-i18n="f_amt">'+t('f_amt')+'</label><input class="f-amt line-amt" readonly value="0"></div>'+
-    '</div>';
+    '</div>'+
+    (isSell ? '<div class="pay-hint f-stockline" style="margin-top:7px"></div>' : '');
   $(p+'-items').appendChild(box);
   calc(p);
 }
@@ -1162,9 +1196,29 @@ function calc(p){
   const st = statusOf(grand, paid);
   $(p+'-payhint').innerHTML = t('paid_lbl')+' <b style="color:var(--ok)">'+fmt(paid)+' ฿</b>'+(pays.length?' ('+pays.length+' '+t('inst_ct')+')':'')+' • '+t('debt_lbl')+' <b style="color:'+(debt>0?'var(--bad)':'var(--ok)')+'">'+fmt(debt)+' ฿</b> — '+t('status_lbl')+': <b>'+stTxt(st)+'</b>';
 
-  // ── ฝั่งขาย: กำไรจากต้นทุนเฉลี่ยจริง (Real-time) ──
+  // ── ฝั่งขาย: กำไรจากต้นทุนเฉลี่ยจริง + ตรวจสต็อก (Real-time) ──
   let pf = null;
   if(p==='s'){
+    // ตรวจจำนวนขายเทียบสต็อกคงเหลือ
+    const smap = stockBalMap();
+    const back = (editing.s && window._editReturn) ? window._editReturn : {};
+    const want = {};
+    items.forEach(it=>{ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); want[k]=(want[k]||0)+num(it.qty); });
+    sellOver = false;
+    const boxes2 = $('s-items').querySelectorAll('.item-box');
+    items.forEach((it,i)=>{
+      const el = boxes2[i] ? boxes2[i].querySelector('.f-stockline') : null;
+      if(!el) return;
+      if(!it.origin && !it.grade){ el.innerHTML=''; return; }
+      const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+      const bal = ((smap[k]&&smap[k].bal)||0) + (back[k]||0);
+      if(num(it.qty) > 0 && (want[k]||0) > bal + 1e-9){
+        sellOver = true;
+        el.innerHTML = '<b style="color:var(--bad)">'+t('stk_over').replace('{q}', fmt(Math.max(0,bal)))+' '+unitTh(it.unit)+'</b>';
+      }else{
+        el.innerHTML = t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿/'+unitTh(it.unit):'');
+      }
+    });
     const comm = num($('s-comm').value);
     const shipc = num($('s-shipc').value), shipa = num($('s-shipa').value);
     const cmap = buildCostMap();
@@ -1206,6 +1260,12 @@ function fillNames(){
   });
   $('dl-origin').innerHTML = allOrigins().map(o=>'<option value="'+esc(o)+'"></option>').join('');
   $('dl-ecat').innerHTML = allECats().map(o=>'<option value="'+esc(o)+'"></option>').join('');
+  // ฝั่งขาย: แสดงเฉพาะแหล่งที่มีของคงเหลือจริงในสต็อก
+  try{
+    const orgs = [];
+    stockRows().forEach(r=>{ if(r.bal>0 && r.origin && !orgs.includes(r.origin)) orgs.push(r.origin); });
+    $('dl-origin-stock').innerHTML = orgs.map(o=>'<option value="'+esc(o)+'"></option>').join('');
+  }catch(e){}
 }
 function customOrigins(){
   let arr=[]; try{ arr = JSON.parse(localStorage.getItem('bt_origins')||'[]'); }catch(e){}
@@ -1249,6 +1309,7 @@ async function saveRec(p){
   const items = c.items.filter(it=>it.qty>0 || it.amt>0);
   if(!name){ showToast(t(isBuy?'tt_needname_b':'tt_needname_s'), true); return; }
   if(!items.length || c.grand<=0){ showToast(t('tt_needitem'), true); return; }
+  if(!isBuy && sellOver){ showToast(t('tt_overstock'), true); return; }
   if(items.some(it=>!it.origin)){ showToast('กรุณาเลือก "แหล่ง/ชนิด" ของสินค้าทุกรายการ', true); return; }
 
   let pf = null;
@@ -1340,6 +1401,7 @@ function resetForm(p){
   addItem(p);
 }
 function cancelEdit(p){
+  if(p==='s') window._editReturn = null;
   editing[p] = null;
   resetForm(p);
   $(p+'-cancel').style.display = 'none';
@@ -1352,6 +1414,11 @@ function editRec(p, id){
   if(!rec) return;
   const n = parseNote(rec.note);
   editing[p] = id;
+  if(p==='s'){
+    const ret = {};
+    recItems(rec).forEach(it=>{ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); ret[k]=(ret[k]||0)+num(it.qty); });
+    window._editReturn = ret;
+  }
   $(p+'-date').value = String(rec.date||'').split('T')[0];
   $(isBuy?'b-sup':'s-cust').value = isBuy?(rec.supplier||''):(rec.customer||'');
   $(p+'-items').innerHTML = '';
