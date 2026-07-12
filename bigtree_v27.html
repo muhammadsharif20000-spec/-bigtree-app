@@ -60,8 +60,8 @@ label{display:block;font-size:12.5px;color:var(--mut);margin:10px 0 5px;font-wei
 /* collapsible form */
 .form-toggle{display:flex;align-items:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:13px;padding:14px;font-weight:800;font-size:15.5px;cursor:pointer;margin-bottom:12px}
 .form-toggle .arr{margin-left:auto;transition:.2s}
-.form-wrap{max-height:0;overflow:hidden;transition:max-height .3s ease;position:relative}
-.form-wrap.open{max-height:none !important;overflow:visible;position:relative;z-index:5}
+.form-wrap{display:none}
+.form-wrap.open{display:block}
 .form-toggle.open .arr{transform:rotate(180deg)}
 
 /* section head */
@@ -612,7 +612,7 @@ const I18N = {
  inv_search:['🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง...','🔍 Search name / nickname / grade / origin...'],
  inv_total_val:['มูลค่ารวม','Total Value'],
  pick_stock:['— 📦 เลือกสินค้าจากสต็อก (ไม่บังคับ) —','— 📦 Pick from stock (optional) —'],
- stk_left:['คงเหลือในสต็อก','In stock'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
+ stk_left:['คงเหลือในสต็อก','In stock'], stk_lastp:['ซื้อล่าสุด','Last buy'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
  stk_over:['⚠️ เกินสต็อก! ขายได้สูงสุด {q}','⚠️ Exceeds stock! Max {q}'],
  tt_overstock:['จำนวนสินค้าที่ขายเกินกว่าสินค้าคงเหลือในสต็อก กรุณาตรวจสอบจำนวนอีกครั้ง','Quantity exceeds available stock — please check again'],
  btn_pdf:['📄 ดาวน์โหลด PDF','📄 Download PDF'], btn_sendpdf:['📤 ส่ง PDF','📤 Send PDF'],
@@ -908,6 +908,50 @@ function stockPickOpts(){
   return '<option value="">'+t('pick_stock')+'</option>' + rows.map(r=>
     '<option value="'+esc(r.ckey)+'">'+esc(r.origin||'-')+' — '+esc(r.grade)+(r.nick?' ('+esc(r.nick)+')':'')+' · '+fmt(r.bal)+' '+unitTh(r.unit)+'</option>').join('');
 }
+function stockOptsFor(){
+  let rows = [];
+  try{ rows = stockRows(); }catch(e){}
+  return rows;
+}
+function originsFor(type){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.bal>0 && r.origin && !out.includes(r.origin)) out.push(r.origin); });
+  return out;
+}
+function gradesFor(type, origin){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.origin===origin && r.bal>0 && !out.includes(r.grade)) out.push(r.grade); });
+  return out;
+}
+function nicksFor(type, origin, grade){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.origin===origin && r.grade===grade){ (r.nicks||[]).forEach(n=>{ if(n && !out.includes(n)) out.push(n); }); } });
+  return out;
+}
+// อัปเดตตัวเลือก แหล่ง/เกรด/ชื่อเล่น ของแถวขาย ตามสต็อกจริง (คงค่าที่เลือกไว้)
+function sellCascade(boxId){
+  const box = $(boxId); if(!box) return;
+  const type = box.querySelector('.f-type').value;
+  const oSel = box.querySelector('.f-origin');
+  const gSel = box.querySelector('.f-grade');
+  const curO = oSel.value, curG = gSel.value;
+  // แหล่ง: เฉพาะที่มีของประเภทนี้จริง
+  let orgs = originsFor(type);
+  if(curO && !orgs.includes(curO)) orgs = [curO].concat(orgs); // ค่าดั้งเดิม (รายการเก่า) ไม่หาย
+  oSel.innerHTML = '<option value="">'+t('sel_origin')+'</option>' + orgs.map(o=>'<option value="'+esc(o)+'"'+(o===curO?' selected':'')+'>'+esc(o)+'</option>').join('');
+  const newO = oSel.value;
+  // เกรด: เฉพาะที่มีในแหล่งนั้น
+  let grs = newO ? gradesFor(type, newO) : [];
+  if(!grs.length) grs = GRADES.slice();
+  if(curG && !grs.includes(curG)) grs = [curG].concat(grs);
+  gSel.innerHTML = grs.map(g=>'<option value="'+esc(g)+'"'+(g===curG?' selected':'')+'>'+esc(g)+'</option>').join('');
+  // ชื่อเล่น: จากประวัติจริงของสินค้านี้
+  const dl = box.querySelector('.dl-nick');
+  if(dl){
+    const nks = (newO ? nicksFor(type, newO, gSel.value) : []);
+    dl.innerHTML = nks.map(n=>'<option value="'+esc(n)+'"></option>').join('');
+  }
+}
 function pickStock(sel, boxId){
   const box = $(boxId); if(!box || !sel.value) return;
   const r = stockBalMap()[sel.value]; if(!r) return;
@@ -917,6 +961,7 @@ function pickStock(sel, boxId){
   if(![...g.options].some(o=>o.value===r.grade)){ const o=document.createElement('option'); o.value=r.grade; o.textContent=r.grade; g.appendChild(o); }
   g.value = r.grade;
   const nk = box.querySelector('.f-nick'); if(nk && r.nick) nk.value = r.nick;
+  sellCascade(boxId);
   calc('s');
 }
 function addItem(p, data){
@@ -931,14 +976,14 @@ function addItem(p, data){
     '<button class="item-x" onclick="delItem(\''+p+'\',\''+id+'\')">✕</button>'+
     '<div class="item-no" data-i18n="item_t">'+t('item_t')+'</div>'+
     '<div class="row2" style="margin-top:8px">'+
-      '<div><label style="margin-top:0" data-i18n="f_type">'+t('f_type')+'</label><select class="f-type" onchange="calc(\''+p+'\')">'+
+      '<div><label style="margin-top:0" data-i18n="f_type">'+t('f_type')+'</label><select class="f-type" onchange="'+(isSell?'sellCascade(\''+id+'\');':'')+'calc(\''+p+'\')">'+
         '<option value="wood" data-i18n="wood_o"'+(d.type!=='oil'?' selected':'')+'>'+t('wood_o')+'</option>'+
         '<option value="oil" data-i18n="oil_o"'+(d.type==='oil'?' selected':'')+'>'+t('oil_o')+'</option>'+
       '</select></div>'+
-      '<div><label style="margin-top:0" data-i18n="f_origin">'+t('f_origin')+'</label><input class="f-origin" list="'+(isSell?'dl-origin-stock':'dl-origin')+'" autocomplete="off" placeholder="'+t('sel_origin')+'" value="'+esc(d.origin||'')+'"></div>'+
+      '<div><label style="margin-top:0" data-i18n="f_origin">'+t('f_origin')+'</label>'+(isSell?'<select class="f-origin" onchange="sellCascade(\''+id+'\');calc(\'s\')"><option value="'+esc(d.origin||'')+'" selected>'+esc(d.origin||t('sel_origin'))+'</option></select>':'<input class="f-origin" list="dl-origin" autocomplete="off" placeholder="'+t('sel_origin')+'" value="'+esc(d.origin||'')+'">')+'</div>'+
     '</div>'+
-    '<label data-i18n="f_grade">'+t('f_grade')+'</label><select class="f-grade">'+gradeOpts(d.grade||'')+'</select>'+
-    '<label data-i18n="f_nick">'+t('f_nick')+'</label><input class="f-nick" placeholder="'+t('ph_nick')+'" value="'+esc(d.nick||'')+'">'+
+    '<label data-i18n="f_grade">'+t('f_grade')+'</label><select class="f-grade"'+(isSell?' onchange="sellCascade(\''+id+'\');calc(\'s\')"':'')+'>'+gradeOpts(d.grade||'')+'</select>'+
+    '<label data-i18n="f_nick">'+t('f_nick')+'</label><input class="f-nick"'+(isSell?' list="dlnick-'+id+'"':'')+' placeholder="'+t('ph_nick')+'" value="'+esc(d.nick||'')+'">'+(isSell?'<datalist class="dl-nick" id="dlnick-'+id+'"></datalist>':'')+
     '<div class="row3" style="margin-top:10px">'+
       '<div><label style="margin-top:0" data-i18n="f_qty">'+t('f_qty')+'</label><input type="number" class="f-qty" inputmode="decimal" placeholder="0" value="'+(d.qty||'')+'" oninput="calc(\''+p+'\')"></div>'+
       '<div><label style="margin-top:0" data-i18n="f_price">'+t('f_price')+'</label><input type="number" class="f-price" inputmode="decimal" placeholder="0" value="'+(d.price||'')+'" oninput="calc(\''+p+'\')"></div>'+
@@ -946,6 +991,7 @@ function addItem(p, data){
     '</div>'+
     (isSell ? '<div class="pay-hint f-stockline" style="margin-top:7px"></div>' : '');
   $(p+'-items').appendChild(box);
+  if(isSell) sellCascade(id);
   calc(p);
 }
 function delItem(p, id){
@@ -1216,7 +1262,7 @@ function calc(p){
         sellOver = true;
         el.innerHTML = '<b style="color:var(--bad)">'+t('stk_over').replace('{q}', fmt(Math.max(0,bal)))+' '+unitTh(it.unit)+'</b>';
       }else{
-        el.innerHTML = t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿/'+unitTh(it.unit):'');
+        el.innerHTML = t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿':'')+((smap[k]&&smap[k].lastPrice)?' · '+t('stk_lastp')+' '+fmt(smap[k].lastPrice)+' ฿':'');
       }
     });
     const comm = num($('s-comm').value);
@@ -1254,8 +1300,13 @@ function saveName(key, val){
   fillNames();
 }
 function fillNames(){
-  [['bt_sup','dl-sup'],['bt_cus','dl-cus']].forEach(([k,dl])=>{
+  // รวมรายชื่อจากฐานข้อมูลจริง + ที่เคยพิมพ์ในเครื่อง (แยกชุด ลูกค้า/พ่อค้า เด็ดขาด)
+  const dbSup = [], dbCus = [];
+  cache.buys.forEach(r=>{ const n=String(r.supplier||'').trim(); if(n && !dbSup.includes(n)) dbSup.push(n); });
+  cache.sells.forEach(r=>{ const n=String(r.customer||'').trim(); if(n && !dbCus.includes(n)) dbCus.push(n); });
+  [['bt_sup','dl-sup',dbSup],['bt_cus','dl-cus',dbCus]].forEach(([k,dl,db])=>{
     let arr=[]; try{ arr = JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){}
+    db.forEach(n=>{ if(!arr.includes(n)) arr.push(n); });
     $(dl).innerHTML = arr.map(n=>'<option value="'+esc(n)+'"></option>').join('');
   });
   $('dl-origin').innerHTML = allOrigins().map(o=>'<option value="'+esc(o)+'"></option>').join('');
@@ -1504,7 +1555,7 @@ function renderList(p){
 }
 function renderHome(){
   renderDash();
-  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' • v27.5';
   const b = cache.buys[0], s = cache.sells[0];
   let h = '';
   renderDash();
@@ -1529,11 +1580,12 @@ function stockRows(){
     recItems(rec).forEach(it=>{
       const t2 = it.type==='oil' ? 'oil' : 'wood';
       const key = t2+'|'+(it.origin||'')+'|'+(it.grade||'-')+'|'+(it.unit||(t2==='oil'?'tl':'kg'));
-      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
+      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
       const row = map[key];
       if(sign>0){
         row.inQ += num(it.qty);
-        if(d && (!row.lastBuy || d > row.lastBuy)){ row.lastBuy = d; if(it.nick) row.nick = it.nick; }
+        if(it.nick && !row.nicks.includes(it.nick)) row.nicks.push(it.nick);
+        if(d && (!row.lastBuy || d > row.lastBuy)){ row.lastBuy = d; if(it.nick) row.nick = it.nick; if(num(it.price)>0) row.lastPrice = num(it.price); }
         else if(it.nick && !row.nick) row.nick = it.nick;
       } else {
         row.outQ += num(it.qty);
