@@ -224,8 +224,10 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
         <label data-i18n="l_buydate">วันที่ซื้อ</label>
         <input type="date" id="b-date">
         <label data-i18n="l_supplier">ซื้อจาก (Supplier)</label>
-        <input id="b-sup" list="dl-sup" placeholder="ชื่อผู้ขาย / ร้าน" data-i18n-ph="ph_supplier" autocomplete="off">
+        <input id="b-sup" list="dl-sup" placeholder="ชื่อผู้ขาย / ร้าน" data-i18n-ph="ph_supplier" autocomplete="off" oninput="autoSupNick()">
         <datalist id="dl-sup"></datalist>
+        <label data-i18n="b_supnick">ชื่อเล่นพ่อค้า (ถ้ามี)</label>
+        <input id="b-supnick" placeholder="เช่น เฮียชาคีร์" data-i18n-ph="ph_supnick" autocomplete="off">
 
         <div id="b-items"></div>
         <button class="btn btn-ghost" style="margin-top:10px" onclick="addItem('b')">＋ <span data-i18n="add_item">เพิ่มรายการสินค้า</span></button>
@@ -612,7 +614,7 @@ const I18N = {
  inv_search:['🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง...','🔍 Search name / nickname / grade / origin...'],
  inv_total_val:['มูลค่ารวม','Total Value'],
  pick_stock:['— 📦 เลือกสินค้าจากสต็อก (ไม่บังคับ) —','— 📦 Pick from stock (optional) —'],
- stk_left:['คงเหลือในสต็อก','In stock'], stk_lastp:['ซื้อล่าสุด','Last buy'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
+ stk_left:['คงเหลือในสต็อก','In stock'], stk_lastp:['ซื้อล่าสุด','Last buy'], stk_from:['ซื้อจาก','Bought from'], b_supnick:['ชื่อเล่นพ่อค้า (ถ้ามี)','Supplier Nickname (optional)'], ph_supnick:['เช่น เฮียชาคีร์','e.g. Shakir'], stk_nicks:['ชื่อเล่น','Nicknames'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
  stk_over:['⚠️ เกินสต็อก! ขายได้สูงสุด {q}','⚠️ Exceeds stock! Max {q}'],
  tt_overstock:['จำนวนสินค้าที่ขายเกินกว่าสินค้าคงเหลือในสต็อก กรุณาตรวจสอบจำนวนอีกครั้ง','Quantity exceeds available stock — please check again'],
  btn_pdf:['📄 ดาวน์โหลด PDF','📄 Download PDF'], btn_sendpdf:['📤 ส่ง PDF','📤 Send PDF'],
@@ -694,7 +696,7 @@ const I18N_AR = {
  d_inc:'الإيرادات', d_out:'المصروفات', d_pf:'الربح', d_target:'🎯 هدف المبيعات', d_left:'المتبقي',
  n_title:'🔔 تنبيهات الاستحقاق', n_today:'مستحق اليوم!', n_days:'باقٍ {d} يوم للاستحقاق', n_over:'متأخر {d} يوم',
  n_ar:'العميل مدين لنا', n_ap:'مستحق للمورّد', b_due:'تاريخ الاستحقاق للمورّد',
- stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
+ stk_from:'المورّد', b_supnick:'الاسم المستعار للمورّد (اختياري)', stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
  btn_pdf:'📄 تحميل PDF', btn_sendpdf:'📤 إرسال PDF', tt_pdf_making:'⏳ جارٍ إنشاء PDF...', tt_pdf_ok:'✅ تم إنشاء PDF',
  f_nick:'الاسم المستعار (اختياري)', inv_qty:'الرصيد', inv_avg:'متوسط التكلفة/وحدة', inv_val:'قيمة المخزون', inv_last:'آخر شراء', st_ready:'متوفر', st_out:'نفد'
 };
@@ -788,6 +790,7 @@ function parseNote(raw){
       out.bcomm = j.bcomm || null;
       out.pays = Array.isArray(j.pays) ? j.pays : [];
       out.bdue = j.bdue || '';
+      out.supnick = j.supnick || '';
       out.cpu = (j.cpu!=null) ? j.cpu : null;
       out.memo = j.memo || '';
       return out;
@@ -1331,6 +1334,23 @@ function allOrigins(){
   (cache.buys||[]).concat(cache.sells||[]).forEach(r=>{ recItems(r).forEach(it=>add(it.origin)); });
   return set;
 }
+function supNickMap(){
+  let m={}; try{ m = JSON.parse(localStorage.getItem('bt_supnick')||'{}'); }catch(e){}
+  // เรียนรู้จากฐานข้อมูลจริงด้วย
+  cache.buys.forEach(r=>{ const n=parseNote(r.note); const s=String(r.supplier||'').trim(); if(s && n.supnick && !m[s]) m[s]=n.supnick; });
+  return m;
+}
+function autoSupNick(){
+  const name = $('b-sup').value.trim();
+  const m = supNickMap();
+  if(name && m[name] && !$('b-supnick').value.trim()) $('b-supnick').value = m[name];
+}
+function learnSupNick(name, nick){
+  name=String(name||'').trim(); nick=String(nick||'').trim();
+  if(!name || !nick) return;
+  let m={}; try{ m = JSON.parse(localStorage.getItem('bt_supnick')||'{}'); }catch(e){}
+  m[name]=nick; localStorage.setItem('bt_supnick', JSON.stringify(m));
+}
 function learnOrigins(items){
   let arr = customOrigins(); let changed=false;
   items.forEach(it=>{
@@ -1367,7 +1387,9 @@ async function saveRec(p){
   if(!isBuy && c.pf && (c.pf.cost || c.pf.comm || c.pf.shipc || c.pf.shipa || c.pf.mP)) pf = c.pf;
   const memo = $(p+'-note').value.trim();
   const bdue = isBuy ? ($('b-due').value||'') : '';
-  const noteJSON = JSON.stringify({v:17, items, extras:c.extras, pf, bcomm:c.bcomm||null, cpu:(c.cpu!=null?c.cpu:null), pays:c.pays, bdue:bdue, memo});
+  const supnick = isBuy ? $('b-supnick').value.trim() : '';
+  if(isBuy) learnSupNick(name, supnick);
+  const noteJSON = JSON.stringify({v:17, items, extras:c.extras, pf, bcomm:c.bcomm||null, cpu:(c.cpu!=null?c.cpu:null), pays:c.pays, bdue:bdue, supnick:supnick, memo});
   const first = items[0];
   const payload = {
     date: $(p+'-date').value,
@@ -1447,7 +1469,7 @@ function resetForm(p){
   $(p+'-pays').innerHTML = '';
   $(p+'-note').value = '';
   $(p+'-payhint').innerHTML = '';
-  if(p==='b'){ $('b-comm').value=''; $('b-commmode').value='include'; $('b-commline').innerHTML=''; $('b-cpuline').innerHTML=''; $('b-due').value=''; }
+  if(p==='b'){ $('b-comm').value=''; $('b-commmode').value='include'; $('b-commline').innerHTML=''; $('b-cpuline').innerHTML=''; $('b-due').value=''; $('b-supnick').value=''; }
   if(p==='s'){ ['s-due','s-comm','s-shipc','s-shipa'].forEach(id=>$(id).value=''); $('s-due').value = td; $('s-pfhint').innerHTML=''; }
   addItem(p);
 }
@@ -1487,6 +1509,7 @@ function editRec(p, id){
     $('b-comm').value = bc.pct||'';
     $('b-commmode').value = bc.mode||'include';
     $('b-due').value = String(n.bdue||'').split('T')[0];
+    $('b-supnick').value = n.supnick||'';
   }
   if(!isBuy){
     $('s-due').value = String(rec.due||'').split('T')[0];
@@ -1525,8 +1548,8 @@ function stClass(st){
 }
 function recCard(p, rec, isLatest){
   const isBuy = p==='b';
-  const name = isBuy ? rec.supplier : rec.customer;
   const n = parseNote(rec.note);
+  const name = (isBuy ? (rec.supplier||'') : (rec.customer||'')) + ((isBuy && n.supnick) ? ' ('+n.supnick+')' : '');
   const itemChips = (n.items||[]).slice(0,3).map(it=>'<span class="chip">'+esc(it.origin||typeTh(it.type))+' '+esc(it.grade||'')+(it.nick?' ('+esc(it.nick)+')':'')+' × '+fmt(it.qty)+' '+unitTh(it.unit)+'</span>').join('')
     || '<span class="chip">'+esc(ORIGINS.includes(rec.type)?rec.type:typeTh(rec.type))+' '+esc(rec.grade||'')+' × '+fmt(rec.qty)+' '+unitTh(rec.unit)+'</span>';
   const debt = num(rec.debt);
@@ -1580,11 +1603,14 @@ function stockRows(){
     recItems(rec).forEach(it=>{
       const t2 = it.type==='oil' ? 'oil' : 'wood';
       const key = t2+'|'+(it.origin||'')+'|'+(it.grade||'-')+'|'+(it.unit||(t2==='oil'?'tl':'kg'));
-      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
+      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], sups:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
       const row = map[key];
       if(sign>0){
         row.inQ += num(it.qty);
         if(it.nick && !row.nicks.includes(it.nick)) row.nicks.push(it.nick);
+        const sn = parseNote(rec.note).supnick;
+        const sup = String(rec.supplier||'').trim() + (sn ? ' ('+sn+')' : '');
+        if(String(rec.supplier||'').trim() && !row.sups.includes(sup)) row.sups.push(sup);
         if(d && (!row.lastBuy || d > row.lastBuy)){ row.lastBuy = d; if(it.nick) row.nick = it.nick; if(num(it.price)>0) row.lastPrice = num(it.price); }
         else if(it.nick && !row.nick) row.nick = it.nick;
       } else {
@@ -1613,7 +1639,7 @@ function renderStockList(){
   let rows = stockRows();
   if(!rows.length){ body.innerHTML = '<div class="empty">'+t('empty_stock')+'</div>'; return; }
   const q = (stockQuery||'').trim().toLowerCase();
-  if(q) rows = rows.filter(r=> (r.origin+' '+r.grade+' '+r.nick+' '+typeTh(r.type)).toLowerCase().includes(q));
+  if(q) rows = rows.filter(r=> (r.origin+' '+r.grade+' '+r.nick+' '+(r.nicks||[]).join(' ')+' '+(r.sups||[]).join(' ')+' '+typeTh(r.type)).toLowerCase().includes(q));
   rows.sort((a,b)=> (a.origin||'ฮฮ').localeCompare(b.origin||'ฮฮ','th') || String(a.grade).localeCompare(String(b.grade),'th'));
 
   const card = r =>
@@ -1621,6 +1647,8 @@ function renderStockList(){
     (r.nick?' <span style="color:var(--gold);font-weight:700">('+esc(r.nick)+')</span>':'')+'</div>'+stockStatus(r)+'</div>'+
     '<div class="rec-mid"><span class="chip">'+typeTh(r.type)+'</span><span class="chip">'+t('h_grade')+' '+esc(r.grade)+'</span>'+
     (r.lastBuy?'<span class="chip">'+t('inv_last')+' '+fdate(r.lastBuy)+'</span>':'')+'</div>'+
+    ((r.nicks&&r.nicks.length)?'<div class="rec-mid">'+r.nicks.map(n=>'<span class="chip">🏷️ '+esc(n)+'</span>').join('')+'</div>':'')+
+    ((r.sups&&r.sups.length)?'<div class="rec-mid"><span class="chip">👤 '+t('stk_from')+': <b>'+esc(r.sups.slice(0,3).join(', '))+(r.sups.length>3?' +'+(r.sups.length-3):'')+'</b></span></div>':'')+
     '<table class="tb" style="margin-top:8px">'+
       '<tr><td>'+t('inv_qty')+'</td><td class="r" style="font-weight:800;color:'+(r.bal<0?'var(--bad)':'var(--gold)')+'">'+fmt(r.bal)+' '+unitTh(r.unit)+'</td></tr>'+
       '<tr><td>'+t('inv_avg')+'</td><td class="r">'+fmt(r.avg)+' ฿</td></tr>'+
@@ -2092,7 +2120,7 @@ function openReceipt(p, id){
   const cpuVal = (n.cpu!=null) ? num(n.cpu) : (q>0 ? total/q : 0);
   const docType = isBuy ? t('doc_buy') : (debt>0 ? t('doc_inv') : t('doc_rec'));
   const docEn = LANG==='en' ? (isBuy ? 'ใบบันทึกซื้อ' : (debt>0 ? 'ใบแจ้งหนี้' : 'ใบเสร็จรับเงิน')) : (isBuy ? 'PURCHASE RECORD' : (debt>0 ? 'INVOICE' : 'RECEIPT')); // ar ใช้หัวอาหรับ + ซับอังกฤษ
-  const party = isBuy ? (rec.supplier||'-') : (rec.customer||'-');
+  const party = isBuy ? ((rec.supplier||'-') + (n.supnick?' ('+n.supnick+')':'')) : (rec.customer||'-');
   const partyLabel = isBuy ? t('rp_supplier') : t('rp_customer');
 
   let rows = items.map((it,i)=>
