@@ -909,7 +909,7 @@ function stockPickOpts(){
   let rows = [];
   try{ rows = stockRows().filter(r=>r.bal>0); }catch(e){}
   return '<option value="">'+t('pick_stock')+'</option>' + rows.map(r=>
-    '<option value="'+esc(r.ckey)+'">'+esc(r.origin||'-')+' — '+esc(r.grade)+(r.nick?' ('+esc(r.nick)+')':'')+' · '+fmt(r.bal)+' '+unitTh(r.unit)+'</option>').join('');
+    '<option value="'+esc(r.ckey)+'">['+esc(r.code||'')+'] '+esc(r.origin||'-')+' — '+esc(r.grade)+(r.nick?' ('+esc(r.nick)+')':'')+' · '+fmt(r.bal)+' '+unitTh(r.unit)+'</option>').join('');
 }
 function stockOptsFor(){
   let rows = [];
@@ -1265,7 +1265,7 @@ function calc(p){
         sellOver = true;
         el.innerHTML = '<b style="color:var(--bad)">'+t('stk_over').replace('{q}', fmt(Math.max(0,bal)))+' '+unitTh(it.unit)+'</b>';
       }else{
-        el.innerHTML = t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿':'')+((smap[k]&&smap[k].lastPrice)?' · '+t('stk_lastp')+' '+fmt(smap[k].lastPrice)+' ฿':'');
+        el.innerHTML = (smap[k]&&smap[k].code?'<span style="color:var(--mut)">['+esc(smap[k].code)+']</span> ':'')+t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿':'')+((smap[k]&&smap[k].lastPrice)?' · '+t('stk_lastp')+' '+fmt(smap[k].lastPrice)+' ฿':'');
       }
     });
     const comm = num($('s-comm').value);
@@ -1595,6 +1595,33 @@ function recItems(rec){
   return [{type:rec.unit==='tl'?'oil':'wood', origin:ORIGINS.includes(rec.type)?rec.type:'', grade:rec.grade||'-', qty:num(rec.qty), unit:rec.unit||'kg', amt:num(rec.total)}];
 }
 let stockQuery = '';
+// ── รหัสสินค้าอัตโนมัติ BT-0001 (ไม่ซ้ำ เก็บถาวรใน Settings + เครื่อง) ──
+let _pcSaveTimer = null;
+function productCodeMap(){
+  let m = {};
+  try{ m = JSON.parse((cache.settings && cache.settings.product_codes) || '{}'); }catch(e){ m = {}; }
+  if(typeof m._next !== 'number') m._next = 1;
+  return m;
+}
+function ensureProductCodes(rows){
+  const m = productCodeMap();
+  let changed = false;
+  rows.forEach(r=>{
+    if(!m[r.ckey]){
+      m[r.ckey] = 'BT-' + String(m._next).padStart(4,'0');
+      m._next++;
+      changed = true;
+    }
+    r.code = m[r.ckey];
+  });
+  if(changed){
+    if(!cache.settings) cache.settings = {};
+    cache.settings.product_codes = JSON.stringify(m);
+    localStorage.setItem('bt_cache', JSON.stringify(cache));
+    clearTimeout(_pcSaveTimer);
+    _pcSaveTimer = setTimeout(()=>{ try{ api('setSetting', {key:'product_codes', value:cache.settings.product_codes}); }catch(e){} }, 1500);
+  }
+}
 function stockRows(){
   const m = buildCostMap();
   const map = {};
@@ -1621,13 +1648,15 @@ function stockRows(){
   };
   cache.buys.forEach(r=>add(r,1));
   cache.sells.forEach(r=>add(r,-1));
-  return Object.values(map).map(r=>{
+  const rows = Object.values(map).map(r=>{
     r.bal = r.inQ - r.outQ;
     const e = m[r.ckey];
     r.avg = (e && e.qty>0) ? e.cost/e.qty : 0;
     r.val = Math.max(0, r.bal) * r.avg;
     return r;
   });
+  ensureProductCodes(rows);
+  return rows;
 }
 function stockStatus(r){
   if(r.bal <= 0) return '<span class="st st-no">'+t('st_out')+'</span>';
@@ -1639,11 +1668,11 @@ function renderStockList(){
   let rows = stockRows();
   if(!rows.length){ body.innerHTML = '<div class="empty">'+t('empty_stock')+'</div>'; return; }
   const q = (stockQuery||'').trim().toLowerCase();
-  if(q) rows = rows.filter(r=> (r.origin+' '+r.grade+' '+r.nick+' '+(r.nicks||[]).join(' ')+' '+(r.sups||[]).join(' ')+' '+typeTh(r.type)).toLowerCase().includes(q));
+  if(q) rows = rows.filter(r=> ((r.code||'')+' '+r.origin+' '+r.grade+' '+r.nick+' '+(r.nicks||[]).join(' ')+' '+(r.sups||[]).join(' ')+' '+typeTh(r.type)).toLowerCase().includes(q));
   rows.sort((a,b)=> (a.origin||'ฮฮ').localeCompare(b.origin||'ฮฮ','th') || String(a.grade).localeCompare(String(b.grade),'th'));
 
   const card = r =>
-    '<div class="rec"><div class="rec-top"><div class="rec-name">'+esc(r.origin||t('k_noorigin'))+' — '+esc(r.grade)+
+    '<div class="rec"><div class="rec-top"><div class="rec-name"><span style="color:var(--mut);font-size:12px">['+esc(r.code||'')+']</span> '+esc(r.origin||t('k_noorigin'))+' — '+esc(r.grade)+
     (r.nick?' <span style="color:var(--gold);font-weight:700">('+esc(r.nick)+')</span>':'')+'</div>'+stockStatus(r)+'</div>'+
     '<div class="rec-mid"><span class="chip">'+typeTh(r.type)+'</span><span class="chip">'+t('h_grade')+' '+esc(r.grade)+'</span>'+
     (r.lastBuy?'<span class="chip">'+t('inv_last')+' '+fdate(r.lastBuy)+'</span>':'')+'</div>'+
@@ -2042,7 +2071,8 @@ function renderDash(){
 
   // tops (all time)
   const tpProd={}, tpCust={}, tpSup={}, tpOrg={}, tpGrade={};
-  cache.sells.forEach(r=>{ tpCust[r.customer||'-']=(tpCust[r.customer||'-']||0)+num(r.total); recItems(r).forEach(it=>{ const k=(it.origin||'-')+' '+(it.grade||''); tpProd[k]=(tpProd[k]||0)+num(it.amt); tpGrade[it.grade||'-']=(tpGrade[it.grade||'-']||0)+num(it.amt); }); });
+  const pcm = productCodeMap();
+  cache.sells.forEach(r=>{ tpCust[r.customer||'-']=(tpCust[r.customer||'-']||0)+num(r.total); recItems(r).forEach(it=>{ const ck=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); const k=(pcm[ck]?'['+pcm[ck]+'] ':'')+(it.origin||'-')+' '+(it.grade||'')+(it.nick?' ('+it.nick+')':''); tpProd[k]=(tpProd[k]||0)+num(it.amt); tpGrade[it.grade||'-']=(tpGrade[it.grade||'-']||0)+num(it.amt); }); });
   cache.buys.forEach(r=>{ tpSup[r.supplier||'-']=(tpSup[r.supplier||'-']||0)+num(r.total); recItems(r).forEach(it=>{ tpOrg[it.origin||'-']=(tpOrg[it.origin||'-']||0)+num(it.amt); }); });
 
   // monthly report month options
@@ -2123,9 +2153,10 @@ function openReceipt(p, id){
   const party = isBuy ? ((rec.supplier||'-') + (n.supnick?' ('+n.supnick+')':'')) : (rec.customer||'-');
   const partyLabel = isBuy ? t('rp_supplier') : t('rp_customer');
 
+  const pcMap = productCodeMap();
   let rows = items.map((it,i)=>
     '<tr><td>'+(i+1)+'</td>'+
-    '<td>'+esc(it.origin||typeTh(it.type))+(it.grade?' — '+t('h_grade')+' '+esc(it.grade):'')+(it.nick?' <span style="color:#b8892b">('+esc(it.nick)+')</span>':'')+(it.origin?'<div style="font-size:10.5px;color:#888">'+typeTh(it.type)+'</div>':'')+'</td>'+
+    '<td>'+(function(){ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); return pcMap[k]?'<span style="color:#999;font-size:10px">['+esc(pcMap[k])+']</span> ':''; })()+esc(it.origin||typeTh(it.type))+(it.grade?' — '+t('h_grade')+' '+esc(it.grade):'')+(it.nick?' <span style="color:#b8892b">('+esc(it.nick)+')</span>':'')+(it.origin?'<div style="font-size:10.5px;color:#888">'+typeTh(it.type)+'</div>':'')+'</td>'+
     '<td class="r">'+fmt(it.qty)+' '+unitTh(it.unit)+'</td>'+
     '<td class="r">'+fmt(it.price!=null?it.price:(num(it.qty)>0?num(it.amt)/num(it.qty):0))+'</td>'+
     '<td class="r"><b>'+fmt(it.amt)+'</b></td></tr>').join('');
