@@ -538,6 +538,7 @@ const I18N = {
  comm_lbl:['ค่าคอมมิชชัน','Commission'], inc_txt:['รวมเข้าต้นทุนสินค้า','included in cost'], sep_txt:['แยกเป็นค่าใช้จ่าย ไม่รวมในยอดบิล','separate expense, not in bill total'],
  cost_total:['ต้นทุนรวม','Total Cost'], units_w:['หน่วย','units'], avg_cost:['ต้นทุนเฉลี่ย','Avg. Cost'], per_unit:['฿/หน่วย','THB/unit'],
  avg_hist:['ต้นทุนเฉลี่ยจากประวัติซื้อ','Avg. cost from purchase history'], no_hist:['ยังไม่มีประวัติซื้อสินค้าชนิดนี้ ระบบถือว่าต้นทุน 0 ฿','No purchase history for this item — cost assumed 0'],
+ ph_xamt:['เช่น 9000 หรือ 5%','e.g. 9000 or 5%'],
  pf1:['กำไรส่วนต่าง','Margin Profit'], pf1b:['ขาย','Sales'], pf1c:['ทุนเฉลี่ย','avg. cost'], pf_pu:['กำไรต่อหน่วย','Profit per Unit'], pf2:['กำไรคอมมิชชั่น','Commission Profit'], pf3:['กำไรค่าขนส่ง','Logistics Profit'], pf_net:['รวมกำไรสุทธิ','Net Profit'],
  st_paid:['จ่ายครบ','Paid'], st_part:['จ่ายบางส่วน','Partial'], st_unpaid:['ค้างชำระ','Unpaid'],
  k_latest:['ล่าสุด','Latest'], k_owe:['ค้าง','Owes'], k_due:['ครบกำหนด','Due'], k_receipt:['🧾 ใบเสร็จ','🧾 Receipt'], k_edit:['✏️ แก้ไข','✏️ Edit'], k_del:['🗑️ ลบ','🗑️ Delete'],
@@ -1012,8 +1013,9 @@ function addExtra(p, data){
     '<button class="item-x" onclick="delExtra(\''+p+'\',\''+id+'\')">✕</button>'+
     '<div class="row2" style="margin-top:4px">'+
       '<div><label style="margin-top:0" data-i18n="x_name">'+t('x_name')+'</label><input class="x-name" data-i18n-ph="ph_xname" placeholder="'+t('ph_xname')+'" value="'+esc(d.name||'')+'"></div>'+
-      '<div><label style="margin-top:0" data-i18n="x_amt">'+t('x_amt')+'</label><input type="number" class="x-amt" inputmode="decimal" placeholder="0" value="'+(d.amt||'')+'" oninput="calc(\''+p+'\')"></div>'+
-    '</div>';
+      '<div><label style="margin-top:0" data-i18n="x_amt">'+t('x_amt')+'</label><input type="text" class="x-amt" inputmode="decimal" placeholder="'+t('ph_xamt')+'" value="'+esc(d.pct!=null && d.pct!=='' ? d.pct+'%' : (d.amt||''))+'" oninput="calc(\''+p+'\')"></div>'+
+    '</div>'+
+    '<div class="pay-hint x-calc"></div>';
   $(p+'-extras').appendChild(box);
   calc(p);
 }
@@ -1175,12 +1177,21 @@ function readItems(p){
   out.forEach(it=> it.amt = it.qty * it.price);
   return out;
 }
-function readExtras(p){
+function readExtras(p, base){
   const out = [];
   $(p+'-extras').querySelectorAll('.item-box').forEach(b=>{
     const name = b.querySelector('.x-name').value.trim();
-    const amt = num(b.querySelector('.x-amt').value);
-    if(name || amt) out.push({name: name||'ค่าบริการ', amt});
+    const raw = String(b.querySelector('.x-amt').value||'').trim();
+    let amt = 0, pct = null;
+    if(/%\s*$/.test(raw)){
+      pct = num(raw.replace('%',''));
+      amt = (num(base)||0) * pct / 100;
+    } else {
+      amt = num(raw);
+    }
+    const line = b.querySelector('.x-calc');
+    if(line) line.innerHTML = (pct!=null && pct>0) ? esc(name||'')+' '+fmt(pct)+'% × '+fmt(base)+' = <b style="color:var(--gold)">'+fmt(amt)+' ฿</b>' : '';
+    if(name || amt || pct) out.push({name: name||'ค่าบริการ', amt:amt, pct:pct});
   });
   return out;
 }
@@ -1214,8 +1225,8 @@ function calc(p){
   const items = readItems(p);
   const boxes = $(p+'-items').querySelectorAll('.item-box');
   items.forEach((it,i)=>{ if(boxes[i]) boxes[i].querySelector('.f-amt').value = fmt(it.amt); });
-  const extras = readExtras(p);
   const itemsTotal = items.reduce((a,b)=>a+b.amt,0);
+  const extras = readExtras(p, itemsTotal);
   const extrasTotal = extras.reduce((a,b)=>a+b.amt,0);
   const qtyAll = items.reduce((a,b)=>a+b.qty,0);
   let grand = itemsTotal + extrasTotal;
@@ -1284,7 +1295,7 @@ function calc(p){
     $('s-pfhint').innerHTML =
       '① '+t('pf1')+' ('+t('pf1b')+' '+fmt(itemsTotal)+' − '+t('pf1c')+' '+fmt(costSum)+'): <b>'+fmt(mP)+'</b> ฿'+
       (qtyAll>0 ? '<br>&nbsp;&nbsp;&nbsp;'+t('pf_pu')+': <b>'+fmt(mP/qtyAll)+' ฿</b>' : '')+
-      '<br>② '+t('pf2')+': <b>'+fmt(cP)+'</b> ฿<br>③ '+t('pf3')+': <b>'+fmt(sP)+'</b> ฿<br>'+t('pf_net')+': <b style="color:var(--gold)">'+fmt(net)+' ฿</b>';
+      '<br>② '+t('pf2')+': <b>'+fmt(cP)+'</b> ฿<br>③ '+t('pf3')+': <b>'+fmt(sP)+'</b> ฿'+'<br>'+t('pf_net')+': <b style="color:var(--gold)">'+fmt(net)+' ฿</b>';
   }
   return { items:items, extras:extras, grand:grand, paid:paid, debt:debt, st:st, bcomm:bcomm, cpu:cpu, pf:pf, pays:pays };
 }
@@ -2161,7 +2172,7 @@ function openReceipt(p, id){
     '<td class="r">'+fmt(it.price!=null?it.price:(num(it.qty)>0?num(it.amt)/num(it.qty):0))+'</td>'+
     '<td class="r"><b>'+fmt(it.amt)+'</b></td></tr>').join('');
   rows += extras.map((x,i)=>
-    '<tr><td>'+(items.length+i+1)+'</td><td style="color:#7a6a35">＋ '+esc(x.name)+'</td><td class="r">-</td><td class="r">-</td><td class="r"><b>'+fmt(x.amt)+'</b></td></tr>').join('');
+    '<tr><td>'+(items.length+i+1)+'</td><td style="color:#7a6a35">＋ '+esc(x.name)+((x.pct!=null&&x.pct>0)?' ('+fmt(x.pct)+'%)':'')+'</td><td class="r">-</td><td class="r">-</td><td class="r"><b>'+fmt(x.amt)+'</b></td></tr>').join('');
 
   // หมายเหตุ: ไม่แสดงข้อมูลกำไรบนใบเสร็จ (ข้อมูลภายในกิจการ ดูได้ในหน้ากำไรของแอป)
   let pfHtml = '';
