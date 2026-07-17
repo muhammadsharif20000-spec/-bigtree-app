@@ -1013,7 +1013,11 @@ function addExtra(p, data){
     '<button class="item-x" onclick="delExtra(\''+p+'\',\''+id+'\')">✕</button>'+
     '<div class="row2" style="margin-top:4px">'+
       '<div><label style="margin-top:0" data-i18n="x_name">'+t('x_name')+'</label><input class="x-name" data-i18n-ph="ph_xname" placeholder="'+t('ph_xname')+'" value="'+esc(d.name||'')+'"></div>'+
-      '<div><label style="margin-top:0" data-i18n="x_amt">'+t('x_amt')+'</label><input type="text" class="x-amt" inputmode="decimal" placeholder="'+t('ph_xamt')+'" value="'+esc(d.pct!=null && d.pct!=='' ? d.pct+'%' : (d.amt||''))+'" oninput="calc(\''+p+'\')"></div>'+
+      '<div><label style="margin-top:0" data-i18n="x_amt">'+t('x_amt')+'</label><div style="display:flex;gap:6px"><input type="number" class="x-amt" inputmode="decimal" placeholder="0" style="flex:1" value="'+esc(d.pct!=null && d.pct!=='' ? d.pct : (d.amt||''))+'" oninput="calc(\''+p+'\')">'+
+      '<select class="x-unit" style="flex:0 0 76px;padding:11px 6px" onchange="calc(\''+p+'\')">'+
+        '<option value="baht"'+((d.pct==null||d.pct==='')?' selected':'')+'>฿</option>'+
+        '<option value="pct"'+((d.pct!=null&&d.pct!=='')?' selected':'')+'>%</option>'+
+      '</select></div></div>'+
     '</div>'+
     '<div class="pay-hint x-calc"></div>';
   $(p+'-extras').appendChild(box);
@@ -1181,13 +1185,15 @@ function readExtras(p, base){
   const out = [];
   $(p+'-extras').querySelectorAll('.item-box').forEach(b=>{
     const name = b.querySelector('.x-name').value.trim();
-    const raw = String(b.querySelector('.x-amt').value||'').trim();
+    const raw = num(b.querySelector('.x-amt').value);
+    const unitSel = b.querySelector('.x-unit');
+    const isPct = unitSel && unitSel.value === 'pct';
     let amt = 0, pct = null;
-    if(/%\s*$/.test(raw)){
-      pct = num(raw.replace('%',''));
+    if(isPct){
+      pct = raw;
       amt = (num(base)||0) * pct / 100;
     } else {
-      amt = num(raw);
+      amt = raw;
     }
     const line = b.querySelector('.x-calc');
     if(line) line.innerHTML = (pct!=null && pct>0) ? esc(name||'')+' '+fmt(pct)+'% × '+fmt(base)+' = <b style="color:var(--gold)">'+fmt(amt)+' ฿</b>' : '';
