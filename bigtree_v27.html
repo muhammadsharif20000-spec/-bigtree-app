@@ -549,7 +549,14 @@ const I18N = {
  k_balsum:['คงเหลือรวม','Total Balance'], h_origin:['แหล่ง/ชนิด','Origin'], h_grade:['เกรด','Grade'], h_buyq:['ซื้อ','Bought'], h_sellq:['ขาย','Sold'], h_bal:['คงเหลือ','Balance'], k_noorigin:['ไม่ระบุแหล่ง','Origin not set'], k_sum:['รวม','Total: '],
  empty_stock:['ยังไม่มีข้อมูลสต็อก<br>บันทึกซื้อรายการแรกก่อนครับ','No stock data yet<br>Add your first purchase'],
  p_rev:['ยอดขายรวม (Revenue)','Total Sales (Revenue)'], p_cost:['ยอดซื้อรวม (Cost)','Total Purchases (Cost)'], p_cin:['เงินสดรับจริง','Cash Received'], p_cout:['เงินสดจ่ายจริง','Cash Paid'],
- p_3t:['📊 กำไร 3 รูปแบบ (จากรายการขายที่กรอกรายละเอียด)','📊 Profit — 3 Types (from detailed sales)'],
+ p_3t:['📊 สรุปกำไรจากบิลขายทั้งหมด','📊 Profit Summary — All Sales Bills'],
+ p_l4:['④ กำไรค่าบริการอื่นๆ','④ Other Service Charges'],
+ pr_gross:['กำไรขั้นต้น (ยอดขาย − ต้นทุนสินค้า)','Gross Profit (Sales − Cost of Goods)'],
+ pr_comm:['หัก ค่าคอมมิชชัน','Less: Commission'], pr_ship:['หัก ค่าขนส่ง/ดำเนินการ','Less: Shipping/Logistics'], pr_other:['หัก ค่าใช้จ่ายเพิ่มเติมอื่นๆ','Less: Other Charges'],
+ pr_legacy:['บวก กำไรคอม/ขนส่ง (บิลรูปแบบเก่า)','Add: Comm/Logistics profit (legacy bills)'],
+ pr_net:['กำไรสุทธิ','Net Profit'],
+ pr_detail:['📄 ดูรายละเอียดรายบิล (คอมมิชชั่น / ขนส่ง / อื่นๆ)','📄 Per-bill details (commission / shipping / others)'],
+ pr_bill:['บิล','Bill'], pr_none:['ยังไม่มีบิลที่มีค่าคอมมิชชั่น/ค่าขนส่ง','No bills with commission/shipping yet'],
  p_l1:['① กำไรส่วนต่าง (ขาย − ต้นทุนเฉลี่ย)','① Margin Profit (Sales − Avg. Cost)'], p_l2:['② กำไรค่าคอมมิชชั่น (Commission)','② Commission Profit'], p_l3:['③ กำไรค่าขนส่ง/ดำเนินการ (Logistics)','③ Logistics Profit'], p_lnet:['รวมกำไรสุทธิ (①+②+③)','Net Profit (①+②+③)'],
  p_gross:['กำไรขั้นต้น (ขายรวม − ซื้อรวม)','Gross Profit (Sales − Purchases)'],
  d_ar_sum:['ลูกหนี้ค้างเรารวม','Total Receivables'], d_ap_sum:['เราค้างจ่ายรวม','Total Payables'], d_none:['🎉 ไม่มียอดค้างชำระ','🎉 No outstanding balance'],
@@ -1715,14 +1722,53 @@ function renderStockList(){
   body.innerHTML = html || '<div class="empty">—</div>';
 }
 function renderStock(){ renderStockList(); }
+// ── เครื่องคิดกำไรกลาง: ใช้ชุดเดียวกันทั้ง หน้ากำไร / Dashboard / รายงาน ──
+function classifyExtra(name){
+  const s = String(name||'').toLowerCase();
+  if(/คอม|commission|comm/.test(s)) return 'comm';
+  if(/ขนส่ง|ค่าส่ง|จัดส่ง|ship|logist|transport|deliver/.test(s)) return 'ship';
+  return 'other';
+}
+function sellBreakdown(rec, costMap){
+  const n = parseNote(rec.note);
+  const items = recItems(rec);
+  const revenue = num(rec.total);
+  let cost = (n.pf && num(n.pf.cost)>0) ? num(n.pf.cost) : items.reduce((a,it)=>{
+    const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+    const e = costMap[k];
+    return a + ((e && e.qty>0) ? (e.cost/e.qty)*num(it.qty) : 0);
+  }, 0);
+  let comm=0, ship=0, other=0; const commPct=[];
+  (n.extras||[]).forEach(x=>{
+    const cl = classifyExtra(x.name);
+    const a = num(x.amt);
+    if(cl==='comm'){ comm+=a; if(x.pct!=null && num(x.pct)>0 && !commPct.includes(num(x.pct))) commPct.push(num(x.pct)); }
+    else if(cl==='ship') ship+=a;
+    else other+=a;
+  });
+  // รวมบิลรูปแบบเก่าที่กรอก % ในช่องรายละเอียดกำไรด้วย
+  if(n.pf){ comm += num(n.pf.cP); ship += num(n.pf.sP); }
+  const itemsTotal = items.reduce((a,it)=>a+num(it.amt),0);
+  const mP = itemsTotal - cost;               // ① กำไรส่วนต่าง (ค่าสินค้า − ต้นทุนเฉลี่ย)
+  const net = mP + comm + ship + other;       // กำไรสุทธิ = ① + ② + ③ (+อื่นๆ)
+  return {id:rec.id, date:rec.date, customer:rec.customer, revenue, cost, itemsTotal, mP, comm, ship, other, commPct, net};
+}
+function profitAll(sells){
+  const cm = buildCostMap();
+  const rows = (sells||cache.sells).map(r=>sellBreakdown(r, cm));
+  const sum = f => rows.reduce((a,r)=>a+r[f],0);
+  const pcts = [];
+  rows.forEach(r=>r.commPct.forEach(p=>{ if(!pcts.includes(p)) pcts.push(p); }));
+  return {rows, mP:sum('mP'), comm:sum('comm'), ship:sum('ship'), other:sum('other'), net:sum('net'), pcts};
+}
 function renderProfit(){
   const rev = cache.sells.reduce((a,r)=>a+num(r.total),0);
   const cost = cache.buys.reduce((a,r)=>a+num(r.total),0);
   const cashIn = cache.sells.reduce((a,r)=>a+num(r.paid),0);
   const cashOut = cache.buys.reduce((a,r)=>a+num(r.paid),0);
-  let mP=0,cP=0,sP=0;
-  cache.sells.forEach(r=>{ const pf = parseNote(r.note).pf; if(pf){ mP+=num(pf.mP); cP+=num(pf.cP); sP+=num(pf.sP); } });
-  const net3 = mP+cP+sP;
+  const P = profitAll();
+  const pctTxt = P.pcts.length ? ' ('+P.pcts.map(x=>fmt(x)+'%').join(', ')+')' : '';
+  const detailRows = P.rows.filter(r=>r.comm||r.ship||r.other);
   $('profit-body').innerHTML =
     '<div class="stat-grid">'+
       '<div class="stat"><div class="l">'+t('p_rev')+'</div><div class="v" style="color:var(--ok)">'+fmt(rev)+' ฿</div></div>'+
@@ -1732,11 +1778,19 @@ function renderProfit(){
     '</div>'+
     '<div class="card" style="margin-top:12px"><div class="sec-title" style="margin-bottom:8px">'+t('p_3t')+'</div>'+
       '<table class="tb">'+
-      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(mP)+' ฿</td></tr>'+
-      '<tr><td>'+t('p_l2')+'</td><td class="r" style="font-weight:800">'+fmt(cP)+' ฿</td></tr>'+
-      '<tr><td>'+t('p_l3')+'</td><td class="r" style="font-weight:800">'+fmt(sP)+' ฿</td></tr>'+
-      '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800;font-size:16px">'+fmt(net3)+' ฿</td></tr>'+
+      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(P.mP)+' ฿</td></tr>'+
+      '<tr><td>'+t('p_l2')+pctTxt+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.comm)+' ฿</td></tr>'+
+      '<tr><td>'+t('p_l3')+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.ship)+' ฿</td></tr>'+
+      (P.other ? '<tr><td>'+t('p_l4')+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.other)+' ฿</td></tr>' : '')+
+      '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800;font-size:16px">'+fmt(P.net)+' ฿</td></tr>'+
       '</table></div>'+
+    '<div class="card"><details><summary style="cursor:pointer;font-weight:700;color:var(--gold)">'+t('pr_detail')+' ('+detailRows.length+')</summary>'+
+      (detailRows.length ?
+        '<table class="tb" style="margin-top:10px"><tr><th>'+t('pr_bill')+'</th><th>'+t('rp_date')+'</th><th class="r">'+t('pr_comm').replace('หัก ','').replace('Less: ','')+'</th><th class="r">'+t('pr_ship').replace('หัก ','').replace('Less: ','')+'</th><th class="r">'+t('pr_other').replace('หัก ','').replace('Less: ','')+'</th></tr>'+
+        detailRows.map(r=>'<tr style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><td><b style="color:var(--gold)">'+esc(r.id)+'</b><div style="font-size:10.5px;color:var(--mut)">'+esc(r.customer||'')+'</div></td><td>'+fdate(r.date)+'</td><td class="r">'+(r.comm?fmt(r.comm):'-')+'</td><td class="r">'+(r.ship?fmt(r.ship):'-')+'</td><td class="r">'+(r.other?fmt(r.other):'-')+'</td></tr>').join('')+
+        '</table>'
+      : '<div class="empty">'+t('pr_none')+'</div>')+
+    '</details></div>'+
     '<div class="card"><table class="tb"><tr><td>'+t('p_gross')+'</td><td class="r" style="font-weight:800;color:'+((rev-cost)>=0?'var(--ok)':'var(--bad)')+'">'+fmt(rev-cost)+' ฿</td></tr></table></div>';
 }
 function renderDebt(kind){
@@ -1909,7 +1963,8 @@ function monthSums(key){ // key 'YYYY-MM'
   const exps = (cache.expenses||[]).filter(inM), loans = (cache.loans||[]).filter(inM);
   const buy = buys.reduce((a,r)=>a+num(r.total),0);
   const sell = sells.reduce((a,r)=>a+num(r.total),0);
-  let profit = 0; sells.forEach(r=>{ const pf=parseNote(r.note).pf; if(pf) profit+=num(pf.net); });
+  const _cm = buildCostMap();
+  let profit = 0; sells.forEach(r=>{ profit += sellBreakdown(r, _cm).net; });
   const exp = exps.reduce((a,r)=>a+num(r.amount),0);
   const lend = loans.filter(r=>r.type==='lend').reduce((a,r)=>a+(num(r.amount)||num(r.total)),0);
   const borrow = loans.filter(r=>r.type==='borrow').reduce((a,r)=>a+(num(r.amount)||num(r.total)),0);
