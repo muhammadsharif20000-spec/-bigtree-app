@@ -550,14 +550,15 @@ const I18N = {
  empty_stock:['ยังไม่มีข้อมูลสต็อก<br>บันทึกซื้อรายการแรกก่อนครับ','No stock data yet<br>Add your first purchase'],
  p_rev:['ยอดขายรวม (Revenue)','Total Sales (Revenue)'], p_cost:['ยอดซื้อรวม (Cost)','Total Purchases (Cost)'], p_cin:['เงินสดรับจริง','Cash Received'], p_cout:['เงินสดจ่ายจริง','Cash Paid'],
  p_3t:['📊 สรุปกำไรจากบิลขายทั้งหมด','📊 Profit Summary — All Sales Bills'],
- p_l4:['④ กำไรค่าบริการอื่นๆ','④ Other Service Charges'],
- pr_gross:['กำไรขั้นต้น (ยอดขาย − ต้นทุนสินค้า)','Gross Profit (Sales − Cost of Goods)'],
- pr_comm:['หัก ค่าคอมมิชชัน','Less: Commission'], pr_ship:['หัก ค่าขนส่ง/ดำเนินการ','Less: Shipping/Logistics'], pr_other:['หัก ค่าใช้จ่ายเพิ่มเติมอื่นๆ','Less: Other Charges'],
- pr_legacy:['บวก กำไรคอม/ขนส่ง (บิลรูปแบบเก่า)','Add: Comm/Logistics profit (legacy bills)'],
- pr_net:['กำไรสุทธิ','Net Profit'],
- pr_detail:['📄 ดูรายละเอียดรายบิล (คอมมิชชั่น / ขนส่ง / อื่นๆ)','📄 Per-bill details (commission / shipping / others)'],
- pr_bill:['บิล','Bill'], pr_none:['ยังไม่มีบิลที่มีค่าคอมมิชชั่น/ค่าขนส่ง','No bills with commission/shipping yet'],
- p_l1:['① กำไรส่วนต่าง (ขาย − ต้นทุนเฉลี่ย)','① Margin Profit (Sales − Avg. Cost)'], p_l2:['② กำไรค่าคอมมิชชั่น (Commission)','② Commission Profit'], p_l3:['③ กำไรค่าขนส่ง/ดำเนินการ (Logistics)','③ Logistics Profit'], p_lnet:['รวมกำไรสุทธิ (①+②+③)','Net Profit (①+②+③)'],
+ pr_rev:['ยอดขาย','Sales'], pr_cost:['ต้นทุน','Cost'],
+ p_l1:['① กำไรส่วนต่าง','① Margin Profit'], p_l2:['② กำไรค่าคอมมิชชั่น (Commission)','② Commission Profit'], p_l3:['③ กำไรค่าขนส่ง/ดำเนินการ (Logistics)','③ Logistics Profit'], p_l4:['④ ค่าบริการอื่นๆ','④ Other Charges'],
+ p_lnet:['รวมกำไรสุทธิ (①+②+③)','Net Profit (①+②+③)'],
+ pr_detail:['📄 กำไรรายบิล (ทุกบิล)','📄 Per-Bill Profit (all bills)'],
+ pr_bill:['บิล','Bill'], pr_none:['ยังไม่มีรายการขาย','No sales yet'],
+ pr_overview:['📊 ภาพรวมทั้งหมด','📊 Overall Summary'], pr_cust_n:['จำนวนลูกค้า','Customers'], pr_bill_n:['จำนวนบิล','Bills'],
+ pr_bycust:['👥 สรุปกำไรรายบุคคล','👥 Profit by Customer'], pr_bills_of:['จำนวนบิล','Bills'],
+ pr_from:['จากวันที่','From'], pr_to:['ถึงวันที่','To'], pr_search:['🔍 ค้นหาชื่อลูกค้า...','🔍 Search customer...'], pr_clear:['ล้างตัวกรอง','Clear filter'],
+ pr_total_net:['รวมกำไรสุทธิ','Total Net Profit'], pr_toggle:['📊 กำไรบิลนี้','📊 Bill Profit'],
  p_gross:['กำไรขั้นต้น (ขายรวม − ซื้อรวม)','Gross Profit (Sales − Purchases)'],
  d_ar_sum:['ลูกหนี้ค้างเรารวม','Total Receivables'], d_ap_sum:['เราค้างจ่ายรวม','Total Payables'], d_none:['🎉 ไม่มียอดค้างชำระ','🎉 No outstanding balance'],
  rb_title:['ใบเสร็จ / เอกสาร','Receipt / Document'], btn_print:['🖨️ พิมพ์ / PDF','🖨️ Print / PDF'], btn_saveimg:['💾 บันทึกรูป','💾 Save Image'], btn_share:['📤 แชร์','📤 Share'],
@@ -670,7 +671,7 @@ const I18N_AR = {
  empty_stock:'لا توجد بيانات مخزون بعد<br>أضف أول عملية شراء',
  p_rev:'إجمالي المبيعات (الإيرادات)', p_cost:'إجمالي المشتريات (التكلفة)', p_cin:'النقد المستلم', p_cout:'النقد المدفوع',
  p_3t:'📊 الأرباح — ثلاثة أنواع (من المبيعات المفصّلة)',
- p_l1:'① ربح الفارق (البيع − متوسط التكلفة)', p_l2:'② ربح العمولة', p_l3:'③ ربح الشحن/التشغيل', p_lnet:'صافي الربح (①+②+③)',
+ p_l1:'① هامش الربح', p_l2:'② العمولة', p_l3:'③ الشحن', p_lnet:'صافي الربح (①+②+③)', pr_overview:'📊 نظرة عامة', pr_bycust:'👥 الربح حسب العميل',
  p_gross:'إجمالي الربح (المبيعات − المشتريات)',
  d_ar_sum:'إجمالي الذمم المدينة', d_ap_sum:'إجمالي الذمم الدائنة', d_none:'🎉 لا توجد مستحقات',
  rb_title:'الإيصال / المستند', btn_print:'🖨️ طباعة / PDF', btn_saveimg:'💾 حفظ صورة', btn_share:'📤 مشاركة',
@@ -1218,19 +1219,17 @@ function buildCostMap(){
     items.forEach(it=>{
       if(num(it.qty)<=0) return;
       const share = itemsTotal>0 ? overhead*(num(it.amt)/itemsTotal) : 0;
-      [(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''), '*|*|'+(it.unit||'')].forEach(k=>{
-        if(!m[k]) m[k]={cost:0, qty:0};
-        m[k].cost += num(it.amt)+share;
-        m[k].qty  += num(it.qty);
-      });
+      const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+      if(!m[k]) m[k]={cost:0, qty:0};
+      m[k].cost += num(it.amt)+share;
+      m[k].qty  += num(it.qty);
     });
   });
   return m;
 }
 function avgCostFor(it, m){
   const k1 = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
-  const k2 = '*|*|'+(it.unit||'');
-  const e = (m[k1]&&m[k1].qty>0)?m[k1]:((m[k2]&&m[k2].qty>0)?m[k2]:null);
+  const e = (m[k1]&&m[k1].qty>0) ? m[k1] : null;
   return e ? e.cost/e.qty : 0;
 }
 
@@ -1585,9 +1584,30 @@ function recCard(p, rec, isLatest){
     '<span class="'+stClass(rec.status)+'">'+esc(stTxt(rec.status)||'-')+'</span></div>'+
     '<div class="rec-actions">'+
       '<button class="ract gold" onclick="openReceipt(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_receipt')+'</button>'+
+      (isBuy ? '' : '<button class="ract" onclick="toggleBillProfit(\''+esc(rec.id)+'\')">'+t('pr_toggle')+'</button>')+
       '<button class="ract" onclick="editRec(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_edit')+'</button>'+
       '<button class="ract red" onclick="delRec(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_del')+'</button>'+
-    '</div></div>';
+    '</div>'+
+    (isBuy?'':'<div id="pf-'+esc(rec.id)+'" style="display:none"></div>')+
+    '</div>';
+}
+function toggleBillProfit(id){
+  const el = document.getElementById('pf-'+id); if(!el) return;
+  if(el.style.display==='block'){ el.style.display='none'; return; }
+  const rec = cache.sells.find(r=>String(r.id)===String(id));
+  if(rec){
+    const b = sellBreakdown(rec, buildCostMap());
+    el.innerHTML = '<table class="tb" style="margin-top:8px">'+
+      '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(b.revenue)+'</td></tr>'+
+      '<tr><td>'+t('pr_cost')+'</td><td class="r">'+fmt(b.cost)+'</td></tr>'+
+      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(b.mP)+'</td></tr>'+
+      '<tr><td>'+t('p_l2')+(b.commPct.length?' ('+b.commPct.map(x=>fmt(x)+'%').join(', ')+')':'')+'</td><td class="r">'+fmt(b.comm)+'</td></tr>'+
+      '<tr><td>'+t('p_l3')+'</td><td class="r">'+fmt(b.ship)+'</td></tr>'+
+      (b.other?'<tr><td>'+t('p_l4')+'</td><td class="r">'+fmt(b.other)+'</td></tr>':'')+
+      '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800">'+fmt(b.net)+' ฿</td></tr>'+
+      '</table>';
+  }
+  el.style.display='block';
 }
 function renderList(p){
   const arr = p==='b' ? cache.buys : cache.sells;
@@ -1732,12 +1752,13 @@ function classifyExtra(name){
 function sellBreakdown(rec, costMap){
   const n = parseNote(rec.note);
   const items = recItems(rec);
-  const revenue = num(rec.total);
-  let cost = (n.pf && num(n.pf.cost)>0) ? num(n.pf.cost) : items.reduce((a,it)=>{
+  const itemsTotal = items.reduce((a,it)=>a+num(it.amt),0); // ยอดขาย
+  let cost = items.reduce((a,it)=>{
     const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
     const e = costMap[k];
     return a + ((e && e.qty>0) ? (e.cost/e.qty)*num(it.qty) : 0);
   }, 0);
+  if(cost<=0 && n.pf && num(n.pf.cost)>0) cost = num(n.pf.cost); // สำรองจากบิลเก่า
   let comm=0, ship=0, other=0; const commPct=[];
   (n.extras||[]).forEach(x=>{
     const cl = classifyExtra(x.name);
@@ -1746,52 +1767,107 @@ function sellBreakdown(rec, costMap){
     else if(cl==='ship') ship+=a;
     else other+=a;
   });
-  // รวมบิลรูปแบบเก่าที่กรอก % ในช่องรายละเอียดกำไรด้วย
+  // รวมบิลรูปแบบเก่าที่กรอก % ในช่องรายละเอียดกำไรด้วย (คอม=cP, ขนส่ง=sP)
   if(n.pf){ comm += num(n.pf.cP); ship += num(n.pf.sP); }
-  const itemsTotal = items.reduce((a,it)=>a+num(it.amt),0);
-  const mP = itemsTotal - cost;               // ① กำไรส่วนต่าง (ค่าสินค้า − ต้นทุนเฉลี่ย)
-  const net = mP + comm + ship + other;       // กำไรสุทธิ = ① + ② + ③ (+อื่นๆ)
-  return {id:rec.id, date:rec.date, customer:rec.customer, revenue, cost, itemsTotal, mP, comm, ship, other, commPct, net};
+  const mP = itemsTotal - cost;                    // ① กำไรส่วนต่าง = ยอดขาย − ต้นทุน
+  const net = mP + comm + ship + other;            // กำไรสุทธิ = ① + ② คอมมิชชั่น + ③ ขนส่ง (+ อื่นๆ)
+  return {id:rec.id, date:rec.date, customer:rec.customer||'-', revenue:itemsTotal, itemsTotal, cost, mP, comm, ship, other, commPct, net};
 }
-function profitAll(sells){
+function profitAll(sells, from, to){
   const cm = buildCostMap();
-  const rows = (sells||cache.sells).map(r=>sellBreakdown(r, cm));
+  let src = sells || cache.sells;
+  if(from) src = src.filter(r=>{ const d=String(r.date||'').split('T')[0]; return d>=from; });
+  if(to)   src = src.filter(r=>{ const d=String(r.date||'').split('T')[0]; return d<=to; });
+  const rows = src.map(r=>sellBreakdown(r, cm));
   const sum = f => rows.reduce((a,r)=>a+r[f],0);
   const pcts = [];
   rows.forEach(r=>r.commPct.forEach(p=>{ if(!pcts.includes(p)) pcts.push(p); }));
-  return {rows, mP:sum('mP'), comm:sum('comm'), ship:sum('ship'), other:sum('other'), net:sum('net'), pcts};
+  return {rows, revenue:sum('revenue'), cost:sum('cost'), mP:sum('mP'), comm:sum('comm'), ship:sum('ship'), other:sum('other'), net:sum('net'), pcts};
 }
+function customerProfitGroups(rows){
+  const g = {};
+  rows.forEach(r=>{
+    const name = r.customer||'-';
+    if(!g[name]) g[name] = {name, count:0, revenue:0, cost:0, mP:0, comm:0, ship:0, other:0, net:0, rows:[]};
+    const x = g[name];
+    x.count++; x.revenue+=r.revenue; x.cost+=r.cost; x.mP+=r.mP; x.comm+=r.comm; x.ship+=r.ship; x.other+=r.other; x.net+=r.net;
+    x.rows.push(r);
+  });
+  return Object.values(g).sort((a,b)=>b.net-a.net);
+}
+let prFrom = '', prTo = '', prQ = '';
+function prSetRange(){ prFrom=$('pr-from').value; prTo=$('pr-to').value; renderProfit(); }
+function prSetSearch(){ prQ=$('pr-q').value.trim().toLowerCase(); renderProfit(); }
+function prClear(){ prFrom=''; prTo=''; prQ=''; const f=$('pr-from'),tt=$('pr-to'),q=$('pr-q'); if(f)f.value=''; if(tt)tt.value=''; if(q)q.value=''; renderProfit(); }
 function renderProfit(){
-  const rev = cache.sells.reduce((a,r)=>a+num(r.total),0);
-  const cost = cache.buys.reduce((a,r)=>a+num(r.total),0);
   const cashIn = cache.sells.reduce((a,r)=>a+num(r.paid),0);
   const cashOut = cache.buys.reduce((a,r)=>a+num(r.paid),0);
-  const P = profitAll();
+  const P = profitAll(null, prFrom, prTo);
   const pctTxt = P.pcts.length ? ' ('+P.pcts.map(x=>fmt(x)+'%').join(', ')+')' : '';
-  const detailRows = P.rows.filter(r=>r.comm||r.ship||r.other);
+  let groups = customerProfitGroups(P.rows);
+  if(prQ) groups = groups.filter(g=>g.name.toLowerCase().includes(prQ));
+
+  const custRows = groups.map(g=>
+    '<details style="margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card2)">'+
+      '<summary style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">'+
+        '<span><b style="font-size:13.5px">'+esc(g.name)+'</b><span style="color:var(--mut);font-size:11.5px"> · '+g.count+' '+t('pr_bills_of')+'</span></span>'+
+        '<b style="color:'+(g.net>=0?'var(--gold)':'var(--bad)')+'">'+fmt(g.net)+' ฿</b>'+
+      '</summary>'+
+      '<table class="tb" style="margin-top:8px">'+
+        '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(g.revenue)+'</td></tr>'+
+        '<tr><td>'+t('p_l1')+'</td><td class="r">'+fmt(g.mP)+'</td></tr>'+
+        '<tr><td>'+t('p_l2')+'</td><td class="r">'+fmt(g.comm)+'</td></tr>'+
+        '<tr><td>'+t('p_l3')+'</td><td class="r">'+fmt(g.ship)+'</td></tr>'+
+      '</table>'+
+      '<div style="margin-top:8px;font-size:12px;color:var(--mut);font-weight:700">'+t('pr_bill')+':</div>'+
+      g.rows.map(r=>'<div class="rec-mid" style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><span class="chip"><b style="color:var(--gold)">'+esc(r.id)+'</b> '+fdate(r.date)+' → <b style="color:'+(r.net>=0?'var(--ok)':'var(--bad)')+'">'+fmt(r.net)+' ฿</b></span></div>').join('')+
+      '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-weight:800">'+
+        '<span>'+t('pr_total_net')+'</span><span style="color:var(--gold)">'+fmt(g.net)+' ฿</span></div>'+
+    '</details>'
+  ).join('');
+
   $('profit-body').innerHTML =
-    '<div class="stat-grid">'+
-      '<div class="stat"><div class="l">'+t('p_rev')+'</div><div class="v" style="color:var(--ok)">'+fmt(rev)+' ฿</div></div>'+
-      '<div class="stat"><div class="l">'+t('p_cost')+'</div><div class="v" style="color:var(--bad)">'+fmt(cost)+' ฿</div></div>'+
-      '<div class="stat"><div class="l">'+t('p_cin')+'</div><div class="v">'+fmt(cashIn)+' ฿</div></div>'+
-      '<div class="stat"><div class="l">'+t('p_cout')+'</div><div class="v">'+fmt(cashOut)+' ฿</div></div>'+
+    '<div class="card"><div class="row2">'+
+      '<div><label style="margin-top:0">'+t('pr_from')+'</label><input type="date" id="pr-from" value="'+esc(prFrom)+'" onchange="prSetRange()"></div>'+
+      '<div><label style="margin-top:0">'+t('pr_to')+'</label><input type="date" id="pr-to" value="'+esc(prTo)+'" onchange="prSetRange()"></div>'+
     '</div>'+
-    '<div class="card" style="margin-top:12px"><div class="sec-title" style="margin-bottom:8px">'+t('p_3t')+'</div>'+
+    '<input id="pr-q" placeholder="'+t('pr_search')+'" value="'+esc(prQ)+'" oninput="prSetSearch()" style="margin-top:10px">'+
+    ((prFrom||prTo||prQ) ? '<button class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:8px" onclick="prClear()">✕ '+t('pr_clear')+'</button>' : '')+
+    '</div>'+
+    '<div class="stat-grid" style="margin-top:12px">'+
+      '<div class="stat"><div class="l">'+t('pr_cust_n')+'</div><div class="v">'+groups.length+'</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_bill_n')+'</div><div class="v">'+P.rows.length+'</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_rev')+'</div><div class="v" style="color:var(--ok)">'+fmt(P.revenue)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_cost')+'</div><div class="v" style="color:var(--bad)">'+fmt(P.cost)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l1')+'</div><div class="v">'+fmt(P.mP)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l2')+pctTxt+'</div><div class="v">'+fmt(P.comm)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l3')+'</div><div class="v">'+fmt(P.ship)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_lnet')+'</div><div class="v" style="color:var(--gold)">'+fmt(P.net)+' ฿</div></div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:12px"><div class="sec-title" style="margin-bottom:8px">'+t('pr_overview')+'</div>'+
       '<table class="tb">'+
-      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(P.mP)+' ฿</td></tr>'+
-      '<tr><td>'+t('p_l2')+pctTxt+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.comm)+' ฿</td></tr>'+
-      '<tr><td>'+t('p_l3')+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.ship)+' ฿</td></tr>'+
-      (P.other ? '<tr><td>'+t('p_l4')+'</td><td class="r" style="font-weight:800;color:var(--ok)">'+fmt(P.other)+' ฿</td></tr>' : '')+
+      '<tr><td>'+t('pr_cust_n')+'</td><td class="r">'+groups.length+'</td></tr>'+
+      '<tr><td>'+t('pr_bill_n')+'</td><td class="r">'+P.rows.length+'</td></tr>'+
+      '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(P.revenue)+'</td></tr>'+
+      '<tr><td>'+t('pr_cost')+'</td><td class="r">'+fmt(P.cost)+'</td></tr>'+
+      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(P.mP)+'</td></tr>'+
+      '<tr><td>'+t('p_l2')+pctTxt+'</td><td class="r" style="font-weight:800">'+fmt(P.comm)+'</td></tr>'+
+      '<tr><td>'+t('p_l3')+'</td><td class="r" style="font-weight:800">'+fmt(P.ship)+'</td></tr>'+
+      (P.other ? '<tr><td>'+t('p_l4')+'</td><td class="r" style="font-weight:800">'+fmt(P.other)+'</td></tr>' : '')+
       '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800;font-size:16px">'+fmt(P.net)+' ฿</td></tr>'+
       '</table></div>'+
-    '<div class="card"><details><summary style="cursor:pointer;font-weight:700;color:var(--gold)">'+t('pr_detail')+' ('+detailRows.length+')</summary>'+
-      (detailRows.length ?
-        '<table class="tb" style="margin-top:10px"><tr><th>'+t('pr_bill')+'</th><th>'+t('rp_date')+'</th><th class="r">'+t('pr_comm').replace('หัก ','').replace('Less: ','')+'</th><th class="r">'+t('pr_ship').replace('หัก ','').replace('Less: ','')+'</th><th class="r">'+t('pr_other').replace('หัก ','').replace('Less: ','')+'</th></tr>'+
-        detailRows.map(r=>'<tr style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><td><b style="color:var(--gold)">'+esc(r.id)+'</b><div style="font-size:10.5px;color:var(--mut)">'+esc(r.customer||'')+'</div></td><td>'+fdate(r.date)+'</td><td class="r">'+(r.comm?fmt(r.comm):'-')+'</td><td class="r">'+(r.ship?fmt(r.ship):'-')+'</td><td class="r">'+(r.other?fmt(r.other):'-')+'</td></tr>').join('')+
-        '</table>'
+    '<div class="card"><div class="sec-title">'+t('pr_bycust')+'</div>'+(custRows || '<div class="empty">'+t('pr_none')+'</div>')+'</div>'+
+    '<div class="card"><details><summary style="cursor:pointer;font-weight:700;color:var(--gold)">'+t('pr_detail')+' ('+P.rows.length+')</summary>'+
+      (P.rows.length ?
+        '<div style="overflow-x:auto;margin-top:10px"><table class="tb" style="min-width:640px"><tr><th>'+t('pr_bill')+'</th><th>'+t('rp_date')+'</th><th class="r">'+t('pr_rev')+'</th><th class="r">'+t('pr_cost')+'</th><th class="r">①</th><th class="r">②</th><th class="r">③</th><th class="r">'+t('pr_net')+'</th></tr>'+
+        P.rows.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>'<tr style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><td><b style="color:var(--gold)">'+esc(r.id)+'</b><div style="font-size:10.5px;color:var(--mut)">'+esc(r.customer||'')+'</div></td><td>'+fdate(r.date)+'</td><td class="r">'+fmt(r.revenue)+'</td><td class="r">'+fmt(r.cost)+'</td><td class="r">'+fmt(r.mP)+'</td><td class="r">'+(r.comm?fmt(r.comm):'-')+'</td><td class="r">'+(r.ship?fmt(r.ship):'-')+'</td><td class="r" style="font-weight:800;color:'+(r.net>=0?'var(--ok)':'var(--bad)')+'">'+fmt(r.net)+'</td></tr>').join('')+
+        '</table></div>'
       : '<div class="empty">'+t('pr_none')+'</div>')+
     '</details></div>'+
-    '<div class="card"><table class="tb"><tr><td>'+t('p_gross')+'</td><td class="r" style="font-weight:800;color:'+((rev-cost)>=0?'var(--ok)':'var(--bad)')+'">'+fmt(rev-cost)+' ฿</td></tr></table></div>';
+    '<div class="card"><table class="tb">'+
+      '<tr><td>'+t('p_cin')+'</td><td class="r">'+fmt(cashIn)+' ฿</td></tr>'+
+      '<tr><td>'+t('p_cout')+'</td><td class="r">'+fmt(cashOut)+' ฿</td></tr>'+
+    '</table></div>';
 }
 function renderDebt(kind){
   const isAR = kind==='ar';
