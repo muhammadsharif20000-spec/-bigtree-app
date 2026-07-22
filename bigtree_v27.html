@@ -323,8 +323,8 @@ table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
           <label data-i18n="l_commp">ค่าคอมมิชชั่น (%)</label>
           <input type="number" id="s-comm" inputmode="decimal" placeholder="0" oninput="calc('s')">
           <div class="row2">
-            <div><label data-i18n="l_shipc">ค่าส่งที่เก็บลูกค้า /หน่วย</label><input type="number" id="s-shipc" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
-            <div><label data-i18n="l_shipa">ค่าส่งจริงที่จ่าย /หน่วย</label><input type="number" id="s-shipa" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
+            <div><label data-i18n="l_shipc">ค่าขนส่งที่เก็บจากลูกค้า (บาท)</label><input type="number" id="s-shipc" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
+            <div><label data-i18n="l_shipa">ค่าขนส่งจริงที่จ่าย (บาท)</label><input type="number" id="s-shipa" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
           </div>
           <div class="pay-hint" id="s-pfhint" style="line-height:1.9"></div>
         </details>
@@ -524,7 +524,7 @@ const I18N = {
  btn_cancel:['ยกเลิก','Cancel'], save_buy:['บันทึกรายการซื้อ','Save Purchase'], save_sell:['บันทึกรายการขาย','Save Sale'], save_edit:['บันทึกการแก้ไข','Save Changes'], saving:['กำลังบันทึก...','Saving...'],
  latest_buy:['รายการซื้อล่าสุด','Recent Purchases'], latest_sell:['รายการขายล่าสุด','Recent Sales'],
  l_due:['กำหนดชำระ (Due Date)','Due Date'], pf_t:['รายละเอียดกำไร','Profit Details'],
- l_shipc:['ค่าส่งที่เก็บลูกค้า /หน่วย','Shipping charged /unit'], l_shipa:['ค่าส่งจริงที่จ่าย /หน่วย','Actual shipping /unit'],
+ l_shipc:['ค่าขนส่งที่เก็บจากลูกค้า (บาท)','Shipping collected from customer (THB)'], l_shipa:['ค่าขนส่งจริงที่จ่าย (บาท)','Actual shipping paid (THB)'],
  item_t:['รายการสินค้า','Item'], f_type:['ประเภท','Type'], f_origin:['แหล่ง/ชนิด','Origin/Kind'], f_grade:['เกรด','Grade'], f_qty:['จำนวน','Quantity'], f_price:['ราคา/หน่วย','Unit Price'], f_amt:['รวม','Total'],
  wood_o:['ไม้กฤษณา (กก.)','Agarwood (kg)'], oil_o:['น้ำมันกฤษณา (โตลา)','Agarwood Oil (tola)'],
  sel_origin:['— เลือกแหล่ง/ชนิด —','— Select origin —'],
@@ -649,7 +649,7 @@ const I18N_AR = {
  l_note:'ملاحظات', ph_optional:'اختياري', ph_ifany:'إن وجد',
  btn_cancel:'إلغاء', save_buy:'حفظ الشراء', save_sell:'حفظ البيع', save_edit:'حفظ التعديلات', saving:'جارٍ الحفظ...',
  latest_buy:'أحدث المشتريات', latest_sell:'أحدث المبيعات',
- l_due:'تاريخ الاستحقاق', pf_t:'تفاصيل الربح', l_shipc:'الشحن المحصّل / وحدة', l_shipa:'الشحن الفعلي / وحدة',
+ l_due:'تاريخ الاستحقاق', pf_t:'تفاصيل الربح', l_shipc:'الشحن المحصّل (بات)', l_shipa:'الشحن الفعلي المدفوع (بات)',
  item_t:'الصنف', f_type:'النوع', f_origin:'المصدر/الصنف', f_grade:'الدرجة', f_qty:'الكمية', f_price:'سعر الوحدة', f_amt:'الإجمالي',
  wood_o:'خشب العود (كجم)', oil_o:'دهن العود (تولة)', sel_origin:'— اختر المصدر —',
  x_name:'اسم الرسوم', ph_xname:'مثال: الشحن', x_amt:'المبلغ',
@@ -1298,7 +1298,7 @@ function calc(p){
     items.forEach(it=>{ costSum += avgCostFor(it, cmap) * it.qty; });
     const mP = itemsTotal - costSum;
     const cP = grand * comm / 100;
-    const sP = (shipc - shipa) * qtyAll;
+    const sP = shipc - shipa; // เก็บจากลูกค้า (บาท) − จ่ายจริง (บาท) โดยตรง ไม่คูณจำนวนหน่วยแล้ว
     const net = mP + cP + sP;
     pf = {cost:costSum, comm:comm, shipc:shipc, shipa:shipa, mP:mP, cP:cP, sP:sP, net:net};
     if($('s-diffline')) $('s-diffline').innerHTML = costSum>0
