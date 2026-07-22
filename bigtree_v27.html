@@ -539,6 +539,8 @@ const I18N = {
  cost_total:['ต้นทุนรวม','Total Cost'], units_w:['หน่วย','units'], avg_cost:['ต้นทุนเฉลี่ย','Avg. Cost'], per_unit:['฿/หน่วย','THB/unit'],
  avg_hist:['ต้นทุนเฉลี่ยจากประวัติซื้อ','Avg. cost from purchase history'], no_hist:['ยังไม่มีประวัติซื้อสินค้าชนิดนี้ ระบบถือว่าต้นทุน 0 ฿','No purchase history for this item — cost assumed 0'],
  ph_xamt:['เช่น 9000 หรือ 5%','e.g. 9000 or 5%'],
+ x_cost:['ต้นทุนจริง (ไม่บังคับ — ไม่แสดงบนบิล)','Actual cost (optional — hidden from bill)'], ph_xcost:['เช่น 1000','e.g. 1000'],
+ x_profit_line:['กำไรจากรายการนี้','Profit from this item'],
  pf1:['กำไรส่วนต่าง','Margin Profit'], pf1b:['ขาย','Sales'], pf1c:['ทุนเฉลี่ย','avg. cost'], pf_pu:['กำไรต่อหน่วย','Profit per Unit'], pf2:['กำไรคอมมิชชั่น','Commission Profit'], pf3:['กำไรค่าขนส่ง','Logistics Profit'], pf_net:['รวมกำไรสุทธิ','Net Profit'],
  st_paid:['จ่ายครบ','Paid'], st_part:['จ่ายบางส่วน','Partial'], st_unpaid:['ค้างชำระ','Unpaid'],
  k_latest:['ล่าสุด','Latest'], k_owe:['ค้าง','Owes'], k_due:['ครบกำหนด','Due'], k_receipt:['🧾 ใบเสร็จ','🧾 Receipt'], k_edit:['✏️ แก้ไข','✏️ Edit'], k_del:['🗑️ ลบ','🗑️ Delete'],
@@ -652,7 +654,7 @@ const I18N_AR = {
  l_due:'تاريخ الاستحقاق', pf_t:'تفاصيل الربح', l_shipc:'الشحن المحصّل (بات)', l_shipa:'الشحن الفعلي المدفوع (بات)',
  item_t:'الصنف', f_type:'النوع', f_origin:'المصدر/الصنف', f_grade:'الدرجة', f_qty:'الكمية', f_price:'سعر الوحدة', f_amt:'الإجمالي',
  wood_o:'خشب العود (كجم)', oil_o:'دهن العود (تولة)', sel_origin:'— اختر المصدر —',
- x_name:'اسم الرسوم', ph_xname:'مثال: الشحن', x_amt:'المبلغ',
+ x_name:'اسم الرسوم', ph_xname:'مثال: الشحن', x_amt:'المبلغ', x_cost:'التكلفة الفعلية (اختياري، مخفية عن الفاتورة)',
  inst:'الدفعة', pay_date:'تاريخ الدفع', pay_amt:'المبلغ (بات)', pay_method:'طريقة الدفع', pay_bank:'البنك (للتحويل)', pay_ref:'رقم مرجع التحويل',
  pm_cash:'نقدًا', pm_transfer:'تحويل بنكي', pm_cheque:'شيك', pm_other:'أخرى',
  pay_slip:'إرفاق إيصال الدفع (JPG / PNG / PDF)', slip_drop:'📎 اضغط لاختيار ملف أو اسحبه هنا',
@@ -1027,6 +1029,7 @@ function addExtra(p, data){
         '<option value="pct"'+((d.pct!=null&&d.pct!=='')?' selected':'')+'>%</option>'+
       '</select></div></div>'+
     '</div>'+
+    '<label style="margin-top:8px" data-i18n="x_cost">'+t('x_cost')+'</label><input type="number" class="x-cost" inputmode="decimal" data-i18n-ph="ph_xcost" placeholder="'+t('ph_xcost')+'" value="'+(d.cost||'')+'" oninput="calc(\''+p+'\')">'+
     '<div class="pay-hint x-calc"></div>';
   $(p+'-extras').appendChild(box);
   calc(p);
@@ -1203,9 +1206,14 @@ function readExtras(p, base){
     } else {
       amt = raw;
     }
+    const cost = num(b.querySelector('.x-cost') ? b.querySelector('.x-cost').value : 0);
     const line = b.querySelector('.x-calc');
-    if(line) line.innerHTML = (pct!=null && pct>0) ? esc(name||'')+' '+fmt(pct)+'% × '+fmt(base)+' = <b style="color:var(--gold)">'+fmt(amt)+' ฿</b>' : '';
-    if(name || amt || pct) out.push({name: name||'ค่าบริการ', amt:amt, pct:pct});
+    if(line){
+      const pctTxt = (pct!=null && pct>0) ? esc(name||'')+' '+fmt(pct)+'% × '+fmt(base)+' = <b style="color:var(--gold)">'+fmt(amt)+' ฿</b><br>' : '';
+      const profitTxt = (cost>0) ? t('x_profit_line')+': <b style="color:var(--gold)">'+fmt(amt-cost)+' ฿</b> ('+fmt(amt)+' − '+fmt(cost)+')' : '';
+      line.innerHTML = pctTxt + profitTxt;
+    }
+    if(name || amt || pct || cost) out.push({name: name||'ค่าบริการ', amt:amt, pct:pct, cost:cost});
   });
   return out;
 }
@@ -1762,7 +1770,7 @@ function sellBreakdown(rec, costMap){
   let comm=0, ship=0, other=0; const commPct=[];
   (n.extras||[]).forEach(x=>{
     const cl = classifyExtra(x.name);
-    const a = num(x.amt);
+    const a = num(x.amt) - num(x.cost); // หักต้นทุนจริง (ถ้ามี) ออกก่อน — เหลือเฉพาะกำไรสุทธิของรายการนั้น
     if(cl==='comm'){ comm+=a; if(x.pct!=null && num(x.pct)>0 && !commPct.includes(num(x.pct))) commPct.push(num(x.pct)); }
     else if(cl==='ship') ship+=a;
     else other+=a;
