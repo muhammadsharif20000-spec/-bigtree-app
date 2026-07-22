@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bigtree Agarwood</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f7f5ef; --card:#ffffff; --card2:#f3efe4; --line:#e2dac5;
+  --gold:#b8892b; --gold2:#9a6f14; --ink:#1e2433; --mut:#8a8266;
+  --ok:#1e8e5a; --warn:#b97710; --bad:#c0392b;
+  --rp-navy:#0a1628; --rp-gold:#b8892b;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+input,select,textarea,button{font-family:inherit;font-size:15px}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+input[readonly]{opacity:.85}
+label{display:block;font-size:12.5px;color:var(--mut);margin:10px 0 5px;font-weight:600}
+.page{display:none;min-height:100vh;padding-bottom:40px}
+.page.active{display:block}
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;position:sticky;top:0;background:linear-gradient(180deg,#f7f5ef 85%,rgba(247,245,239,0));z-index:20}
+.back{font-size:26px;color:var(--gold);cursor:pointer;padding:0 6px;line-height:1}
+.t-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ffffff,#f3efe4);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid var(--line)}
+.t-name{font-weight:800;font-size:17px}
+.t-sub{font-size:11.5px;color:var(--mut)}
+.t-right{margin-left:auto}
+.icon-btn{background:var(--card);border:1px solid var(--line);color:var(--gold);border-radius:10px;width:38px;height:38px;font-size:17px;cursor:pointer}
+.body{padding:0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(90,70,20,.05)}
+.empty{text-align:center;color:var(--mut);padding:28px 10px;font-size:14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:15.5px;cursor:pointer}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff}
+.btn-ghost{background:transparent;border:1.5px dashed var(--line);color:var(--mut)}
+.btn:disabled{opacity:.6}
+.loader{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* home */
+.home-hero{padding:26px 18px 8px;text-align:center}
+.home-logo{width:86px;height:86px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);box-shadow:0 0 24px rgba(184,137,43,.35)}
+.home-logo-fb{width:86px;height:86px;border-radius:50%;border:2px solid var(--gold);display:none;align-items:center;justify-content:center;font-size:40px;margin:0 auto}
+.home-brand{font-family:'Cormorant Garamond',serif;font-size:27px;color:var(--gold);letter-spacing:2.5px;margin-top:10px}
+.home-th{font-size:13px;color:var(--mut);letter-spacing:1px}
+.home-date{font-size:12px;color:var(--mut);margin-top:6px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:16px 14px}
+.m-item{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px 14px;cursor:pointer;transition:.15s;box-shadow:0 2px 10px rgba(90,70,20,.05)}
+.m-item:active{transform:scale(.97);border-color:var(--gold)}
+.m-ico{font-size:26px}
+.m-name{font-weight:800;font-size:14.5px;margin-top:8px}
+.m-sub{font-size:11px;color:var(--mut);margin-top:2px}
+
+/* collapsible form */
+.form-toggle{display:flex;align-items:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:13px;padding:14px;font-weight:800;font-size:15.5px;cursor:pointer;margin-bottom:12px}
+.form-toggle .arr{margin-left:auto;transition:.2s}
+.form-wrap{display:none}
+.form-wrap.open{display:block}
+.form-toggle.open .arr{transform:rotate(180deg)}
+
+/* section head */
+.sec-head{display:flex;align-items:center;gap:8px;margin:6px 0 10px}
+.sec-title{font-weight:800;font-size:15px;color:var(--gold)}
+.sec-count{font-size:11.5px;color:var(--mut);background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+
+/* record card list */
+.rec{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:10px;box-shadow:0 2px 10px rgba(90,70,20,.05)}
+.rec.latest{border-color:var(--gold);box-shadow:0 0 0 1px rgba(184,137,43,.35), 0 6px 18px rgba(90,70,20,.15);position:relative}
+.rec-badge{position:absolute;top:-9px;right:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 10px}
+.rec-top{display:flex;align-items:center;gap:8px}
+.rec-name{font-weight:800;font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec-date{font-size:11px;color:var(--mut)}
+.rec-mid{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--mut)}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+.rec-bot{display:flex;align-items:center;margin-top:9px;gap:8px}
+.rec-total{font-weight:800;font-size:16.5px;color:var(--gold)}
+.rec-debt{font-size:11.5px;color:var(--bad)}
+.st{font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 9px;margin-left:auto}
+.st-ok{background:rgba(30,142,90,.1);color:var(--ok);border:1px solid rgba(30,142,90,.45)}
+.st-part{background:rgba(185,119,16,.1);color:var(--warn);border:1px solid rgba(185,119,16,.45)}
+.st-no{background:rgba(192,57,43,.08);color:var(--bad);border:1px solid rgba(192,57,43,.45)}
+.rec-actions{display:flex;gap:7px;margin-top:10px}
+.ract{flex:1;background:var(--card2);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:8px 0;font-size:13px;cursor:pointer}
+.ract.gold{color:var(--gold);border-color:rgba(232,184,75,.5)}
+.ract.red{color:var(--bad)}
+
+/* item rows in form */
+.item-box{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px;position:relative}
+.item-x{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--bad);font-size:16px;cursor:pointer;padding:2px 6px}
+.item-no{font-size:11px;color:var(--gold);font-weight:800}
+.line-amt{text-align:right;color:var(--gold);font-weight:800}
+.grand{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#fdf6e2,#f6ecd0);border:1px solid var(--gold);border-radius:12px;padding:13px 14px;margin-top:12px}
+.grand b{font-size:20px;color:var(--gold)}
+.pay-hint{font-size:12px;margin-top:6px}
+details.xtr{margin-top:12px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+details.xtr summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--mut)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px}
+.stat .v{font-weight:800;font-size:18px;margin-top:4px}
+.stat .l{font-size:11.5px;color:var(--mut)}
+.slip-drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;text-align:center;font-size:12.5px;color:var(--mut);cursor:pointer;background:var(--card);margin-top:4px}
+.slip-drop.has{border-color:var(--ok);border-style:solid}
+.slip-view{color:var(--gold);font-weight:700;text-decoration:underline}
+html[dir=rtl] .back{display:inline-block;transform:scaleX(-1)}
+html[dir=rtl] .t-right{margin-left:0;margin-right:auto}
+html[dir=rtl] .icon-btn[style*="margin-left"]{margin-left:0 !important;margin-right:8px}
+html[dir=rtl] table.tb th, html[dir=rtl] table.rp-t th{text-align:right}
+html[dir=rtl] .rp-doc{text-align:left}
+table.tb{width:100%;border-collapse:collapse;font-size:13px}
+table.tb th{color:var(--mut);font-size:11.5px;text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+table.tb td{padding:8px 6px;border-bottom:1px solid rgba(34,52,90,.5)}
+table.tb td.r,table.tb th.r{text-align:right}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(90px);background:#fff;border:1.5px solid var(--gold);color:var(--ink);border-radius:12px;padding:12px 18px;font-size:14px;z-index:99;transition:.25s;max-width:92vw;box-shadow:0 10px 30px rgba(90,70,20,.25)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--bad)}
+
+/* ───────── RECEIPT (white-gold, A4 printable) ───────── */
+#pg-receipt{background:#e9e6df}
+#rp-paper{background:#fff;color:#1c1c1c;max-width:820px;margin:10px auto 20px;padding:34px 36px;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+.rp-topline{height:5px;background:linear-gradient(90deg,var(--rp-navy),var(--rp-gold),var(--rp-navy));margin:-34px -36px 24px}
+.rp-head{display:flex;gap:16px;align-items:center;border-bottom:2.5px solid var(--rp-gold);padding-bottom:16px}
+.rp-logo{width:74px;height:74px;border-radius:50%;object-fit:cover;border:2px solid var(--rp-gold)}
+.rp-logo-fb{width:74px;height:74px;border-radius:50%;border:2px solid var(--rp-gold);display:none;align-items:center;justify-content:center;font-size:34px;color:var(--rp-gold)}
+.rp-co{flex:1}
+.rp-co-name{font-weight:800;font-size:18px;color:var(--rp-navy)}
+.rp-co-en{font-family:'Cormorant Garamond',serif;color:var(--rp-gold);font-size:14px;letter-spacing:2px}
+.rp-co-meta{font-size:11px;color:#555;margin-top:4px;line-height:1.55}
+.rp-doc{text-align:right}
+.rp-doc-type{font-weight:800;font-size:19px;color:var(--rp-gold)}
+.rp-doc-no{font-size:11.5px;color:#555;margin-top:4px;line-height:1.6}
+.rp-party{display:flex;justify-content:space-between;gap:16px;margin:16px 0 6px;font-size:12.5px}
+.rp-party .pt{background:#faf7ef;border:1px solid #e8ddc2;border-radius:8px;padding:10px 12px;flex:1}
+.rp-party .pl{font-size:10.5px;color:var(--rp-gold);font-weight:800;letter-spacing:.5px}
+.rp-party .pv{font-weight:700;color:var(--rp-navy);margin-top:2px;font-size:14px}
+table.rp-t{width:100%;border-collapse:collapse;margin-top:14px;font-size:12.5px}
+table.rp-t th{background:var(--rp-navy);color:#f1d992;padding:9px 8px;text-align:left;font-size:11.5px}
+table.rp-t th.r,table.rp-t td.r{text-align:right}
+table.rp-t td{padding:9px 8px;border-bottom:1px solid #eee}
+.rp-sumwrap{display:flex;justify-content:flex-end;margin-top:12px}
+.rp-sum{width:320px;font-size:13px}
+.rp-sum .sr{display:flex;justify-content:space-between;padding:5px 8px}
+.rp-sum .sr.tot{background:linear-gradient(90deg,#faf3df,#f5e9c8);border:1px solid var(--rp-gold);border-radius:8px;font-weight:800;font-size:15px;color:var(--rp-navy);padding:9px 10px;margin-top:5px}
+.rp-sum .sr.debt{color:#c0392b;font-weight:700}
+.rp-pf{margin-top:16px;border:1px solid #e8ddc2;border-radius:10px;overflow:hidden}
+.rp-pf-h{background:#faf7ef;color:var(--rp-navy);font-weight:800;font-size:12.5px;padding:8px 12px;border-bottom:1px solid #e8ddc2}
+.rp-note{margin-top:14px;font-size:12px;color:#555;background:#fafafa;border-left:3px solid var(--rp-gold);padding:8px 12px}
+.rp-sign{display:flex;justify-content:space-between;gap:30px;margin-top:44px;font-size:12px;color:#444;text-align:center}
+.rp-sign>div{flex:1}
+.rp-sig-line{border-top:1px dotted #999;margin-top:38px;padding-top:6px}
+.rp-footer{margin-top:26px;padding-top:12px;border-top:1px solid #eee;font-size:10.5px;color:#999;text-align:center}
+.rp-actions{max-width:820px;margin:0 auto 34px;display:flex;flex-wrap:wrap;gap:10px;padding:0 14px}
+.rp-actions button{flex:1 1 45%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:14.5px;cursor:pointer}
+.rp-print{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff}
+.rp-share{background:var(--rp-navy);color:#f1d992}
+.rp-bar{max-width:820px;margin:0 auto;display:flex;align-items:center;padding:12px 14px;color:#333}
+.rp-bar .back{color:var(--rp-navy)}
+.rp-bar b{font-size:15px;color:var(--rp-navy)}
+
+@media print{
+  @page{size:A4;margin:11mm}
+  html,body{background:#fff !important}
+  body *{visibility:hidden !important}
+  #rp-paper,#rp-paper *{visibility:visible !important}
+  #rp-paper{position:absolute !important;left:0;top:0;width:100%;max-width:none;margin:0;padding:6mm 4mm;box-shadow:none !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .no-print{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- ═══════ HOME ═══════ -->
+<div class="page" id="pg-home">
+  <div class="home-hero">
+    <img class="home-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAZADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD48oooqyAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigApV+8PrSUq/eH1oASiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK6Pwb4ak1/TfEd2u7Gk6YbsEd2DqMf8AfO/8q5yvpf4TeDZvDXwF8Qa5q8Bhn1yxmmVGGGW2WJhGT/vEs30Irix+J+r0uZbtpL7/API6MNS9rOz2OV+GHwu0v4pfB7UrvQttl4x8PT7XTd+61CFwWjDD+F+HUMODtGfUeK3EMtvcSW9xE8U0TlJEcYZWBwQR2INfQ/7B+oPD418S6ZuPl3WjiUj1aOVQD+TmuT/aw8PxaR8TW1K3jCQ6tD57ADA81Ttf8/lP1NYUsTKGMlh5bPVf5DdLmo+0XQ8hooor1DmCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiitCz0PW7yPzLPRtSuEP8UVq7j8wKUpKO7Gk3sZ9FWL+wv9PcJf2N1aMeizwtGT/wB9AVXoTT1QmmtwooopgFFFFABRRW78PvD8nirxnpegISq3c4WVx1WMcuf++QampONOLnLZDjFyaiup7B+yt8Ez411KDxZ4ngx4ctpcw27Dm/kU9D/0zB6+vT1r2P8AbJ12HQvAF5ZxlUn1IiygReML1fA9AoI/EV674LtbHSdEtrO1jitLGzhCIo4WONR/IAda+Fv2hviBc/Fb4oH+x4pZdOgl+xaTAoy02Wx5mP7znH4bRXyOBr1M1xXtZ6Qi7+i6ff1PUrQWEjyx3aO+/YP0aabxP4o18oRb2mmrahuxeWQNj8oz+dP/AGzoIzpuh3JA8xbuWMH2KAn/ANBFfRHwP8AQfDn4UQ6HhG1CUfadRlX+OdgMgH0UAKPpnvXy1+2Lr0V14p07w7A4Y2MbT3GD915MbR9doz/wKtaNb63maqU9lf7krfiLl9lhpRlueD0UUV9WeWFFFFAB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9ZvtVuic+ZczF9vsoPCj2AFZNFFe8koqyORu4UUUUwCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDX8HeJtb8I+IbbXvD9/JZX1ufldeQy90YdGU9wab4t8R614r1+513X7+W9v7lsvI54A7Ko6Ko7AcCsqio9nDn57a9x8ztboFFFFWIKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigApV+8PrSUq/eH1oASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASlX7w+tGG/un8qFVtw+U9fSgD//2Q==" onerror="this.style.display='none';document.getElementById('hl-fb').style.display='flex'">
+    <div class="home-logo-fb" id="hl-fb">🌿</div>
+    <div class="home-brand">BIGTREE AGARWOOD</div>
+    <div class="home-th">บริษัท บิ๊กตรี อาคาร์วู้ด จำกัด</div>
+    <div class="home-date" id="home-date"></div>
+  </div>
+  <div class="menu">
+    <div class="m-item" onclick="go('pg-buy')"><div class="m-ico">🛒</div><div class="m-name" data-i18n="m_buy">บันทึกซื้อ</div><div class="m-sub" data-i18n="s_buy">Purchase</div></div>
+    <div class="m-item" onclick="go('pg-sell')"><div class="m-ico">💰</div><div class="m-name" data-i18n="m_sell">บันทึกขาย</div><div class="m-sub" data-i18n="s_sell">Sale</div></div>
+    <div class="m-item" onclick="go('pg-stock')"><div class="m-ico">📦</div><div class="m-name" data-i18n="m_stock">สต็อกสินค้า</div><div class="m-sub" data-i18n="s_stock">Inventory</div></div>
+    <div class="m-item" onclick="go('pg-profit')"><div class="m-ico">📊</div><div class="m-name" data-i18n="m_profit">กำไร / รายได้</div><div class="m-sub" data-i18n="s_profit">Profit</div></div>
+    <div class="m-item" onclick="go('pg-ar')"><div class="m-ico">👥</div><div class="m-name" data-i18n="m_ar">ลูกหนี้</div><div class="m-sub" data-i18n="s_ar">Receivable</div></div>
+    <div class="m-item" onclick="go('pg-ap')"><div class="m-ico">🏦</div><div class="m-name" data-i18n="m_ap">เจ้าหนี้</div><div class="m-sub" data-i18n="s_ap">Payable</div></div>
+    <div class="m-item" onclick="go('pg-exp')"><div class="m-ico">💸</div><div class="m-name" data-i18n="m_exp">ค่าใช้จ่าย</div><div class="m-sub" data-i18n="s_exp">Expenses</div></div>
+    <div class="m-item" onclick="go('pg-loan')"><div class="m-ico">💵</div><div class="m-name" data-i18n="m_loan">เงินยืม</div><div class="m-sub" data-i18n="s_loan">Loans</div></div>
+  </div>
+  <div class="body" id="dash"></div>
+  <div class="body" id="home-latest"></div>
+  <div class="body" style="margin-top:4px">
+    <button class="btn btn-ghost" onclick="changeURL()" style="font-size:12.5px;padding:9px">⚙️ <span data-i18n="settings">ตั้งค่าการเชื่อมต่อ Google Sheets</span></button>
+    <button class="btn btn-ghost" id="langbtn" onclick="toggleLang()" style="font-size:12.5px;padding:9px;margin-top:8px">🌐 ไทย / English</button>
+    <button class="btn btn-ghost" onclick="manageOrigins()" style="font-size:12.5px;padding:9px;margin-top:8px">🏷️ <span data-i18n="org_manage">จัดการแหล่งที่เพิ่มเอง</span></button>
+  </div>
+</div>
+
+<!-- ═══════ BUY ═══════ -->
+<div class="page" id="pg-buy">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">🛒</div>
+    <div><div class="t-name" data-i18n="m_buy">บันทึกซื้อ</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body">
+
+    <button class="form-toggle" id="b-toggle" onclick="toggleForm('b')">
+      <span>➕</span><span id="b-toggle-txt" data-i18n="add_buy_new">เพิ่มรายการซื้อใหม่</span><span class="arr">▾</span>
+    </button>
+
+    <div class="form-wrap" id="b-form">
+      <div class="card">
+        <label data-i18n="l_buydate">วันที่ซื้อ</label>
+        <input type="date" id="b-date">
+        <label data-i18n="l_supplier">ซื้อจาก (Supplier)</label>
+        <input id="b-sup" list="dl-sup" placeholder="ชื่อผู้ขาย / ร้าน" data-i18n-ph="ph_supplier" autocomplete="off" oninput="autoSupNick()">
+        <datalist id="dl-sup"></datalist>
+        <label data-i18n="b_supnick">ชื่อเล่นพ่อค้า (ถ้ามี)</label>
+        <input id="b-supnick" placeholder="เช่น เฮียชาคีร์" data-i18n-ph="ph_supnick" autocomplete="off">
+
+        <div id="b-items"></div>
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="addItem('b')">＋ <span data-i18n="add_item">เพิ่มรายการสินค้า</span></button>
+
+        <details class="xtr">
+          <summary>➕ <span data-i18n="extras_t">ค่าบริการ / ค่าใช้จ่ายเพิ่มเติม</span></summary>
+          <div id="b-extras"></div>
+          <button class="btn btn-ghost" style="margin-top:10px;padding:9px" onclick="addExtra('b')">＋ <span data-i18n="add_extra">เพิ่มค่าบริการ</span></button>
+        </details>
+
+        <div class="row2" style="margin-top:12px">
+          <div><label style="margin-top:0" data-i18n="l_commp">ค่าคอมมิชชัน (%)</label><input type="number" id="b-comm" inputmode="decimal" placeholder="0" oninput="calc('b')"></div>
+          <div><label style="margin-top:0" data-i18n="l_commmode">วิธีคิดค่าคอม</label><select id="b-commmode" onchange="calc('b')">
+            <option value="include" data-i18n="opt_inc">รวมเป็นต้นทุนสินค้า</option>
+            <option value="separate" data-i18n="opt_sep">แยกเป็นค่าใช้จ่าย</option>
+          </select></div>
+        </div>
+        <div class="pay-hint" id="b-commline"></div>
+        <div class="pay-hint" id="b-cpuline"></div>
+
+        <div class="grand"><span data-i18n="grand_t">ยอดรวมสุทธิ</span><b id="b-grand">0</b></div>
+
+        <label data-i18n="b_due">กำหนดจ่ายให้ผู้ขาย (Due Date)</label>
+        <input type="date" id="b-due">
+        <label data-i18n="l_pays_b">งวดการชำระเงิน — เราจ่ายให้ผู้ขาย (กด ＋ เพิ่มได้ไม่จำกัด)</label>
+        <div id="b-pays"></div>
+        <button class="btn btn-ghost" style="margin-top:6px;padding:9px" onclick="addPay('b')">＋ <span data-i18n="add_pay">เพิ่มงวดการชำระ</span></button>
+        <div class="pay-hint" id="b-payhint"></div>
+
+        <label data-i18n="l_note">หมายเหตุ</label>
+        <input id="b-note" placeholder="ไม่บังคับ" data-i18n-ph="ph_optional">
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-ghost" id="b-cancel" style="display:none;flex:1" onclick="cancelEdit('b')" data-i18n="btn_cancel">ยกเลิก</button>
+          <button class="btn btn-gold" id="b-savebtn" style="flex:2" onclick="saveRec('b')"><span>💾</span><span data-i18n="save_buy">บันทึกรายการซื้อ</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <span class="sec-title">🕒 <span data-i18n="latest_buy">รายการซื้อล่าสุด</span></span>
+      <span class="sec-count" id="b-count">0 รายการ</span>
+    </div>
+    <div id="b-list"><div class="empty">กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<!-- ═══════ SELL ═══════ -->
+<div class="page" id="pg-sell">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">💰</div>
+    <div><div class="t-name" data-i18n="m_sell">บันทึกขาย</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body">
+
+    <button class="form-toggle" id="s-toggle" onclick="toggleForm('s')">
+      <span>➕</span><span id="s-toggle-txt" data-i18n="add_sell_new">เพิ่มรายการขายใหม่</span><span class="arr">▾</span>
+    </button>
+
+    <div class="form-wrap" id="s-form">
+      <div class="card">
+        <label data-i18n="l_selldate">วันที่ขาย</label>
+        <input type="date" id="s-date">
+        <label data-i18n="l_customer">ขายให้ (ลูกค้า)</label>
+        <input id="s-cust" list="dl-cus" placeholder="ชื่อลูกค้า / บริษัท" data-i18n-ph="ph_customer" autocomplete="off">
+        <datalist id="dl-cus"></datalist>
+
+        <div id="s-items"></div>
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="addItem('s')">＋ <span data-i18n="add_item">เพิ่มรายการสินค้า</span></button>
+
+        <details class="xtr">
+          <summary>➕ <span data-i18n="extras_t">ค่าบริการ / ค่าใช้จ่ายเพิ่มเติม</span></summary>
+          <div id="s-extras"></div>
+          <button class="btn btn-ghost" style="margin-top:10px;padding:9px" onclick="addExtra('s')">＋ <span data-i18n="add_extra">เพิ่มค่าบริการ</span></button>
+        </details>
+
+        <div class="grand"><span data-i18n="grand_t">ยอดรวมสุทธิ</span><b id="s-grand">0</b></div>
+
+        <label data-i18n="l_pays_s">งวดการรับชำระ — ลูกค้าจ่ายเรา (กด ＋ เพิ่มได้ไม่จำกัด)</label>
+        <div id="s-pays"></div>
+        <button class="btn btn-ghost" style="margin-top:6px;padding:9px" onclick="addPay('s')">＋ <span data-i18n="add_pay">เพิ่มงวดการชำระ</span></button>
+        <div class="pay-hint" id="s-payhint"></div>
+
+        <label data-i18n="l_due">กำหนดชำระ (Due Date)</label>
+        <input type="date" id="s-due">
+
+        <details class="xtr" id="s-pf">
+          <summary>📊 <span data-i18n="pf_t">รายละเอียดกำไร</span></summary>
+          <div class="pay-hint" id="s-diffline" style="margin-top:8px"></div>
+          <label data-i18n="l_commp">ค่าคอมมิชชั่น (%)</label>
+          <input type="number" id="s-comm" inputmode="decimal" placeholder="0" oninput="calc('s')">
+          <div class="row2">
+            <div><label data-i18n="l_shipc">ค่าขนส่งที่เก็บจากลูกค้า (บาท)</label><input type="number" id="s-shipc" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
+            <div><label data-i18n="l_shipa">ค่าขนส่งจริงที่จ่าย (บาท)</label><input type="number" id="s-shipa" inputmode="decimal" placeholder="0" oninput="calc('s')"></div>
+          </div>
+          <div class="pay-hint" id="s-pfhint" style="line-height:1.9"></div>
+        </details>
+
+        <label data-i18n="l_note">หมายเหตุ</label>
+        <input id="s-note" placeholder="ไม่บังคับ" data-i18n-ph="ph_optional">
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-ghost" id="s-cancel" style="display:none;flex:1" onclick="cancelEdit('s')" data-i18n="btn_cancel">ยกเลิก</button>
+          <button class="btn btn-gold" id="s-savebtn" style="flex:2" onclick="saveRec('s')"><span>💾</span><span data-i18n="save_sell">บันทึกรายการขาย</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <span class="sec-title">🕒 <span data-i18n="latest_sell">รายการขายล่าสุด</span></span>
+      <span class="sec-count" id="s-count">0 รายการ</span>
+    </div>
+    <div id="s-list"><div class="empty">กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<!-- ═══════ STOCK ═══════ -->
+<div class="page" id="pg-stock">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">📦</div>
+    <div><div class="t-name" data-i18n="m_stock">สต็อกสินค้า</div><div class="t-sub" data-i18n="sub_stock">ซื้อ − ขาย คำนวณอัตโนมัติ</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body">
+    <input id="stock-q" data-i18n-ph="inv_search" placeholder="🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง..." oninput="stockQuery=this.value;renderStockList()" style="margin-bottom:12px">
+    <div id="stock-body"><div class="empty" data-i18n="loading">กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<!-- ═══════ PROFIT ═══════ -->
+<div class="page" id="pg-profit">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">📊</div>
+    <div><div class="t-name" data-i18n="m_profit">กำไร / รายได้</div><div class="t-sub">Bigtree Agarwood</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body" id="profit-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- ═══════ AR ═══════ -->
+<div class="page" id="pg-ar">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">👥</div>
+    <div><div class="t-name" data-i18n="t_ar">ลูกหนี้ค้างชำระ</div><div class="t-sub">Accounts Receivable</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body" id="ar-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- ═══════ AP ═══════ -->
+<div class="page" id="pg-ap">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">🏦</div>
+    <div><div class="t-name" data-i18n="t_ap">เจ้าหนี้ที่เราค้างจ่าย</div><div class="t-sub">Accounts Payable</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body" id="ap-body"><div class="empty">กำลังโหลด...</div></div>
+</div>
+
+<!-- ═══════ EXPENSES ═══════ -->
+<div class="page" id="pg-exp">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">💸</div>
+    <div><div class="t-name" data-i18n="m_exp">ค่าใช้จ่าย</div><div class="t-sub" data-i18n="s_exp2">ส่วนตัว / ธุรกิจ</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="row2">
+        <div><label style="margin-top:0" data-i18n="e_date">วันที่</label><input type="date" id="e-date"></div>
+        <div><label style="margin-top:0" data-i18n="e_cat">หมวดหมู่</label><input id="e-cat" list="dl-ecat" autocomplete="off" placeholder="เลือกหรือพิมพ์เอง"></div>
+      </div>
+      <label data-i18n="e_desc">รายละเอียด</label>
+      <input id="e-desc" placeholder="เช่น ค่าไฟบ้าน, โอนเข้าบัญชีส่วนตัว">
+      <label data-i18n="e_amt">จำนวนเงิน (บาท)</label>
+      <input type="number" id="e-amt" inputmode="decimal" placeholder="0">
+      <button class="btn btn-gold" style="margin-top:14px" onclick="saveExpense()"><span>💾</span><span data-i18n="e_save">บันทึกค่าใช้จ่าย</span></button>
+    </div>
+    <div class="sec-head"><span class="sec-title">🕒 <span data-i18n="e_latest">ค่าใช้จ่ายล่าสุด</span></span><span class="sec-count" id="e-count">0</span></div>
+    <div id="e-list"></div>
+  </div>
+</div>
+
+<!-- ═══════ LOANS ═══════ -->
+<div class="page" id="pg-loan">
+  <div class="topbar">
+    <span class="back" onclick="go('pg-home')">‹</span>
+    <div class="t-icon">💵</div>
+    <div><div class="t-name" data-i18n="m_loan">เงินยืม</div><div class="t-sub" data-i18n="s_loan2">ยืม / ให้ยืม</div></div>
+    <button class="icon-btn t-right" onclick="toggleLang()">🌐</button>
+    <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
+  </div>
+  <div class="body">
+    <div class="card">
+      <label style="margin-top:0" data-i18n="ln_type">ประเภท</label>
+      <select id="ln-type">
+        <option value="lend" data-i18n="ln_lend">เราให้คนอื่นยืม (ลูกหนี้)</option>
+        <option value="borrow" data-i18n="ln_borrow">เรายืมคนอื่น (เจ้าหนี้)</option>
+      </select>
+      <label data-i18n="ln_person">ชื่อบุคคล</label>
+      <input id="ln-person" placeholder="ชื่อคนยืม / ผู้ให้ยืม">
+      <div class="row2" style="margin-top:2px">
+        <div><label data-i18n="ln_date">วันที่ยืม</label><input type="date" id="ln-date"></div>
+        <div><label data-i18n="ln_due">วันครบกำหนด</label><input type="date" id="ln-due"></div>
+      </div>
+      <div class="row2" style="margin-top:2px">
+        <div><label data-i18n="ln_amt">ยอดยืม (บาท)</label><input type="number" id="ln-amt" inputmode="decimal" placeholder="0"></div>
+        <div><label data-i18n="ln_paid">คืนแล้ว (บาท)</label><input type="number" id="ln-paid" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <label data-i18n="l_note">หมายเหตุ</label>
+      <input id="ln-note" placeholder="ไม่บังคับ">
+      <button class="btn btn-gold" style="margin-top:14px" onclick="saveLoan()"><span>💾</span><span data-i18n="ln_save">บันทึกเงินยืม</span></button>
+    </div>
+    <div class="sec-head"><span class="sec-title">💵 <span data-i18n="ln_lend_h">เราให้ยืม (ลูกหนี้)</span></span><span class="sec-count" id="ln-lend-sum">0 ฿</span></div>
+    <div id="ln-lend-list"></div>
+    <div class="sec-head"><span class="sec-title">🏦 <span data-i18n="ln_borrow_h">เรายืมเขา (เจ้าหนี้)</span></span><span class="sec-count" id="ln-borrow-sum">0 ฿</span></div>
+    <div id="ln-borrow-list"></div>
+  </div>
+</div>
+
+<datalist id="dl-ecat"></datalist>
+
+<!-- ═══════ RECEIPT ═══════ -->
+<div class="page" id="pg-receipt">
+  <div class="rp-bar no-print">
+    <span class="back" onclick="closeReceipt()">‹</span>
+    <b data-i18n="rb_title">ใบเสร็จ / เอกสาร</b>
+  </div>
+  <div id="rp-paper"></div>
+  <div class="rp-actions no-print">
+    <button class="rp-print" onclick="downloadPDF()" data-i18n="btn_pdf">📄 ดาวน์โหลด PDF</button>
+    <button class="rp-print" onclick="sharePDF()" data-i18n="btn_sendpdf">📤 ส่ง PDF</button>
+    <button class="rp-share" onclick="doPrint()" data-i18n="btn_print">🖨️ พิมพ์ / PDF</button>
+    <button class="rp-share" onclick="saveReceiptImg()" data-i18n="btn_saveimg">💾 บันทึกรูป</button>
+  </div>
+  <div class="no-print" style="max-width:820px;margin:-18px auto 30px;padding:0 16px;font-size:11.5px;color:#666;text-align:center">
+    <span data-i18n="hint_print">กด 🖨️ ใน LINE ระบบจะเปิดเบราว์เซอร์ภายนอกให้พิมพ์อัตโนมัติ หรือกด 💾 เพื่อบันทึกบิลเป็นรูปภาพทันที</span>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<datalist id="dl-grade">
+  <option value="พรีเมียม"></option>
+  <option value="ธรรมชาติ"></option>
+  <option value="ไม้สวน"></option>
+  <option value="AAA"></option>
+  <option value="AA"></option>
+  <option value="A"></option>
+</datalist>
+<datalist id="dl-origin"></datalist>
+<datalist id="dl-origin-stock"></datalist>
+
+<div class="toast" id="toast"></div>
+<script>
+// ═══════════ CONFIG ═══════════
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyUdeKQwPqTRqPtwxDhi_lzGmUhA8274VmmfQ8GEm9GkH48SnAJZMrQimVd_miPv7pWBg/exec';
+let API_URL = localStorage.getItem('bt_api_url') || DEFAULT_API;
+
+// ═══════════ ระบบ 2 ภาษา (TH/EN) ═══════════
+let LANG = localStorage.getItem('bt_lang') || 'th';
+const I18N = {
+ m_buy:['บันทึกซื้อ','Purchase'], m_sell:['บันทึกขาย','Sales'], m_stock:['สต็อกสินค้า','Inventory'], m_profit:['กำไร / รายได้','Profit / Revenue'], m_ar:['ลูกหนี้','Receivables'], m_ap:['เจ้าหนี้','Payables'],
+ s_buy:['Purchase','บันทึกซื้อ'], s_sell:['Sale','บันทึกขาย'], s_stock:['Inventory','สต็อกสินค้า'], s_profit:['Profit','กำไร/รายได้'], s_ar:['Receivable','ลูกหนี้'], s_ap:['Payable','เจ้าหนี้'],
+ t_ar:['ลูกหนี้ค้างชำระ','Outstanding Receivables'], t_ap:['เจ้าหนี้ที่เราค้างจ่าย','Outstanding Payables'],
+ sub_stock:['ซื้อ - ขาย คำนวณอัตโนมัติ','Auto-calculated: Purchases − Sales'],
+ settings:['ตั้งค่าการเชื่อมต่อ Google Sheets','Google Sheets Connection Settings'],
+ latest_act:['ความเคลื่อนไหวล่าสุด','Recent Activity'],
+ add_buy_new:['เพิ่มรายการซื้อใหม่','New Purchase Entry'], add_sell_new:['เพิ่มรายการขายใหม่','New Sales Entry'],
+ l_buydate:['วันที่ซื้อ','Purchase Date'], l_selldate:['วันที่ขาย','Sales Date'],
+ l_supplier:['ซื้อจาก (Supplier)','Supplier'], l_customer:['ขายให้ (ลูกค้า)','Customer'],
+ ph_supplier:['ชื่อผู้ขาย / ร้าน','Supplier / shop name'], ph_customer:['ชื่อลูกค้า / บริษัท','Customer / company name'],
+ add_item:['เพิ่มรายการสินค้า','Add Item'], extras_t:['ค่าบริการ / ค่าใช้จ่ายเพิ่มเติม','Service Charges / Expenses'], add_extra:['เพิ่มค่าบริการ','Add Charge'],
+ l_commp:['ค่าคอมมิชชัน (%)','Commission (%)'], l_commmode:['วิธีคิดค่าคอม','Commission Mode'],
+ opt_inc:['รวมเป็นต้นทุนสินค้า','Include in cost'], opt_sep:['แยกเป็นค่าใช้จ่าย','Separate expense'],
+ grand_t:['ยอดรวมสุทธิ','Grand Total'],
+ l_pays_b:['งวดการชำระเงิน — เราจ่ายให้ผู้ขาย (กด ＋ เพิ่มได้ไม่จำกัด)','Payments to Supplier (tap ＋, unlimited)'],
+ l_pays_s:['งวดการรับชำระ — ลูกค้าจ่ายเรา (กด ＋ เพิ่มได้ไม่จำกัด)','Payments from Customer (tap ＋, unlimited)'],
+ add_pay:['เพิ่มงวดการชำระ','Add Installment'],
+ l_note:['หมายเหตุ','Notes'], ph_optional:['ไม่บังคับ','Optional'], ph_ifany:['ถ้ามี','If any'],
+ btn_cancel:['ยกเลิก','Cancel'], save_buy:['บันทึกรายการซื้อ','Save Purchase'], save_sell:['บันทึกรายการขาย','Save Sale'], save_edit:['บันทึกการแก้ไข','Save Changes'], saving:['กำลังบันทึก...','Saving...'],
+ latest_buy:['รายการซื้อล่าสุด','Recent Purchases'], latest_sell:['รายการขายล่าสุด','Recent Sales'],
+ l_due:['กำหนดชำระ (Due Date)','Due Date'], pf_t:['รายละเอียดกำไร','Profit Details'],
+ l_shipc:['ค่าขนส่งที่เก็บจากลูกค้า (บาท)','Shipping collected from customer (THB)'], l_shipa:['ค่าขนส่งจริงที่จ่าย (บาท)','Actual shipping paid (THB)'],
+ item_t:['รายการสินค้า','Item'], f_type:['ประเภท','Type'], f_origin:['แหล่ง/ชนิด','Origin/Kind'], f_grade:['เกรด','Grade'], f_qty:['จำนวน','Quantity'], f_price:['ราคา/หน่วย','Unit Price'], f_amt:['รวม','Total'],
+ wood_o:['ไม้กฤษณา (กก.)','Agarwood (kg)'], oil_o:['น้ำมันกฤษณา (โตลา)','Agarwood Oil (tola)'],
+ sel_origin:['— เลือกแหล่ง/ชนิด —','— Select origin —'],
+ x_name:['ชื่อค่าบริการ','Charge Name'], ph_xname:['เช่น ค่าขนส่ง','e.g. Shipping'], x_amt:['จำนวนเงิน','Amount'],
+ inst:['งวดที่','Installment'], pay_date:['วันที่ชำระ','Payment Date'], pay_amt:['จำนวนเงิน (บาท)','Amount (THB)'], pay_method:['วิธีชำระ','Payment Method'], pay_bank:['ธนาคาร (ถ้าโอน)','Bank (if transfer)'], pay_ref:['เลขอ้างอิงการโอน','Transfer Reference'],
+ pm_cash:['เงินสด','Cash'], pm_transfer:['โอนเงิน','Bank Transfer'], pm_cheque:['เช็ค','Cheque'], pm_other:['อื่นๆ','Other'],
+ pay_slip:['แนบสลิป (JPG / PNG / PDF)','Attach Slip (JPG / PNG / PDF)'],
+ slip_drop:['📎 แตะเพื่อเลือกไฟล์ หรือลากไฟล์มาวาง','📎 Tap to choose a file, or drag & drop'],
+ slip_view:['👁 ดูสลิป','👁 View Slip'], slip_del:['🗑 ลบสลิป','🗑 Remove Slip'], slip_up:['⏳ กำลังอัปโหลดสลิป...','⏳ Uploading slip...'],
+ paid_lbl:['ชำระแล้ว','Paid'], inst_ct:['งวด','inst.'], debt_lbl:['ค้างชำระ','Balance Due'], status_lbl:['สถานะ','Status'],
+ comm_lbl:['ค่าคอมมิชชัน','Commission'], inc_txt:['รวมเข้าต้นทุนสินค้า','included in cost'], sep_txt:['แยกเป็นค่าใช้จ่าย ไม่รวมในยอดบิล','separate expense, not in bill total'],
+ cost_total:['ต้นทุนรวม','Total Cost'], units_w:['หน่วย','units'], avg_cost:['ต้นทุนเฉลี่ย','Avg. Cost'], per_unit:['฿/หน่วย','THB/unit'],
+ avg_hist:['ต้นทุนเฉลี่ยจากประวัติซื้อ','Avg. cost from purchase history'], no_hist:['ยังไม่มีประวัติซื้อสินค้าชนิดนี้ ระบบถือว่าต้นทุน 0 ฿','No purchase history for this item — cost assumed 0'],
+ ph_xamt:['เช่น 9000 หรือ 5%','e.g. 9000 or 5%'],
+ x_cost:['ต้นทุนจริง (ไม่บังคับ — ไม่แสดงบนบิล)','Actual cost (optional — hidden from bill)'], ph_xcost:['เช่น 1000','e.g. 1000'],
+ x_profit_line:['กำไรจากรายการนี้','Profit from this item'],
+ pf1:['กำไรส่วนต่าง','Margin Profit'], pf1b:['ขาย','Sales'], pf1c:['ทุนเฉลี่ย','avg. cost'], pf_pu:['กำไรต่อหน่วย','Profit per Unit'], pf2:['กำไรคอมมิชชั่น','Commission Profit'], pf3:['กำไรค่าขนส่ง','Logistics Profit'], pf_net:['รวมกำไรสุทธิ','Net Profit'],
+ st_paid:['จ่ายครบ','Paid'], st_part:['จ่ายบางส่วน','Partial'], st_unpaid:['ค้างชำระ','Unpaid'],
+ k_latest:['ล่าสุด','Latest'], k_owe:['ค้าง','Owes'], k_due:['ครบกำหนด','Due'], k_receipt:['🧾 ใบเสร็จ','🧾 Receipt'], k_edit:['✏️ แก้ไข','✏️ Edit'], k_del:['🗑️ ลบ','🗑️ Delete'],
+ items_ct:['รายการ','records'], k_more:['แสดง 30 รายการล่าสุด — ดูทั้งหมดได้ใน Google Sheets','Showing latest 30 — see all in Google Sheets'],
+ empty_buy:['ยังไม่มีรายการซื้อ<br>กดปุ่ม ➕ ด้านบนเพื่อบันทึกรายการแรก','No purchases yet<br>Tap ➕ above to add the first entry'],
+ empty_sell:['ยังไม่มีรายการขาย<br>กดปุ่ม ➕ ด้านบนเพื่อบันทึกรายการแรก','No sales yet<br>Tap ➕ above to add the first entry'],
+ k_wood:['ไม้กฤษณา','Agarwood Wood'], k_oil:['น้ำมันกฤษณา','Agarwood Oil'],
+ k_balsum:['คงเหลือรวม','Total Balance'], h_origin:['แหล่ง/ชนิด','Origin'], h_grade:['เกรด','Grade'], h_buyq:['ซื้อ','Bought'], h_sellq:['ขาย','Sold'], h_bal:['คงเหลือ','Balance'], k_noorigin:['ไม่ระบุแหล่ง','Origin not set'], k_sum:['รวม','Total: '],
+ empty_stock:['ยังไม่มีข้อมูลสต็อก<br>บันทึกซื้อรายการแรกก่อนครับ','No stock data yet<br>Add your first purchase'],
+ p_rev:['ยอดขายรวม (Revenue)','Total Sales (Revenue)'], p_cost:['ยอดซื้อรวม (Cost)','Total Purchases (Cost)'], p_cin:['เงินสดรับจริง','Cash Received'], p_cout:['เงินสดจ่ายจริง','Cash Paid'],
+ p_3t:['📊 สรุปกำไรจากบิลขายทั้งหมด','📊 Profit Summary — All Sales Bills'],
+ pr_rev:['ยอดขาย','Sales'], pr_cost:['ต้นทุน','Cost'],
+ p_l1:['① กำไรส่วนต่าง','① Margin Profit'], p_l2:['② กำไรค่าคอมมิชชั่น (Commission)','② Commission Profit'], p_l3:['③ กำไรค่าขนส่ง/ดำเนินการ (Logistics)','③ Logistics Profit'], p_l4:['④ ค่าบริการอื่นๆ','④ Other Charges'],
+ p_lnet:['รวมกำไรสุทธิ (①+②+③)','Net Profit (①+②+③)'],
+ pr_detail:['📄 กำไรรายบิล (ทุกบิล)','📄 Per-Bill Profit (all bills)'],
+ pr_bill:['บิล','Bill'], pr_none:['ยังไม่มีรายการขาย','No sales yet'],
+ pr_overview:['📊 ภาพรวมทั้งหมด','📊 Overall Summary'], pr_cust_n:['จำนวนลูกค้า','Customers'], pr_bill_n:['จำนวนบิล','Bills'],
+ pr_bycust:['👥 สรุปกำไรรายบุคคล','👥 Profit by Customer'], pr_bills_of:['จำนวนบิล','Bills'],
+ pr_from:['จากวันที่','From'], pr_to:['ถึงวันที่','To'], pr_search:['🔍 ค้นหาชื่อลูกค้า...','🔍 Search customer...'], pr_clear:['ล้างตัวกรอง','Clear filter'],
+ pr_total_net:['รวมกำไรสุทธิ','Total Net Profit'], pr_toggle:['📊 กำไรบิลนี้','📊 Bill Profit'],
+ p_gross:['กำไรขั้นต้น (ขายรวม − ซื้อรวม)','Gross Profit (Sales − Purchases)'],
+ d_ar_sum:['ลูกหนี้ค้างเรารวม','Total Receivables'], d_ap_sum:['เราค้างจ่ายรวม','Total Payables'], d_none:['🎉 ไม่มียอดค้างชำระ','🎉 No outstanding balance'],
+ rb_title:['ใบเสร็จ / เอกสาร','Receipt / Document'], btn_print:['🖨️ พิมพ์ / PDF','🖨️ Print / PDF'], btn_saveimg:['💾 บันทึกรูป','💾 Save Image'], btn_share:['📤 แชร์','📤 Share'],
+ hint_print:['กด 🖨️ ใน LINE ระบบจะเปิดเบราว์เซอร์ภายนอกให้พิมพ์อัตโนมัติ หรือกด 💾 เพื่อบันทึกบิลเป็นรูปภาพทันที','In LINE, tap 🖨️ to open an external browser for printing, or tap 💾 to save the bill as an image'],
+ doc_buy:['ใบบันทึกซื้อ','PURCHASE RECEIPT'], doc_inv:['ใบแจ้งหนี้ / ใบส่งสินค้า','INVOICE / DELIVERY NOTE'], doc_rec:['ใบเสร็จรับเงิน','RECEIPT'],
+ rp_supplier:['ผู้ขาย / SUPPLIER','SUPPLIER'], rp_customer:['ลูกค้า / CUSTOMER','CUSTOMER'], rp_pay:['สถานะการชำระ / PAYMENT','PAYMENT STATUS'],
+ rp_no:['เลขที่','No.'], rp_date:['วันที่','Date'], rp_due:['ครบกำหนด','Due Date'],
+ rh_item:['รายการ','Item Description'], rh_qty:['จำนวน','Quantity'], rh_price:['ราคา/หน่วย','Unit Price'], rh_total:['รวม (บาท)','Total (THB)'],
+ rs_items:['รวมค่าสินค้า','Items Subtotal'], rs_extras:['ค่าบริการเพิ่มเติม','Service Charges'], rs_grand:['ยอดรวมสุทธิ','Grand Total'], rs_paid:['ชำระแล้ว','Paid'], rs_debt:['ยอดคงค้าง','Balance Due'], rs_cpu:['ต้นทุนเฉลี่ยต่อหน่วย','Unit Cost (Avg.)'],
+ rp_incost:['(รวมในต้นทุน)','(included in cost)'], rp_sepcost:['(แยกต่างหาก)','(separate)'],
+ rp_payhist:['💳 ประวัติการชำระเงิน','💳 Payment History'], rp_inst:['งวด','No.'], rp_slip:['สลิป','Slip'], rp_status:['สถานะ','Status'], rp_ok:['สำเร็จ','Success'], rp_method_ref:['วิธีชำระ / อ้างอิง','Method / Reference'], rp_ref:['อ้างอิง','Ref'],
+ rp_paysum:['รวมชำระแล้ว','Total Paid'], rp_left:['คงเหลือ','Balance'], rp_paidfull:['ชำระครบแล้ว ✓','Paid in Full ✓'],
+ rp_slipnote:['📎 มีหลักฐานการชำระเงินแนบอยู่ในระบบ','📎 Payment proof is attached in the system'],
+ rp_pfh:['📊 สรุปกำไร 3 รูปแบบ (ภายในกิจการ)','📊 Profit Summary — 3 Types (internal)'],
+ rp_note:['หมายเหตุ','Notes'], rp_sign1:['ผู้รับสินค้า','Received By'], rp_payer:['ผู้จ่ายเงิน','Payer'], rp_cust2:['ลูกค้า','Customer'], rp_sign2:['ผู้มีอำนาจลงนาม','Authorized Signature'],
+ rp_footer:['เอกสารออกโดยระบบ Bigtree Agarwood','Issued by Bigtree Agarwood System'], rp_taxid:['เลขผู้เสียภาษี','Tax ID'], rp_docno:['เลขที่','Doc No.'],
+ tt_saved:['✅ บันทึกสำเร็จ! ลงใน Google Sheets แล้ว','✅ Saved to Google Sheets!'], tt_edited:['✅ แก้ไขรายการเรียบร้อย','✅ Changes saved'], tt_deleted:['🗑️ ลบรายการแล้ว','🗑️ Record deleted'],
+ tt_updated:['อัปเดตข้อมูลล่าสุดแล้ว ✅','Data refreshed ✅'],
+ tt_needname_b:['กรุณากรอกชื่อผู้ขาย','Please enter supplier name'], tt_needname_s:['กรุณากรอกชื่อลูกค้า','Please enter customer name'], tt_needitem:['กรุณากรอกรายการสินค้าและราคา','Please enter items and prices'],
+ tt_savefail:['บันทึกไม่สำเร็จ กรุณาลองใหม่','Save failed, please try again'], tt_delfail:['ลบไม่สำเร็จ กรุณาลองใหม่','Delete failed, please try again'],
+ tt_connfail:['เชื่อมต่อ Google Sheets ไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือ URL','Cannot connect to Google Sheets — check internet or URL'],
+ tt_editfail:['เชื่อมต่อไม่สำเร็จ กด ↻ แล้วลองแก้อีกครั้ง','Connection failed — tap ↻ and try again'],
+ tt_slip_ok:['✅ แนบสลิปเรียบร้อย (อย่าลืมกดบันทึกรายการ)','✅ Slip attached (remember to save the record)'],
+ tt_slip_del:['🗑 ลบสลิปออกแล้ว — กดบันทึกรายการเพื่อยืนยัน','🗑 Slip removed — save the record to confirm'],
+ tt_slip_type:['รองรับเฉพาะไฟล์ JPG, PNG, PDF','Only JPG, PNG, PDF files are supported'], tt_slip_big:['ไฟล์ใหญ่เกิน 8MB กรุณาย่อไฟล์','File exceeds 8MB, please reduce size'],
+ tt_slip_fail:['อัปโหลดไม่สำเร็จ ตรวจว่าติดตั้ง Script v5 แล้วหรือยัง','Upload failed — check that Script v5+ is installed'], tt_slip_fail2:['อัปโหลดไม่สำเร็จ','Upload failed'],
+ cf_del:['ยืนยันลบรายการ','Confirm delete record'], cf_del2:['ลบแล้วกู้คืนไม่ได้','This cannot be undone'],
+ tt_notfound:['ไม่พบรายการ','Record not found'],
+ editing:['กำลังแก้ไขรายการ','Editing record'],
+ loading:['กำลังโหลด...','Loading...'],
+ m_exp:['ค่าใช้จ่าย','Expenses'], s_exp:['Expenses','ค่าใช้จ่าย'], s_exp2:['ส่วนตัว / ธุรกิจ','Personal / Business'],
+ m_loan:['เงินยืม','Loans'], s_loan:['Loans','เงินยืม'], s_loan2:['ยืม / ให้ยืม','Borrow / Lend'],
+ e_date:['วันที่','Date'], e_cat:['หมวดหมู่','Category'], e_desc:['รายละเอียด','Description'], e_amt:['จำนวนเงิน (บาท)','Amount (THB)'],
+ e_save:['บันทึกค่าใช้จ่าย','Save Expense'], e_latest:['ค่าใช้จ่ายล่าสุด','Recent Expenses'],
+ tt_e_need:['กรุณากรอกหมวดหมู่และจำนวนเงิน','Please enter category and amount'],
+ ln_type:['ประเภท','Type'], ln_lend:['เราให้คนอื่นยืม (ลูกหนี้)','We lend to others (Receivable)'], ln_borrow:['เรายืมคนอื่น (เจ้าหนี้)','We borrow from others (Payable)'],
+ ln_person:['ชื่อบุคคล','Person Name'], ln_date:['วันที่ยืม','Loan Date'], ln_due:['วันครบกำหนด','Due Date'], ln_amt:['ยอดยืม (บาท)','Loan Amount (THB)'], ln_paid:['คืนแล้ว (บาท)','Repaid (THB)'],
+ ln_save:['บันทึกเงินยืม','Save Loan'], ln_lend_h:['เราให้ยืม (ลูกหนี้)','We Lent (Receivable)'], ln_borrow_h:['เรายืมเขา (เจ้าหนี้)','We Borrowed (Payable)'],
+ ln_repay:['💰 บันทึกรับคืน/จ่ายคืน','💰 Record Repayment'], ln_repay_q:['จำนวนเงินที่คืนงวดนี้ (บาท)','Repayment amount (THB)'],
+ tt_ln_need:['กรุณากรอกชื่อและยอดยืม','Please enter name and amount'],
+ org_manage:['จัดการแหล่งที่เพิ่มเอง','Manage Custom Origins'], org_none:['ยังไม่มีแหล่งที่เพิ่มเอง','No custom origins yet'],
+ org_list:['แหล่งที่เพิ่มเอง:','Custom origins:'], org_delq:['พิมพ์หมายเลขที่ต้องการลบ (หรือยกเลิก)','Type the number to delete (or cancel)'],
+ d_month:['สรุปยอดเดือนนี้','This Month Summary'],
+ d_buym:['ยอดซื้อเดือนนี้','Purchases (Month)'], d_sellm:['ยอดขายเดือนนี้','Sales (Month)'], d_profitm:['กำไรเดือนนี้','Profit (Month)'], d_expm:['ค่าใช้จ่ายเดือนนี้','Expenses (Month)'],
+ d_cash:['เงินสดคงเหลือ','Cash Balance'], d_arr:['ลูกหนี้','Receivables'], d_app:['เจ้าหนี้','Payables'], d_inv:['มูลค่าสต็อก','Inventory Value'],
+ d_chart:['กราฟ รายรับ − รายจ่าย − กำไร','Income − Expense − Profit Chart'],
+ d_day:['วัน','Day'], d_week:['สัปดาห์','Week'], d_monthp:['เดือน','Month'], d_year:['ปี','Year'],
+ d_inc:['รายรับ','Income'], d_out:['รายจ่าย','Expense'], d_pf:['กำไร','Profit'],
+ d_target:['🎯 เป้าหมายการขาย','🎯 Sales Target'], d_tset:['✏️ ตั้งเป้า','✏️ Set Target'],
+ d_t_m:['เป้าเดือนนี้','Monthly target'], d_t_y:['เป้าปีนี้','Yearly target'], d_left:['เหลืออีก','Remaining'], d_reach:['🎉 ถึงเป้าแล้ว!','🎉 Target reached!'],
+ d_t_ask_m:['ตั้งเป้ายอดขายรายเดือน (บาท)','Set monthly sales target (THB)'], d_t_ask_y:['ตั้งเป้ายอดขายรายปี (บาท)','Set yearly sales target (THB)'],
+ d_buysum:['📦 สรุปการซื้อเดือนนี้','📦 Purchases This Month'], d_sellsum:['💰 สรุปการขายเดือนนี้','💰 Sales This Month'],
+ d_count:['รายการ','records'], d_bygrade:['ตามเกรด','By grade'], d_byorigin:['ตามแหล่ง','By origin'], d_bytype:['ตามชนิด','By type'],
+ d_monthly:['📅 สรุปรายเดือน','📅 Monthly Report'],
+ d_r_inc:['รายรับ (ยอดขาย)','Income (Sales)'], d_r_out:['รายจ่าย (ซื้อ+ค่าใช้จ่าย)','Outgoing (Purchases+Expenses)'], d_r_buy:['ยอดซื้อ','Purchases'], d_r_sell:['ยอดขาย','Sales'],
+ d_r_pf:['กำไร','Profit'], d_r_exp:['ค่าใช้จ่ายส่วนตัว','Personal Expenses'], d_r_lend:['ให้คนอื่นยืม','Lent Out'], d_r_borrow:['ยืมคนอื่น','Borrowed'], d_r_bal:['คงเหลือสุทธิ','Net Balance'],
+ d_top:['📊 วิเคราะห์ธุรกิจ (Top 5)','📊 Business Analytics (Top 5)'],
+ b_due:['กำหนดจ่ายให้ผู้ขาย (Due Date)','Payment Due to Supplier'],
+ f_nick:['ชื่อเล่นสินค้า (ถ้ามี)','Nickname (optional)'], ph_nick:['เช่น Premium A','e.g. Premium A'],
+ inv_qty:['คงเหลือ','Balance'], inv_avg:['ทุนเฉลี่ย/หน่วย','Avg. Cost/Unit'], inv_val:['มูลค่าคงคลัง','Stock Value'], inv_last:['ซื้อล่าสุด','Last Purchase'],
+ st_ready:['พร้อมขาย','In Stock'], st_low:['ใกล้หมด','Low Stock'], st_out:['หมด/ติดลบ','Out of Stock'],
+ inv_search:['🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง...','🔍 Search name / nickname / grade / origin...'],
+ inv_total_val:['มูลค่ารวม','Total Value'],
+ pick_stock:['— 📦 เลือกสินค้าจากสต็อก (ไม่บังคับ) —','— 📦 Pick from stock (optional) —'],
+ stk_left:['คงเหลือในสต็อก','In stock'], stk_lastp:['ซื้อล่าสุด','Last buy'], stk_from:['ซื้อจาก','Bought from'], b_supnick:['ชื่อเล่นพ่อค้า (ถ้ามี)','Supplier Nickname (optional)'], ph_supnick:['เช่น เฮียชาคีร์','e.g. Shakir'], stk_nicks:['ชื่อเล่น','Nicknames'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
+ stk_over:['⚠️ เกินสต็อก! ขายได้สูงสุด {q}','⚠️ Exceeds stock! Max {q}'],
+ tt_overstock:['จำนวนสินค้าที่ขายเกินกว่าสินค้าคงเหลือในสต็อก กรุณาตรวจสอบจำนวนอีกครั้ง','Quantity exceeds available stock — please check again'],
+ btn_pdf:['📄 ดาวน์โหลด PDF','📄 Download PDF'], btn_sendpdf:['📤 ส่ง PDF','📤 Send PDF'],
+ tt_pdf_making:['⏳ กำลังสร้าง PDF...','⏳ Creating PDF...'], tt_pdf_ok:['✅ สร้าง PDF สำเร็จ','✅ PDF created'], tt_pdf_fail:['สร้าง PDF ไม่สำเร็จ ลองใหม่อีกครั้ง','PDF creation failed, please retry'],
+ n_title:['🔔 แจ้งเตือนกำหนดชำระ','🔔 Payment Due Alerts'],
+ n_today:['ครบกำหนดวันนี้!','Due today!'], n_days:['อีก {d} วันถึงกำหนด','{d} day(s) until due'], n_over:['เกินกำหนด {d} วัน','{d} day(s) overdue'],
+ n_ar:['ลูกค้าต้องจ่ายเรา','Customer owes us'], n_ap:['เราต้องจ่ายผู้ขาย','We owe supplier'], n_lend:['เงินให้ยืม','Loan (lent)'], n_borrow:['เงินที่เรายืม','Loan (borrowed)'],
+ n_toast:['🔔 มี {n} รายการใกล้ถึง/เกินกำหนดชำระ','🔔 {n} payment(s) due soon or overdue'],
+ n_none:['ไม่มีรายการใกล้ถึงกำหนดใน 7 วัน','Nothing due within 7 days'],
+ d_top_prod:['สินค้าขายดี','Top Selling Items'], d_top_cust:['ลูกค้าซื้อเยอะสุด','Top Customers'], d_top_sup:['ซื้อจากเยอะสุด','Top Suppliers'], d_top_org:['แหล่งที่ซื้อเยอะสุด','Top Origins Bought'], d_top_grade:['เกรดขายดีสุด','Top Grades Sold']
+};
+const I18N_AR = {
+ m_buy:'المشتريات', m_sell:'المبيعات', m_stock:'المخزون', m_profit:'الأرباح / الإيرادات', m_ar:'الذمم المدينة', m_ap:'الذمم الدائنة',
+ t_ar:'الذمم المدينة المستحقة', t_ap:'الذمم الدائنة المستحقة',
+ sub_stock:'محسوب تلقائيًا: المشتريات − المبيعات',
+ settings:'إعدادات الاتصال بـ Google Sheets', latest_act:'النشاط الأخير',
+ add_buy_new:'إضافة عملية شراء جديدة', add_sell_new:'إضافة عملية بيع جديدة',
+ l_buydate:'تاريخ الشراء', l_selldate:'تاريخ البيع', l_supplier:'المورّد', l_customer:'العميل',
+ ph_supplier:'اسم المورّد / المتجر', ph_customer:'اسم العميل / الشركة',
+ add_item:'إضافة صنف', extras_t:'رسوم الخدمة / المصاريف', add_extra:'إضافة رسوم',
+ l_commp:'العمولة (%)', l_commmode:'طريقة احتساب العمولة', opt_inc:'تُضاف إلى التكلفة', opt_sep:'مصروف منفصل',
+ grand_t:'الإجمالي النهائي', l_pays:'دفعات السداد (اضغط ＋ للإضافة بلا حدود)', add_pay:'إضافة دفعة',
+ l_note:'ملاحظات', ph_optional:'اختياري', ph_ifany:'إن وجد',
+ btn_cancel:'إلغاء', save_buy:'حفظ الشراء', save_sell:'حفظ البيع', save_edit:'حفظ التعديلات', saving:'جارٍ الحفظ...',
+ latest_buy:'أحدث المشتريات', latest_sell:'أحدث المبيعات',
+ l_due:'تاريخ الاستحقاق', pf_t:'تفاصيل الربح', l_shipc:'الشحن المحصّل (بات)', l_shipa:'الشحن الفعلي المدفوع (بات)',
+ item_t:'الصنف', f_type:'النوع', f_origin:'المصدر/الصنف', f_grade:'الدرجة', f_qty:'الكمية', f_price:'سعر الوحدة', f_amt:'الإجمالي',
+ wood_o:'خشب العود (كجم)', oil_o:'دهن العود (تولة)', sel_origin:'— اختر المصدر —',
+ x_name:'اسم الرسوم', ph_xname:'مثال: الشحن', x_amt:'المبلغ', x_cost:'التكلفة الفعلية (اختياري، مخفية عن الفاتورة)',
+ inst:'الدفعة', pay_date:'تاريخ الدفع', pay_amt:'المبلغ (بات)', pay_method:'طريقة الدفع', pay_bank:'البنك (للتحويل)', pay_ref:'رقم مرجع التحويل',
+ pm_cash:'نقدًا', pm_transfer:'تحويل بنكي', pm_cheque:'شيك', pm_other:'أخرى',
+ pay_slip:'إرفاق إيصال الدفع (JPG / PNG / PDF)', slip_drop:'📎 اضغط لاختيار ملف أو اسحبه هنا',
+ slip_view:'👁 عرض الإيصال', slip_del:'🗑 حذف الإيصال', slip_up:'⏳ جارٍ رفع الإيصال...',
+ paid_lbl:'المدفوع', inst_ct:'دفعة', debt_lbl:'الرصيد المستحق', status_lbl:'الحالة',
+ comm_lbl:'العمولة', inc_txt:'مضافة إلى تكلفة البضاعة', sep_txt:'مصروف منفصل، غير مشمول في الفاتورة',
+ cost_total:'إجمالي التكلفة', units_w:'وحدة', avg_cost:'متوسط التكلفة', per_unit:'بات/وحدة',
+ avg_hist:'متوسط التكلفة من سجل المشتريات', no_hist:'لا يوجد سجل شراء لهذا الصنف — تُعتبر التكلفة 0',
+ pf1:'ربح الفارق', pf1b:'البيع', pf1c:'متوسط التكلفة', pf_pu:'الربح لكل وحدة', pf2:'ربح العمولة', pf3:'ربح الشحن', pf_net:'صافي الربح',
+ k_latest:'الأحدث', k_owe:'مستحق', k_due:'الاستحقاق', k_receipt:'🧾 الإيصال', k_edit:'✏️ تعديل', k_del:'🗑️ حذف',
+ items_ct:'سجلات', k_more:'عرض آخر 30 سجلًا — الكل في Google Sheets',
+ empty_buy:'لا توجد مشتريات بعد<br>اضغط ➕ بالأعلى لإضافة أول سجل',
+ empty_sell:'لا توجد مبيعات بعد<br>اضغط ➕ بالأعلى لإضافة أول سجل',
+ k_wood:'خشب العود', k_oil:'دهن العود',
+ k_balsum:'إجمالي الرصيد', h_origin:'المصدر', h_grade:'الدرجة', h_buyq:'المشترى', h_sellq:'المباع', h_bal:'الرصيد', k_noorigin:'المصدر غير محدد', k_sum:'الإجمالي: ',
+ empty_stock:'لا توجد بيانات مخزون بعد<br>أضف أول عملية شراء',
+ p_rev:'إجمالي المبيعات (الإيرادات)', p_cost:'إجمالي المشتريات (التكلفة)', p_cin:'النقد المستلم', p_cout:'النقد المدفوع',
+ p_3t:'📊 الأرباح — ثلاثة أنواع (من المبيعات المفصّلة)',
+ p_l1:'① هامش الربح', p_l2:'② العمولة', p_l3:'③ الشحن', p_lnet:'صافي الربح (①+②+③)', pr_overview:'📊 نظرة عامة', pr_bycust:'👥 الربح حسب العميل',
+ p_gross:'إجمالي الربح (المبيعات − المشتريات)',
+ d_ar_sum:'إجمالي الذمم المدينة', d_ap_sum:'إجمالي الذمم الدائنة', d_none:'🎉 لا توجد مستحقات',
+ rb_title:'الإيصال / المستند', btn_print:'🖨️ طباعة / PDF', btn_saveimg:'💾 حفظ صورة', btn_share:'📤 مشاركة',
+ hint_print:'في LINE اضغط 🖨️ لفتح متصفح خارجي للطباعة، أو 💾 لحفظ الفاتورة كصورة',
+ doc_buy:'إيصال شراء', doc_inv:'فاتورة / إشعار تسليم', doc_rec:'إيصال استلام',
+ rp_supplier:'المورّد / SUPPLIER', rp_customer:'العميل / CUSTOMER', rp_pay:'حالة السداد',
+ rp_no:'رقم', rp_date:'التاريخ', rp_due:'الاستحقاق',
+ rh_item:'وصف الصنف', rh_qty:'الكمية', rh_price:'سعر الوحدة', rh_total:'الإجمالي (بات)',
+ rs_items:'إجمالي الأصناف', rs_extras:'رسوم الخدمة', rs_grand:'الإجمالي النهائي', rs_paid:'المدفوع', rs_debt:'الرصيد المستحق', rs_cpu:'تكلفة الوحدة (متوسط)',
+ rp_incost:'(ضمن التكلفة)', rp_sepcost:'(منفصل)',
+ rp_payhist:'💳 سجل المدفوعات', rp_inst:'رقم', rp_slip:'الإيصال', rp_status:'الحالة', rp_ok:'ناجح', rp_method_ref:'الطريقة / المرجع', rp_ref:'مرجع',
+ rp_paysum:'إجمالي المدفوع', rp_left:'المتبقي', rp_paidfull:'مدفوع بالكامل ✓',
+ rp_slipnote:'📎 إثبات الدفع مرفق في النظام',
+ rp_note:'ملاحظات', rp_sign1:'المستلم', rp_payer:'الدافع', rp_cust2:'العميل', rp_sign2:'التوقيع المعتمد',
+ rp_footer:'صادر عن نظام Bigtree Agarwood', rp_taxid:'الرقم الضريبي', rp_docno:'رقم المستند',
+ tt_saved:'✅ تم الحفظ في Google Sheets!', tt_edited:'✅ تم حفظ التعديلات', tt_deleted:'🗑️ تم حذف السجل',
+ tt_updated:'تم تحديث البيانات ✅',
+ tt_needname_b:'يرجى إدخال اسم المورّد', tt_needname_s:'يرجى إدخال اسم العميل', tt_needitem:'يرجى إدخال الأصناف والأسعار',
+ tt_savefail:'فشل الحفظ، حاول مرة أخرى', tt_delfail:'فشل الحذف، حاول مرة أخرى',
+ tt_connfail:'تعذّر الاتصال بـ Google Sheets — تحقق من الإنترنت أو الرابط',
+ tt_editfail:'فشل الاتصال — اضغط ↻ وحاول مجددًا',
+ tt_slip_ok:'✅ تم إرفاق الإيصال (لا تنسَ حفظ السجل)', tt_slip_del:'🗑 تم حذف الإيصال — احفظ السجل للتأكيد',
+ tt_slip_type:'الملفات المدعومة: JPG وPNG وPDF فقط', tt_slip_big:'الملف أكبر من 8MB، يرجى تصغيره',
+ tt_slip_fail:'فشل الرفع — تأكد من تثبيت Script v5+', tt_slip_fail2:'فشل الرفع',
+ cf_del:'تأكيد حذف السجل', cf_del2:'لا يمكن التراجع بعد الحذف',
+ tt_notfound:'السجل غير موجود', editing:'جارٍ تعديل السجل', loading:'جارٍ التحميل...',
+ m_exp:'المصاريف', m_loan:'القروض', e_date:'التاريخ', e_cat:'الفئة', e_desc:'التفاصيل', e_amt:'المبلغ (بات)', e_save:'حفظ المصروف', e_latest:'أحدث المصاريف',
+ ln_person:'اسم الشخص', ln_amt:'مبلغ القرض (بات)', ln_paid:'المسدد (بات)', ln_save:'حفظ القرض',
+ d_month:'ملخص هذا الشهر', d_buym:'مشتريات الشهر', d_sellm:'مبيعات الشهر', d_profitm:'ربح الشهر', d_expm:'مصاريف الشهر',
+ d_cash:'الرصيد النقدي', d_arr:'الذمم المدينة', d_app:'الذمم الدائنة', d_inv:'قيمة المخزون',
+ d_inc:'الإيرادات', d_out:'المصروفات', d_pf:'الربح', d_target:'🎯 هدف المبيعات', d_left:'المتبقي',
+ n_title:'🔔 تنبيهات الاستحقاق', n_today:'مستحق اليوم!', n_days:'باقٍ {d} يوم للاستحقاق', n_over:'متأخر {d} يوم',
+ n_ar:'العميل مدين لنا', n_ap:'مستحق للمورّد', b_due:'تاريخ الاستحقاق للمورّد',
+ stk_from:'المورّد', b_supnick:'الاسم المستعار للمورّد (اختياري)', stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
+ btn_pdf:'📄 تحميل PDF', btn_sendpdf:'📤 إرسال PDF', tt_pdf_making:'⏳ جارٍ إنشاء PDF...', tt_pdf_ok:'✅ تم إنشاء PDF',
+ f_nick:'الاسم المستعار (اختياري)', inv_qty:'الرصيد', inv_avg:'متوسط التكلفة/وحدة', inv_val:'قيمة المخزون', inv_last:'آخر شراء', st_ready:'متوفر', st_out:'نفد'
+};
+function t(k){
+  if(LANG==='ar' && I18N_AR[k]!==undefined) return I18N_AR[k];
+  const e = I18N[k]; if(!e) return k;
+  return e[(LANG==='en'||LANG==='ar')?1:0];
+}
+function stTxt(s){
+  if(LANG==='en'){
+    if(s==='จ่ายครบ') return 'Paid';
+    if(s==='จ่ายบางส่วน') return 'Partial';
+    if(s==='ค้างชำระ') return 'Unpaid';
+  }
+  if(LANG==='ar'){
+    if(s==='จ่ายครบ') return 'مدفوع بالكامل';
+    if(s==='จ่ายบางส่วน') return 'مدفوع جزئيًا';
+    if(s==='ค้างชำระ') return 'غير مدفوع';
+  }
+  return s;
+}
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = (LANG==='ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  const lb = document.getElementById('langbtn');
+  if(lb) lb.textContent = LANG==='th' ? '🌐 ไทย ▸ English' : (LANG==='en' ? '🌐 English ▸ العربية' : '🌐 العربية ▸ ไทย');
+}
+function toggleLang(){
+  LANG = (LANG==='th') ? 'en' : (LANG==='en' ? 'ar' : 'th');
+  localStorage.setItem('bt_lang', LANG);
+  applyLang();
+  renderAllPages();
+  try{ if($('b-items').children.length) calc('b'); }catch(e){}
+  try{ if($('s-items').children.length) calc('s'); }catch(e){}
+  const act = document.querySelector('.page.active');
+  if(act && act.id==='pg-receipt' && window._rc) openReceipt(window._rc.p, window._rc.id);
+}
+
+const COMPANY = {
+  name:'Bigtree Agarwood',
+  th:'บริษัท บิ๊กตรี อาคาร์วู้ด จำกัด',
+  en:'BIGTREE AGARWOOD CO., LTD.',
+  tax:'0965560000037',
+  addr:'202 หมู่ที่ 4 ต.ซากอ อ.ศรีสาคร จ.นราธิวาส 96210',
+  tel:'061-251-1440',
+  email:'Ajmal.oud20@gmail.com'
+};
+const ORIGINS = ['เขาใหญ่','นครนายก','ปราจีน','ตราด','สระแก้ว','จันทบุรี','บ่อไร่','ลาว','กัมพูชา','เกาะกง','เกาะช้าง','มาเลย์','ใต้','สุราษฎร์ธานี','เชียงใหม่','พม่า'];
+
+let cache = { buys:[], sells:[], expenses:[], loans:[], settings:{} };
+try{ const c = JSON.parse(localStorage.getItem('bt_cache')||'null'); if(c && c.buys) cache = c; }catch(e){}
+
+let editing = { b:null, s:null };
+let sellOver = false;
+let itemSeq = 0;
+
+// ═══════════ HELPERS ═══════════
+const $ = id => document.getElementById(id);
+const fmt = n => (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:2});
+const num = v => parseFloat(v)||0;
+function fdate(d){
+  if(!d) return '-';
+  const dt = new Date(d);
+  if(isNaN(dt)) return String(d);
+  return dt.toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{day:'numeric',month:'short',year:'2-digit'});
+}
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+const unitTh = u => u==='kg' ? (LANG==='en'?'kg':(LANG==='ar'?'كجم':'กก.')) : (u==='tl'?(LANG==='en'?'tola':(LANG==='ar'?'تولة':'โตลา')):esc(u||''));
+const typeTh = x => x==='wood' ? t('k_wood') : (x==='oil'?t('k_oil'):esc(x||'-'));
+
+let toastTimer;
+function showToast(msg, err){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err?' err':'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.className='toast', 3200);
+}
+
+function parseNote(raw){
+  const out = { items:null, extras:[], pf:null, memo:'' };
+  if(!raw) return out;
+  try{
+    const j = JSON.parse(raw);
+    if(j && typeof j === 'object'){
+      out.items = Array.isArray(j.items) && j.items.length ? j.items : null;
+      out.extras = Array.isArray(j.extras) ? j.extras : [];
+      out.pf = j.pf || null;
+      out.bcomm = j.bcomm || null;
+      out.pays = Array.isArray(j.pays) ? j.pays : [];
+      out.bdue = j.bdue || '';
+      out.supnick = j.supnick || '';
+      out.cpu = (j.cpu!=null) ? j.cpu : null;
+      out.memo = j.memo || '';
+      return out;
+    }
+  }catch(e){}
+  out.memo = String(raw);
+  return out;
+}
+
+// ═══════════ NAVIGATION ═══════════
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = $(id); if(pg) pg.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='pg-buy')   renderList('b');
+  if(id==='pg-sell')  renderList('s');
+  if(id==='pg-stock') renderStock();
+  if(id==='pg-profit')renderProfit();
+  if(id==='pg-ar')    renderAR();
+  if(id==='pg-ap')    renderAP();
+  if(id==='pg-exp')   renderExpPage();
+  if(id==='pg-loan')  renderLoanPage();
+  if(id==='pg-home')  renderHome();
+}
+function changeURL(){
+  const cur = API_URL;
+  const url = prompt('วาง URL จาก Google Apps Script (ขึ้นต้น https://script.google.com)', cur);
+  if(url===null) return;
+  const u = url.trim();
+  if(!u.startsWith('https://script.google.com')){ showToast('URL ไม่ถูกต้อง', true); return; }
+  localStorage.setItem('bt_api_url', u);
+  API_URL = u;
+  showToast('บันทึก URL แล้ว กำลังโหลดข้อมูล...');
+  refreshAll(true);
+}
+
+// ═══════════ API ═══════════
+async function api(action, body){
+  if(!body){
+    const res = await fetch(API_URL + '?action=' + action);
+    return res.json();
+  }
+  const payload = JSON.stringify(Object.assign({action}, body));
+  // ช่องทางหลัก: POST
+  try{
+    const res = await fetch(API_URL + '?action=' + action, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: payload
+    });
+    const j = await res.json();
+    if(j && (j.success === true || j.error)) return j;
+  }catch(e){}
+  // ช่องทางสำรอง: ส่งผ่าน GET (ผ่านได้แม้ POST ถูกบล็อก)
+  const res2 = await fetch(API_URL + '?action=' + action + '&payload=' + encodeURIComponent(payload));
+  return res2.json();
+}
+async function refreshAll(manual){
+  try{
+    const d = await api('getAll');
+    if(d && Array.isArray(d.buys)){
+      cache.buys = d.buys.filter(r=>r.id);
+      cache.sells = (d.sells||[]).filter(r=>r.id);
+      cache.expenses = (d.expenses||[]).filter(r=>r.id);
+      cache.loans = (d.loans||[]).filter(r=>r.id);
+      cache.settings = d.settings || cache.settings || {};
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      fillNames();
+      renderAllPages();
+      if(manual) showToast(t('tt_updated')); else maybeAlertToast();
+    } else if(manual){
+      showToast('เชื่อมต่อได้ แต่ข้อมูลผิดรูปแบบ', true);
+    }
+  }catch(e){
+    if(manual) showToast(t('tt_connfail'), true);
+  }
+}
+function renderAllPages(){
+  const act = document.querySelector('.page.active');
+  renderList('b'); renderList('s');
+  if(!act) return;
+  const id = act.id;
+  if(id==='pg-stock') renderStock();
+  if(id==='pg-profit')renderProfit();
+  if(id==='pg-ar')    renderAR();
+  if(id==='pg-ap')    renderAP();
+  if(id==='pg-exp')   renderExpPage();
+  if(id==='pg-loan')  renderLoanPage();
+  if(id==='pg-home')  renderHome();
+}
+
+// ═══════════ FORM: items & extras ═══════════
+function toggleForm(p, force){
+  const w = $(p+'-form'), t = $(p+'-toggle');
+  const open = force!==undefined ? force : !w.classList.contains('open');
+  w.classList.toggle('open', open);
+  t.classList.toggle('open', open);
+  if(open && !$(p+'-items').children.length) addItem(p);
+}
+function originOpts(sel){
+  let opts = '<option value="">'+t('sel_origin')+'</option>' +
+    ORIGINS.map(o=>'<option value="'+o+'"'+(o===sel?' selected':'')+'>'+o+'</option>').join('');
+  if(sel && !ORIGINS.includes(sel)) opts += '<option value="'+esc(sel)+'" selected>'+esc(sel)+'</option>';
+  return opts;
+}
+const GRADES = ['พรีเมียม','ธรรมชาติ','ไม้สวน','AAA','AA','A'];
+function gradeOpts(sel){
+  let opts = GRADES.map(g=>'<option value="'+g+'"'+(g===sel?' selected':'')+'>'+g+'</option>').join('');
+  if(sel && !GRADES.includes(sel)) opts = '<option value="'+esc(sel)+'" selected>'+esc(sel)+'</option>' + opts;
+  return opts;
+}
+function stockBalMap(){
+  const m = {};
+  try{ stockRows().forEach(r=>{ m[r.ckey] = r; }); }catch(e){}
+  return m;
+}
+function stockPickOpts(){
+  let rows = [];
+  try{ rows = stockRows().filter(r=>r.bal>0); }catch(e){}
+  return '<option value="">'+t('pick_stock')+'</option>' + rows.map(r=>
+    '<option value="'+esc(r.ckey)+'">['+esc(r.code||'')+'] '+esc(r.origin||'-')+' — '+esc(r.grade)+(r.nick?' ('+esc(r.nick)+')':'')+' · '+fmt(r.bal)+' '+unitTh(r.unit)+'</option>').join('');
+}
+function stockOptsFor(){
+  let rows = [];
+  try{ rows = stockRows(); }catch(e){}
+  return rows;
+}
+function originsFor(type){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.bal>0 && r.origin && !out.includes(r.origin)) out.push(r.origin); });
+  return out;
+}
+function gradesFor(type, origin){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.origin===origin && r.bal>0 && !out.includes(r.grade)) out.push(r.grade); });
+  return out;
+}
+function nicksFor(type, origin, grade){
+  const out = [];
+  stockOptsFor().forEach(r=>{ if(r.type===type && r.origin===origin && r.grade===grade){ (r.nicks||[]).forEach(n=>{ if(n && !out.includes(n)) out.push(n); }); } });
+  return out;
+}
+// อัปเดตตัวเลือก แหล่ง/เกรด/ชื่อเล่น ของแถวขาย ตามสต็อกจริง (คงค่าที่เลือกไว้)
+function sellCascade(boxId){
+  const box = $(boxId); if(!box) return;
+  const type = box.querySelector('.f-type').value;
+  const oSel = box.querySelector('.f-origin');
+  const gSel = box.querySelector('.f-grade');
+  const curO = oSel.value, curG = gSel.value;
+  // แหล่ง: เฉพาะที่มีของประเภทนี้จริง
+  let orgs = originsFor(type);
+  if(curO && !orgs.includes(curO)) orgs = [curO].concat(orgs); // ค่าดั้งเดิม (รายการเก่า) ไม่หาย
+  oSel.innerHTML = '<option value="">'+t('sel_origin')+'</option>' + orgs.map(o=>'<option value="'+esc(o)+'"'+(o===curO?' selected':'')+'>'+esc(o)+'</option>').join('');
+  const newO = oSel.value;
+  // เกรด: เฉพาะที่มีในแหล่งนั้น
+  let grs = newO ? gradesFor(type, newO) : [];
+  if(!grs.length) grs = GRADES.slice();
+  if(curG && !grs.includes(curG)) grs = [curG].concat(grs);
+  gSel.innerHTML = grs.map(g=>'<option value="'+esc(g)+'"'+(g===curG?' selected':'')+'>'+esc(g)+'</option>').join('');
+  // ชื่อเล่น: จากประวัติจริงของสินค้านี้
+  const dl = box.querySelector('.dl-nick');
+  if(dl){
+    const nks = (newO ? nicksFor(type, newO, gSel.value) : []);
+    dl.innerHTML = nks.map(n=>'<option value="'+esc(n)+'"></option>').join('');
+  }
+}
+function pickStock(sel, boxId){
+  const box = $(boxId); if(!box || !sel.value) return;
+  const r = stockBalMap()[sel.value]; if(!r) return;
+  box.querySelector('.f-type').value = r.type;
+  box.querySelector('.f-origin').value = r.origin;
+  const g = box.querySelector('.f-grade');
+  if(![...g.options].some(o=>o.value===r.grade)){ const o=document.createElement('option'); o.value=r.grade; o.textContent=r.grade; g.appendChild(o); }
+  g.value = r.grade;
+  const nk = box.querySelector('.f-nick'); if(nk && r.nick) nk.value = r.nick;
+  sellCascade(boxId);
+  calc('s');
+}
+function addItem(p, data){
+  const d = data||{};
+  const id = 'it' + (++itemSeq);
+  const isSell = (p==='s');
+  const box = document.createElement('div');
+  box.className = 'item-box';
+  box.id = id;
+  box.innerHTML =
+    (isSell ? '<select class="f-pick" style="margin-top:4px" onchange="pickStock(this,\''+id+'\')">'+stockPickOpts()+'</select>' : '') +
+    '<button class="item-x" onclick="delItem(\''+p+'\',\''+id+'\')">✕</button>'+
+    '<div class="item-no" data-i18n="item_t">'+t('item_t')+'</div>'+
+    '<div class="row2" style="margin-top:8px">'+
+      '<div><label style="margin-top:0" data-i18n="f_type">'+t('f_type')+'</label><select class="f-type" onchange="'+(isSell?'sellCascade(\''+id+'\');':'')+'calc(\''+p+'\')">'+
+        '<option value="wood" data-i18n="wood_o"'+(d.type!=='oil'?' selected':'')+'>'+t('wood_o')+'</option>'+
+        '<option value="oil" data-i18n="oil_o"'+(d.type==='oil'?' selected':'')+'>'+t('oil_o')+'</option>'+
+      '</select></div>'+
+      '<div><label style="margin-top:0" data-i18n="f_origin">'+t('f_origin')+'</label>'+(isSell?'<select class="f-origin" onchange="sellCascade(\''+id+'\');calc(\'s\')"><option value="'+esc(d.origin||'')+'" selected>'+esc(d.origin||t('sel_origin'))+'</option></select>':'<input class="f-origin" list="dl-origin" autocomplete="off" placeholder="'+t('sel_origin')+'" value="'+esc(d.origin||'')+'">')+'</div>'+
+    '</div>'+
+    '<label data-i18n="f_grade">'+t('f_grade')+'</label><select class="f-grade"'+(isSell?' onchange="sellCascade(\''+id+'\');calc(\'s\')"':'')+'>'+gradeOpts(d.grade||'')+'</select>'+
+    '<label data-i18n="f_nick">'+t('f_nick')+'</label><input class="f-nick"'+(isSell?' list="dlnick-'+id+'"':'')+' placeholder="'+t('ph_nick')+'" value="'+esc(d.nick||'')+'">'+(isSell?'<datalist class="dl-nick" id="dlnick-'+id+'"></datalist>':'')+
+    '<div class="row3" style="margin-top:10px">'+
+      '<div><label style="margin-top:0" data-i18n="f_qty">'+t('f_qty')+'</label><input type="number" class="f-qty" inputmode="decimal" placeholder="0" value="'+(d.qty||'')+'" oninput="calc(\''+p+'\')"></div>'+
+      '<div><label style="margin-top:0" data-i18n="f_price">'+t('f_price')+'</label><input type="number" class="f-price" inputmode="decimal" placeholder="0" value="'+(d.price||'')+'" oninput="calc(\''+p+'\')"></div>'+
+      '<div><label style="margin-top:0" data-i18n="f_amt">'+t('f_amt')+'</label><input class="f-amt line-amt" readonly value="0"></div>'+
+    '</div>'+
+    (isSell ? '<div class="pay-hint f-stockline" style="margin-top:7px"></div>' : '');
+  $(p+'-items').appendChild(box);
+  if(isSell) sellCascade(id);
+  calc(p);
+}
+function delItem(p, id){
+  const el = $(id); if(el) el.remove();
+  if(!$(p+'-items').children.length) addItem(p);
+  calc(p);
+}
+function addExtra(p, data){
+  const d = data||{};
+  const id = 'ex' + (++itemSeq);
+  const box = document.createElement('div');
+  box.className = 'item-box';
+  box.id = id;
+  box.innerHTML =
+    '<button class="item-x" onclick="delExtra(\''+p+'\',\''+id+'\')">✕</button>'+
+    '<div class="row2" style="margin-top:4px">'+
+      '<div><label style="margin-top:0" data-i18n="x_name">'+t('x_name')+'</label><input class="x-name" data-i18n-ph="ph_xname" placeholder="'+t('ph_xname')+'" value="'+esc(d.name||'')+'"></div>'+
+      '<div><label style="margin-top:0" data-i18n="x_amt">'+t('x_amt')+'</label><div style="display:flex;gap:6px"><input type="number" class="x-amt" inputmode="decimal" placeholder="0" style="flex:1" value="'+esc(d.pct!=null && d.pct!=='' ? d.pct : (d.amt||''))+'" oninput="calc(\''+p+'\')">'+
+      '<select class="x-unit" style="flex:0 0 76px;padding:11px 6px" onchange="calc(\''+p+'\')">'+
+        '<option value="baht"'+((d.pct==null||d.pct==='')?' selected':'')+'>฿</option>'+
+        '<option value="pct"'+((d.pct!=null&&d.pct!=='')?' selected':'')+'>%</option>'+
+      '</select></div></div>'+
+    '</div>'+
+    '<label style="margin-top:8px" data-i18n="x_cost">'+t('x_cost')+'</label><input type="number" class="x-cost" inputmode="decimal" data-i18n-ph="ph_xcost" placeholder="'+t('ph_xcost')+'" value="'+(d.cost||'')+'" oninput="calc(\''+p+'\')">'+
+    '<div class="pay-hint x-calc"></div>';
+  $(p+'-extras').appendChild(box);
+  calc(p);
+}
+function delExtra(p, id){ const el=$(id); if(el) el.remove(); calc(p); }
+
+// ═══ งวดการชำระ (หลายงวด + แนบสลิป) ═══
+function addPay(p, data){
+  const d = data||{};
+  const id = 'py' + (++itemSeq);
+  const box = document.createElement('div');
+  box.className = 'item-box';
+  box.id = id;
+  const mth = (d.method==='โอน') ? 'โอนเงิน' : (d.method||'');
+  const methods = ['เงินสด','โอนเงิน','เช็ค','อื่นๆ'];
+  box.innerHTML =
+    '<button class="item-x" onclick="delPay(\''+p+'\',\''+id+'\')">✕</button>'+
+    '<div class="item-no p-no">'+t('inst')+' 1</div>'+
+    '<div class="row2" style="margin-top:8px">'+
+      '<div><label style="margin-top:0" data-i18n="pay_date">'+t('pay_date')+'</label><input type="date" class="p-date" value="'+esc(d.date||new Date().toISOString().split('T')[0])+'" onchange="calc(\''+p+'\')"></div>'+
+      '<div><label style="margin-top:0" data-i18n="pay_amt">'+t('pay_amt')+'</label><input type="number" class="p-amt" inputmode="decimal" placeholder="0" value="'+(d.amt||'')+'" oninput="calc(\''+p+'\')"></div>'+
+    '</div>'+
+    '<div class="row2" style="margin-top:10px">'+
+      '<div><label style="margin-top:0" data-i18n="pay_method">'+t('pay_method')+'</label><select class="p-method" onchange="payMethodChanged(this,\''+id+'\');calc(\''+p+'\')">'+
+        methods.map(m=>'<option value="'+m+'"'+(mth===m?' selected':'')+' data-i18n="'+({'เงินสด':'pm_cash','โอนเงิน':'pm_transfer','เช็ค':'pm_cheque','อื่นๆ':'pm_other'})[m]+'">'+t(({'เงินสด':'pm_cash','โอนเงิน':'pm_transfer','เช็ค':'pm_cheque','อื่นๆ':'pm_other'})[m])+'</option>').join('')+
+      '</select></div>'+
+      '<div class="p-bankwrap"><label style="margin-top:0" data-i18n="pay_bank">'+t('pay_bank')+'</label><input class="p-bank" placeholder="เช่น กสิกรไทย" value="'+esc(d.bank||'')+'"></div>'+
+    '</div>'+
+    '<div class="row2" style="margin-top:10px">'+
+      '<div><label style="margin-top:0" data-i18n="pay_ref">'+t('pay_ref')+'</label><input class="p-ref" data-i18n-ph="ph_ifany" placeholder="'+t('ph_ifany')+'" value="'+esc(d.ref||'')+'"></div>'+
+      '<div><label style="margin-top:0" data-i18n="l_note">'+t('l_note')+'</label><input class="p-note" data-i18n-ph="ph_ifany" placeholder="'+t('ph_ifany')+'" value="'+esc(d.note||'')+'"></div>'+
+    '</div>'+
+    '<label data-i18n="pay_slip">'+t('pay_slip')+'</label>'+
+    '<input type="file" class="p-file" accept="image/jpeg,image/jpg,image/png,application/pdf" style="display:none" onchange="handleSlipFile(this.files[0],\''+id+'\')">'+
+    '<div class="slip-drop" onclick="$(\''+id+'\').querySelector(\'.p-file\').click()" ondragover="event.preventDefault()" ondrop="event.preventDefault();handleSlipFile(event.dataTransfer.files[0],\''+id+'\')">'+
+      '<span class="slip-state">'+t('slip_drop')+'</span>'+
+    '</div>';
+  $(p+'-pays').appendChild(box);
+  if(d.slip && d.slip.url){
+    box._slip = d.slip;
+    const drop = box.querySelector('.slip-drop');
+    drop.classList.add('has');
+    box.querySelector('.slip-state').innerHTML = '📎 '+esc(d.slip.name||'slip')+' ✓ &nbsp;<a class="slip-view" href="'+esc(d.slip.url)+'" target="_blank" onclick="event.stopPropagation()">'+t('slip_view')+'</a>&nbsp; <a class="slip-view" style="color:var(--bad)" href="#" onclick="event.preventDefault();event.stopPropagation();removeSlip(\''+id+'\')">'+t('slip_del')+'</a>';
+  }
+  payMethodChanged(box.querySelector('.p-method'), id);
+  renumberPays(p);
+  calc(p);
+}
+function payMethodChanged(sel, id){
+  const box = $(id); if(!box) return;
+  const wrap = box.querySelector('.p-bankwrap');
+  wrap.style.opacity = (sel.value==='โอนเงิน') ? '1' : '.45';
+}
+function delPay(p, id){ const el=$(id); if(el) el.remove(); renumberPays(p); calc(p); }
+function renumberPays(p){
+  $(p+'-pays').querySelectorAll('.p-no').forEach((el,i)=>{ el.textContent = t('inst')+' '+(i+1); });
+}
+function readPays(p){
+  const out = [];
+  $(p+'-pays').querySelectorAll('.item-box').forEach((b,i)=>{
+    const amt = num(b.querySelector('.p-amt').value);
+    const date = b.querySelector('.p-date').value;
+    const method = b.querySelector('.p-method').value;
+    const bank = b.querySelector('.p-bank').value.trim();
+    const ref = b.querySelector('.p-ref').value.trim();
+    const note = b.querySelector('.p-note').value.trim();
+    if(amt>0 || note || ref || (b._slip&&b._slip.url))
+      out.push({no:i+1, date:date, amt:amt, method:method, bank:bank, ref:ref, note:note, slip:(b._slip||null)});
+  });
+  return out;
+}
+
+// ═══ อัปโหลดสลิปไป Google Drive (ผ่านสคริปต์ v5) ═══
+function fileToB64(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(String(r.result).split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function compressImageToB64(file){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      const max = 1200;
+      let w=img.width, h=img.height;
+      if(w>max || h>max){ const r=Math.min(max/w,max/h); w=Math.round(w*r); h=Math.round(h*r); }
+      const cv = document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      resolve(cv.toDataURL('image/jpeg',0.72).split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+function removeSlip(boxId){
+  const box = $(boxId); if(!box) return;
+  box._slip = null;
+  const drop = box.querySelector('.slip-drop');
+  drop.classList.remove('has');
+  box.querySelector('.slip-state').textContent = t('slip_drop');
+  const f = box.querySelector('.p-file'); if(f) f.value = '';
+  showToast(t('tt_slip_del'));
+}
+async function handleSlipFile(file, boxId){
+  const box = $(boxId); if(!box || !file) return;
+  const state = box.querySelector('.slip-state');
+  const drop = box.querySelector('.slip-drop');
+  const ok = ['image/jpeg','image/jpg','image/png','application/pdf'];
+  if(!ok.includes(file.type)){ showToast(t('tt_slip_type'), true); return; }
+  if(file.size > 8*1024*1024){ showToast(t('tt_slip_big'), true); return; }
+  state.textContent = t('slip_up');
+  try{
+    let mime = file.type, name = file.name, b64;
+    if(mime.indexOf('image/')===0){
+      b64 = await compressImageToB64(file);
+      mime = 'image/jpeg';
+      name = name.replace(/\.[^.]+$/,'') + '.jpg';
+    }else{
+      b64 = await fileToB64(file);
+    }
+    const res = await fetch(API_URL+'?action=uploadSlip', {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'uploadSlip', filename:name, mimeType:mime, data:b64})
+    });
+    const j = await res.json();
+    if(j && j.success && j.url){
+      box._slip = {url:j.url, name:name};
+      drop.classList.add('has');
+      state.innerHTML = '📎 '+esc(name)+' ✓ &nbsp;<a class="slip-view" href="'+esc(j.url)+'" target="_blank" onclick="event.stopPropagation()">'+t('slip_view')+'</a>&nbsp; <a class="slip-view" style="color:var(--bad)" href="#" onclick="event.preventDefault();event.stopPropagation();removeSlip(\''+boxId+'\')">'+t('slip_del')+'</a>';
+      showToast(t('tt_slip_ok'));
+    }else{
+      state.textContent = t('slip_drop');
+      showToast(t('tt_slip_fail2')+': '+((j&&j.error)||'Script v5+'), true);
+    }
+  }catch(e){
+    state.textContent = t('slip_drop');
+    showToast(t('tt_slip_fail'), true);
+  }
+}
+
+function readItems(p){
+  const out = [];
+  $(p+'-items').querySelectorAll('.item-box').forEach(b=>{
+    const type = b.querySelector('.f-type').value;
+    out.push({
+      type,
+      origin: b.querySelector('.f-origin').value,
+      grade: b.querySelector('.f-grade').value.trim(),
+      nick: (b.querySelector('.f-nick') ? b.querySelector('.f-nick').value.trim() : ''),
+      qty: num(b.querySelector('.f-qty').value),
+      price: num(b.querySelector('.f-price').value),
+      unit: type==='wood' ? 'kg' : 'tl',
+      amt: 0
+    });
+  });
+  out.forEach(it=> it.amt = it.qty * it.price);
+  return out;
+}
+function readExtras(p, base){
+  const out = [];
+  $(p+'-extras').querySelectorAll('.item-box').forEach(b=>{
+    const name = b.querySelector('.x-name').value.trim();
+    const raw = num(b.querySelector('.x-amt').value);
+    const unitSel = b.querySelector('.x-unit');
+    const isPct = unitSel && unitSel.value === 'pct';
+    let amt = 0, pct = null;
+    if(isPct){
+      pct = raw;
+      amt = (num(base)||0) * pct / 100;
+    } else {
+      amt = raw;
+    }
+    const cost = num(b.querySelector('.x-cost') ? b.querySelector('.x-cost').value : 0);
+    const line = b.querySelector('.x-calc');
+    if(line){
+      const pctTxt = (pct!=null && pct>0) ? esc(name||'')+' '+fmt(pct)+'% × '+fmt(base)+' = <b style="color:var(--gold)">'+fmt(amt)+' ฿</b><br>' : '';
+      const profitTxt = (cost>0) ? t('x_profit_line')+': <b style="color:var(--gold)">'+fmt(amt-cost)+' ฿</b> ('+fmt(amt)+' − '+fmt(cost)+')' : '';
+      line.innerHTML = pctTxt + profitTxt;
+    }
+    if(name || amt || pct || cost) out.push({name: name||'ค่าบริการ', amt:amt, pct:pct, cost:cost});
+  });
+  return out;
+}
+// ต้นทุนเฉลี่ยจากประวัติการซื้อจริง (สินค้า + ค่าใช้จ่ายทุกอย่างในบิล)
+function buildCostMap(){
+  const m = {};
+  cache.buys.forEach(rec=>{
+    const items = recItems(rec);
+    const itemsTotal = items.reduce((a,b)=>a+num(b.amt),0);
+    const overhead = Math.max(0, num(rec.total) - itemsTotal); // ค่าขนส่ง/บริการ/คอมฯ ในบิล
+    items.forEach(it=>{
+      if(num(it.qty)<=0) return;
+      const share = itemsTotal>0 ? overhead*(num(it.amt)/itemsTotal) : 0;
+      const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+      if(!m[k]) m[k]={cost:0, qty:0};
+      m[k].cost += num(it.amt)+share;
+      m[k].qty  += num(it.qty);
+    });
+  });
+  return m;
+}
+function avgCostFor(it, m){
+  const k1 = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+  const e = (m[k1]&&m[k1].qty>0) ? m[k1] : null;
+  return e ? e.cost/e.qty : 0;
+}
+
+function calc(p){
+  const items = readItems(p);
+  const boxes = $(p+'-items').querySelectorAll('.item-box');
+  items.forEach((it,i)=>{ if(boxes[i]) boxes[i].querySelector('.f-amt').value = fmt(it.amt); });
+  const itemsTotal = items.reduce((a,b)=>a+b.amt,0);
+  const extras = readExtras(p, itemsTotal);
+  const extrasTotal = extras.reduce((a,b)=>a+b.amt,0);
+  const qtyAll = items.reduce((a,b)=>a+b.qty,0);
+  let grand = itemsTotal + extrasTotal;
+  let bcomm = null, cpu = null;
+
+  // ── ฝั่งซื้อ: ค่าคอมมิชชัน % + ต้นทุนเฉลี่ย/หน่วย (Real-time) ──
+  if(p==='b'){
+    const pct = num($('b-comm').value);
+    const mode = $('b-commmode').value;
+    const amt = (itemsTotal + extrasTotal) * pct / 100;
+    if(pct>0) bcomm = {pct:pct, amt:amt, mode:mode};
+    if(pct>0 && mode==='include') grand += amt;
+    const costTotal = itemsTotal + extrasTotal + ((pct>0 && mode==='include') ? amt : 0);
+    cpu = qtyAll>0 ? costTotal/qtyAll : 0;
+    $('b-commline').innerHTML = pct>0
+      ? t('comm_lbl')+' '+fmt(pct)+'% = <b>'+fmt(amt)+' ฿</b> ('+(mode==='include'?t('inc_txt'):t('sep_txt'))+')'
+      : '';
+    $('b-cpuline').innerHTML = qtyAll>0
+      ? t('cost_total')+' <b>'+fmt(costTotal)+' ฿</b> ÷ '+fmt(qtyAll)+' '+t('units_w')+' = '+t('avg_cost')+' <b style="color:var(--gold)">'+fmt(cpu)+' '+t('per_unit')+'</b>'
+      : '';
+  }
+
+  $(p+'-grand').textContent = fmt(grand) + ' ฿';
+  const pays = readPays(p);
+  const paid = pays.reduce((a,b)=>a+num(b.amt),0);
+  const debt = Math.max(0, grand - paid);
+  const st = statusOf(grand, paid);
+  $(p+'-payhint').innerHTML = t('paid_lbl')+' <b style="color:var(--ok)">'+fmt(paid)+' ฿</b>'+(pays.length?' ('+pays.length+' '+t('inst_ct')+')':'')+' • '+t('debt_lbl')+' <b style="color:'+(debt>0?'var(--bad)':'var(--ok)')+'">'+fmt(debt)+' ฿</b> — '+t('status_lbl')+': <b>'+stTxt(st)+'</b>';
+
+  // ── ฝั่งขาย: กำไรจากต้นทุนเฉลี่ยจริง + ตรวจสต็อก (Real-time) ──
+  let pf = null;
+  if(p==='s'){
+    // ตรวจจำนวนขายเทียบสต็อกคงเหลือ
+    const smap = stockBalMap();
+    const back = (editing.s && window._editReturn) ? window._editReturn : {};
+    const want = {};
+    items.forEach(it=>{ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); want[k]=(want[k]||0)+num(it.qty); });
+    sellOver = false;
+    const boxes2 = $('s-items').querySelectorAll('.item-box');
+    items.forEach((it,i)=>{
+      const el = boxes2[i] ? boxes2[i].querySelector('.f-stockline') : null;
+      if(!el) return;
+      if(!it.origin && !it.grade){ el.innerHTML=''; return; }
+      const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+      const bal = ((smap[k]&&smap[k].bal)||0) + (back[k]||0);
+      if(num(it.qty) > 0 && (want[k]||0) > bal + 1e-9){
+        sellOver = true;
+        el.innerHTML = '<b style="color:var(--bad)">'+t('stk_over').replace('{q}', fmt(Math.max(0,bal)))+' '+unitTh(it.unit)+'</b>';
+      }else{
+        el.innerHTML = (smap[k]&&smap[k].code?'<span style="color:var(--mut)">['+esc(smap[k].code)+']</span> ':'')+t('stk_left')+': <b style="color:var(--gold)">'+fmt(bal)+' '+unitTh(it.unit)+'</b>'+((smap[k]&&smap[k].avg)?' · '+t('stk_avg')+' '+fmt(smap[k].avg)+' ฿':'')+((smap[k]&&smap[k].lastPrice)?' · '+t('stk_lastp')+' '+fmt(smap[k].lastPrice)+' ฿':'');
+      }
+    });
+    const comm = num($('s-comm').value);
+    const shipc = num($('s-shipc').value), shipa = num($('s-shipa').value);
+    const cmap = buildCostMap();
+    let costSum = 0;
+    items.forEach(it=>{ costSum += avgCostFor(it, cmap) * it.qty; });
+    const mP = itemsTotal - costSum;
+    const cP = grand * comm / 100;
+    const sP = shipc - shipa; // เก็บจากลูกค้า (บาท) − จ่ายจริง (บาท) โดยตรง ไม่คูณจำนวนหน่วยแล้ว
+    const net = mP + cP + sP;
+    pf = {cost:costSum, comm:comm, shipc:shipc, shipa:shipa, mP:mP, cP:cP, sP:sP, net:net};
+    if($('s-diffline')) $('s-diffline').innerHTML = costSum>0
+      ? t('avg_hist')+': <b>'+fmt(costSum)+' ฿</b>'+(qtyAll>0?' ('+fmt(costSum/qtyAll)+' '+t('per_unit')+')':'')
+      : t('no_hist');
+    $('s-pfhint').innerHTML =
+      '① '+t('pf1')+' ('+t('pf1b')+' '+fmt(itemsTotal)+' − '+t('pf1c')+' '+fmt(costSum)+'): <b>'+fmt(mP)+'</b> ฿'+
+      (qtyAll>0 ? '<br>&nbsp;&nbsp;&nbsp;'+t('pf_pu')+': <b>'+fmt(mP/qtyAll)+' ฿</b>' : '')+
+      '<br>② '+t('pf2')+': <b>'+fmt(cP)+'</b> ฿<br>③ '+t('pf3')+': <b>'+fmt(sP)+'</b> ฿'+'<br>'+t('pf_net')+': <b style="color:var(--gold)">'+fmt(net)+' ฿</b>';
+  }
+  return { items:items, extras:extras, grand:grand, paid:paid, debt:debt, st:st, bcomm:bcomm, cpu:cpu, pf:pf, pays:pays };
+}
+function statusOf(total, paid){
+  if(paid >= total && total > 0) return 'จ่ายครบ';
+  if(paid > 0) return 'จ่ายบางส่วน';
+  return 'ค้างชำระ';
+}
+
+// ═══════════ SAVE / EDIT / DELETE ═══════════
+function saveName(key, val){
+  if(!val) return;
+  let arr = [];
+  try{ arr = JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+  if(!arr.includes(val)){ arr.unshift(val); localStorage.setItem(key, JSON.stringify(arr.slice(0,80))); }
+  fillNames();
+}
+function fillNames(){
+  // รวมรายชื่อจากฐานข้อมูลจริง + ที่เคยพิมพ์ในเครื่อง (แยกชุด ลูกค้า/พ่อค้า เด็ดขาด)
+  const dbSup = [], dbCus = [];
+  cache.buys.forEach(r=>{ const n=String(r.supplier||'').trim(); if(n && !dbSup.includes(n)) dbSup.push(n); });
+  cache.sells.forEach(r=>{ const n=String(r.customer||'').trim(); if(n && !dbCus.includes(n)) dbCus.push(n); });
+  [['bt_sup','dl-sup',dbSup],['bt_cus','dl-cus',dbCus]].forEach(([k,dl,db])=>{
+    let arr=[]; try{ arr = JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){}
+    db.forEach(n=>{ if(!arr.includes(n)) arr.push(n); });
+    $(dl).innerHTML = arr.map(n=>'<option value="'+esc(n)+'"></option>').join('');
+  });
+  $('dl-origin').innerHTML = allOrigins().map(o=>'<option value="'+esc(o)+'"></option>').join('');
+  $('dl-ecat').innerHTML = allECats().map(o=>'<option value="'+esc(o)+'"></option>').join('');
+  // ฝั่งขาย: แสดงเฉพาะแหล่งที่มีของคงเหลือจริงในสต็อก
+  try{
+    const orgs = [];
+    stockRows().forEach(r=>{ if(r.bal>0 && r.origin && !orgs.includes(r.origin)) orgs.push(r.origin); });
+    $('dl-origin-stock').innerHTML = orgs.map(o=>'<option value="'+esc(o)+'"></option>').join('');
+  }catch(e){}
+}
+function customOrigins(){
+  let arr=[]; try{ arr = JSON.parse(localStorage.getItem('bt_origins')||'[]'); }catch(e){}
+  return arr;
+}
+function allOrigins(){
+  const set = [];
+  const add = v => { v=String(v||'').trim(); if(v && !set.includes(v)) set.push(v); };
+  ORIGINS.forEach(add);
+  customOrigins().forEach(add);
+  // เรียนรู้จากข้อมูลจริงในระบบด้วย (กันข้อมูลข้ามเครื่อง)
+  (cache.buys||[]).concat(cache.sells||[]).forEach(r=>{ recItems(r).forEach(it=>add(it.origin)); });
+  return set;
+}
+function supNickMap(){
+  let m={}; try{ m = JSON.parse(localStorage.getItem('bt_supnick')||'{}'); }catch(e){}
+  // เรียนรู้จากฐานข้อมูลจริงด้วย
+  cache.buys.forEach(r=>{ const n=parseNote(r.note); const s=String(r.supplier||'').trim(); if(s && n.supnick && !m[s]) m[s]=n.supnick; });
+  return m;
+}
+function autoSupNick(){
+  const name = $('b-sup').value.trim();
+  const m = supNickMap();
+  if(name && m[name] && !$('b-supnick').value.trim()) $('b-supnick').value = m[name];
+}
+function learnSupNick(name, nick){
+  name=String(name||'').trim(); nick=String(nick||'').trim();
+  if(!name || !nick) return;
+  let m={}; try{ m = JSON.parse(localStorage.getItem('bt_supnick')||'{}'); }catch(e){}
+  m[name]=nick; localStorage.setItem('bt_supnick', JSON.stringify(m));
+}
+function learnOrigins(items){
+  let arr = customOrigins(); let changed=false;
+  items.forEach(it=>{
+    const v = String(it.origin||'').trim();
+    if(v && !ORIGINS.includes(v) && !arr.includes(v)){ arr.unshift(v); changed=true; }
+  });
+  if(changed){ localStorage.setItem('bt_origins', JSON.stringify(arr.slice(0,120))); fillNames(); }
+}
+function manageOrigins(){
+  const arr = customOrigins();
+  if(!arr.length){ showToast(t('org_none')); return; }
+  const msg = t('org_list')+'\n'+arr.map((o,i)=>(i+1)+'. '+o).join('\n')+'\n\n'+t('org_delq');
+  const ans = prompt(msg, '');
+  if(ans===null || ans.trim()==='') return;
+  const idx = parseInt(ans,10)-1;
+  if(isNaN(idx) || idx<0 || idx>=arr.length){ showToast('❌', true); return; }
+  const removed = arr.splice(idx,1)[0];
+  localStorage.setItem('bt_origins', JSON.stringify(arr));
+  fillNames();
+  showToast('🗑 '+removed);
+}
+
+async function saveRec(p){
+  const isBuy = p==='b';
+  const name = $(isBuy?'b-sup':'s-cust').value.trim();
+  const c = calc(p);
+  const items = c.items.filter(it=>it.qty>0 || it.amt>0);
+  if(!name){ showToast(t(isBuy?'tt_needname_b':'tt_needname_s'), true); return; }
+  if(!items.length || c.grand<=0){ showToast(t('tt_needitem'), true); return; }
+  if(!isBuy && sellOver){ showToast(t('tt_overstock'), true); return; }
+  if(items.some(it=>!it.origin)){ showToast('กรุณาเลือก "แหล่ง/ชนิด" ของสินค้าทุกรายการ', true); return; }
+
+  let pf = null;
+  if(!isBuy && c.pf && (c.pf.cost || c.pf.comm || c.pf.shipc || c.pf.shipa || c.pf.mP)) pf = c.pf;
+  const memo = $(p+'-note').value.trim();
+  const bdue = isBuy ? ($('b-due').value||'') : '';
+  const supnick = isBuy ? $('b-supnick').value.trim() : '';
+  if(isBuy) learnSupNick(name, supnick);
+  const noteJSON = JSON.stringify({v:17, items, extras:c.extras, pf, bcomm:c.bcomm||null, cpu:(c.cpu!=null?c.cpu:null), pays:c.pays, bdue:bdue, supnick:supnick, memo});
+  const first = items[0];
+  const payload = {
+    date: $(p+'-date').value,
+    type: first.type, grade: first.grade || '-',
+    qty: items.reduce((a,b)=>a+b.qty,0),
+    unit: first.unit,
+    total: c.grand, paid: c.paid, status: c.st,
+    note: noteJSON
+  };
+  if(isBuy) payload.supplier = name; else { payload.customer = name; payload.due = $('s-due').value; }
+
+  const btn = $(p+'-savebtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="loader"></div><span>'+t('saving')+'</span>';
+  try{
+    let res;
+    const editId = editing[p];
+    if(editId){
+      let ok = false, newId = editId;
+      try{
+        res = await api(isBuy?'updateBuy':'updateSell', Object.assign({id:editId}, payload));
+        ok = !!(res && res.success);
+      }catch(e){ ok = false; }
+      if(!ok){
+        // สคริปต์ไม่รองรับ update -> ลบรายการเดิมแล้วบันทึกใหม่แทนอัตโนมัติ
+        let del = null;
+        try{ del = await api(isBuy?'deleteBuy':'deleteSell', {id:editId}); }catch(e){}
+        if(del && del.success){
+          try{
+            const addRes = await api(isBuy?'addBuy':'addSell', payload);
+            if(addRes && addRes.success){ ok = true; newId = addRes.id || editId; }
+          }catch(e){}
+        }
+      }
+      if(ok){
+        const arr = isBuy?cache.buys:cache.sells;
+        const i = arr.findIndex(r=>String(r.id)===String(editId));
+        const recNew = Object.assign({}, i>-1?arr[i]:{}, payload, {id:newId, debt:c.debt, status:c.st});
+        if(i>-1) arr[i] = recNew; else arr.unshift(recNew);
+        res = {success:true};
+        showToast(t('tt_edited'));
+      }else if(!res || !(res.error)){
+        res = {success:false, error:t('tt_editfail')};
+      }
+    }else{
+      res = await api(isBuy?'addBuy':'addSell', payload);
+      if(res && res.success){
+        const arr = isBuy?cache.buys:cache.sells;
+        arr.unshift(Object.assign({id:res.id}, payload, {debt:c.debt, status:c.st}));
+        showToast(t('tt_saved'));
+      }
+    }
+    if(res && res.success){
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      saveName(isBuy?'bt_sup':'bt_cus', name);
+      learnOrigins(items);
+      cancelEdit(p);
+      toggleForm(p, false);
+      renderAllPages();
+      refreshAll(false);
+    }else{
+      showToast(t('tt_savefail')+': '+((res&&res.error)||''), true);
+    }
+  }catch(e){
+    showToast(t('tt_savefail'), true);
+  }
+  btn.disabled = false;
+  btn.innerHTML = editing[p] ? '<span>💾</span><span>'+t('save_edit')+'</span>' : '<span>💾</span><span>'+t(isBuy?'save_buy':'save_sell')+'</span>';
+}
+
+function resetForm(p){
+  const td = new Date().toISOString().split('T')[0];
+  $(p+'-date').value = td;
+  $(p==='b'?'b-sup':'s-cust').value = '';
+  $(p+'-items').innerHTML = '';
+  $(p+'-extras').innerHTML = '';
+  $(p+'-pays').innerHTML = '';
+  $(p+'-note').value = '';
+  $(p+'-payhint').innerHTML = '';
+  if(p==='b'){ $('b-comm').value=''; $('b-commmode').value='include'; $('b-commline').innerHTML=''; $('b-cpuline').innerHTML=''; $('b-due').value=''; $('b-supnick').value=''; }
+  if(p==='s'){ ['s-due','s-comm','s-shipc','s-shipa'].forEach(id=>$(id).value=''); $('s-due').value = td; $('s-pfhint').innerHTML=''; }
+  addItem(p);
+}
+function cancelEdit(p){
+  if(p==='s') window._editReturn = null;
+  editing[p] = null;
+  resetForm(p);
+  $(p+'-cancel').style.display = 'none';
+  $(p+'-toggle-txt').textContent = t(p==='b'?'add_buy_new':'add_sell_new');
+  $(p+'-savebtn').innerHTML = '<span>💾</span><span>'+t(p==='b'?'save_buy':'save_sell')+'</span>';
+}
+function editRec(p, id){
+  const isBuy = p==='b';
+  const rec = (isBuy?cache.buys:cache.sells).find(r=>String(r.id)===String(id));
+  if(!rec) return;
+  const n = parseNote(rec.note);
+  editing[p] = id;
+  if(p==='s'){
+    const ret = {};
+    recItems(rec).forEach(it=>{ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); ret[k]=(ret[k]||0)+num(it.qty); });
+    window._editReturn = ret;
+  }
+  $(p+'-date').value = String(rec.date||'').split('T')[0];
+  $(isBuy?'b-sup':'s-cust').value = isBuy?(rec.supplier||''):(rec.customer||'');
+  $(p+'-items').innerHTML = '';
+  const items = n.items || [{type:rec.unit==='tl'?'oil':'wood', origin:ORIGINS.includes(rec.type)?rec.type:'', grade:rec.grade||'', qty:num(rec.qty), price: num(rec.qty)>0? num(rec.total)/num(rec.qty):num(rec.total)}];
+  items.forEach(it=>addItem(p, it));
+  $(p+'-extras').innerHTML = '';
+  (n.extras||[]).forEach(x=>addExtra(p,x));
+  $(p+'-pays').innerHTML = '';
+  const pys = (n.pays && n.pays.length) ? n.pays
+    : (num(rec.paid)>0 ? [{date:String(rec.date||'').split('T')[0], amt:num(rec.paid), method:'เงินสด', note:'ยอดชำระเดิม'}] : []);
+  pys.forEach(x=>addPay(p, x));
+  $(p+'-note').value = n.memo||'';
+  if(isBuy){
+    const bc = n.bcomm||{};
+    $('b-comm').value = bc.pct||'';
+    $('b-commmode').value = bc.mode||'include';
+    $('b-due').value = String(n.bdue||'').split('T')[0];
+    $('b-supnick').value = n.supnick||'';
+  }
+  if(!isBuy){
+    $('s-due').value = String(rec.due||'').split('T')[0];
+    const pf = n.pf||{};
+    $('s-comm').value = pf.comm||'';
+    $('s-shipc').value = pf.shipc||''; $('s-shipa').value = pf.shipa||'';
+    if(pf.tola||pf.cost||pf.comm||pf.shipc||pf.shipa) $('s-pf').open = true;
+  }
+  $(p+'-cancel').style.display = 'block';
+  $(p+'-toggle-txt').textContent = '✏️ '+t('editing')+' '+id;
+  $(p+'-savebtn').innerHTML = '<span>💾</span><span>'+t('save_edit')+'</span>';
+  toggleForm(p, true);
+  calc(p);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+async function delRec(p, id){
+  if(!confirm(t('cf_del')+' '+id+' ?\n'+t('cf_del2'))) return;
+  try{
+    const res = await api(p==='b'?'deleteBuy':'deleteSell', {id});
+    if(res && res.success){
+      const arr = p==='b'?cache.buys:cache.sells;
+      const i = arr.findIndex(r=>String(r.id)===String(id));
+      if(i>-1) arr.splice(i,1);
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      renderList(p);
+      showToast(t('tt_deleted'));
+    }else showToast(t('tt_delfail')+': '+((res&&res.error)||''), true);
+  }catch(e){ showToast(t('tt_delfail'), true); }
+}
+
+// ═══════════ RENDER: LATEST LISTS ═══════════
+function stClass(st){
+  if(st==='จ่ายครบ') return 'st st-ok';
+  if(st==='จ่ายบางส่วน') return 'st st-part';
+  return 'st st-no';
+}
+function recCard(p, rec, isLatest){
+  const isBuy = p==='b';
+  const n = parseNote(rec.note);
+  const name = (isBuy ? (rec.supplier||'') : (rec.customer||'')) + ((isBuy && n.supnick) ? ' ('+n.supnick+')' : '');
+  const itemChips = (n.items||[]).slice(0,3).map(it=>'<span class="chip">'+esc(it.origin||typeTh(it.type))+' '+esc(it.grade||'')+(it.nick?' ('+esc(it.nick)+')':'')+' × '+fmt(it.qty)+' '+unitTh(it.unit)+'</span>').join('')
+    || '<span class="chip">'+esc(ORIGINS.includes(rec.type)?rec.type:typeTh(rec.type))+' '+esc(rec.grade||'')+' × '+fmt(rec.qty)+' '+unitTh(rec.unit)+'</span>';
+  const debt = num(rec.debt);
+  return '<div class="rec'+(isLatest?' latest':'')+'">'+
+    (isLatest?'<div class="rec-badge">'+t('k_latest')+'</div>':'')+
+    '<div class="rec-top"><div class="rec-name">'+esc(name||'-')+'</div><div class="rec-date">'+fdate(rec.date)+'</div></div>'+
+    '<div class="rec-mid">'+itemChips+'</div>'+
+    '<div class="rec-bot"><div><div class="rec-total">'+fmt(rec.total)+' ฿</div>'+(debt>0?'<div class="rec-debt">'+t('k_owe')+' '+fmt(debt)+' ฿'+((rec.due||n.bdue)?' • '+t('k_due')+' '+fdate(rec.due||n.bdue):'')+'</div>':'')+'</div>'+
+    '<span class="'+stClass(rec.status)+'">'+esc(stTxt(rec.status)||'-')+'</span></div>'+
+    '<div class="rec-actions">'+
+      '<button class="ract gold" onclick="openReceipt(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_receipt')+'</button>'+
+      (isBuy ? '' : '<button class="ract" onclick="toggleBillProfit(\''+esc(rec.id)+'\')">'+t('pr_toggle')+'</button>')+
+      '<button class="ract" onclick="editRec(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_edit')+'</button>'+
+      '<button class="ract red" onclick="delRec(\''+p+'\',\''+esc(rec.id)+'\')">'+t('k_del')+'</button>'+
+    '</div>'+
+    (isBuy?'':'<div id="pf-'+esc(rec.id)+'" style="display:none"></div>')+
+    '</div>';
+}
+function toggleBillProfit(id){
+  const el = document.getElementById('pf-'+id); if(!el) return;
+  if(el.style.display==='block'){ el.style.display='none'; return; }
+  const rec = cache.sells.find(r=>String(r.id)===String(id));
+  if(rec){
+    const b = sellBreakdown(rec, buildCostMap());
+    el.innerHTML = '<table class="tb" style="margin-top:8px">'+
+      '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(b.revenue)+'</td></tr>'+
+      '<tr><td>'+t('pr_cost')+'</td><td class="r">'+fmt(b.cost)+'</td></tr>'+
+      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(b.mP)+'</td></tr>'+
+      '<tr><td>'+t('p_l2')+(b.commPct.length?' ('+b.commPct.map(x=>fmt(x)+'%').join(', ')+')':'')+'</td><td class="r">'+fmt(b.comm)+'</td></tr>'+
+      '<tr><td>'+t('p_l3')+'</td><td class="r">'+fmt(b.ship)+'</td></tr>'+
+      (b.other?'<tr><td>'+t('p_l4')+'</td><td class="r">'+fmt(b.other)+'</td></tr>':'')+
+      '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800">'+fmt(b.net)+' ฿</td></tr>'+
+      '</table>';
+  }
+  el.style.display='block';
+}
+function renderList(p){
+  const arr = p==='b' ? cache.buys : cache.sells;
+  $(p+'-count').textContent = arr.length + ' ' + t('items_ct');
+  const box = $(p+'-list');
+  if(!arr.length){
+    box.innerHTML = '<div class="empty">'+t(p==='b'?'empty_buy':'empty_sell')+'</div>';
+    return;
+  }
+  box.innerHTML = arr.slice(0,30).map((r,i)=>recCard(p, r, i===0)).join('') +
+    (arr.length>30 ? '<div class="empty">'+t('k_more')+'</div>' : '');
+}
+function renderHome(){
+  renderDash();
+  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' • v28.0';
+  const b = cache.buys[0], s = cache.sells[0];
+  let h = '';
+  renderDash();
+  if(b||s) h += '<div class="sec-head"><span class="sec-title">🕒 '+t('latest_act')+'</span></div>';
+  if(s) h += recCard('s', s, false).replace('class="rec"','class="rec" ');
+  if(b) h += recCard('b', b, false);
+  $('home-latest').innerHTML = h;
+}
+
+// ═══════════ STOCK / PROFIT / AR / AP ═══════════
+function recItems(rec){
+  const n = parseNote(rec.note);
+  if(n.items) return n.items;
+  return [{type:rec.unit==='tl'?'oil':'wood', origin:ORIGINS.includes(rec.type)?rec.type:'', grade:rec.grade||'-', qty:num(rec.qty), unit:rec.unit||'kg', amt:num(rec.total)}];
+}
+let stockQuery = '';
+// ── รหัสสินค้าอัตโนมัติ BT-0001 (ไม่ซ้ำ เก็บถาวรใน Settings + เครื่อง) ──
+let _pcSaveTimer = null;
+function productCodeMap(){
+  let m = {};
+  try{ m = JSON.parse((cache.settings && cache.settings.product_codes) || '{}'); }catch(e){ m = {}; }
+  if(typeof m._next !== 'number') m._next = 1;
+  return m;
+}
+function ensureProductCodes(rows){
+  const m = productCodeMap();
+  let changed = false;
+  rows.forEach(r=>{
+    if(!m[r.ckey]){
+      m[r.ckey] = 'BT-' + String(m._next).padStart(4,'0');
+      m._next++;
+      changed = true;
+    }
+    r.code = m[r.ckey];
+  });
+  if(changed){
+    if(!cache.settings) cache.settings = {};
+    cache.settings.product_codes = JSON.stringify(m);
+    localStorage.setItem('bt_cache', JSON.stringify(cache));
+    clearTimeout(_pcSaveTimer);
+    _pcSaveTimer = setTimeout(()=>{ try{ api('setSetting', {key:'product_codes', value:cache.settings.product_codes}); }catch(e){} }, 1500);
+  }
+}
+function stockRows(){
+  const m = buildCostMap();
+  const map = {};
+  const add = (rec, sign)=>{
+    const d = dOf(rec);
+    recItems(rec).forEach(it=>{
+      const t2 = it.type==='oil' ? 'oil' : 'wood';
+      const key = t2+'|'+(it.origin||'')+'|'+(it.grade||'-')+'|'+(it.unit||(t2==='oil'?'tl':'kg'));
+      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], sups:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
+      const row = map[key];
+      if(sign>0){
+        row.inQ += num(it.qty);
+        if(it.nick && !row.nicks.includes(it.nick)) row.nicks.push(it.nick);
+        const sn = parseNote(rec.note).supnick;
+        const sup = String(rec.supplier||'').trim() + (sn ? ' ('+sn+')' : '');
+        if(String(rec.supplier||'').trim() && !row.sups.includes(sup)) row.sups.push(sup);
+        if(d && (!row.lastBuy || d > row.lastBuy)){ row.lastBuy = d; if(it.nick) row.nick = it.nick; if(num(it.price)>0) row.lastPrice = num(it.price); }
+        else if(it.nick && !row.nick) row.nick = it.nick;
+      } else {
+        row.outQ += num(it.qty);
+        if(it.nick && !row.nick) row.nick = it.nick;
+      }
+    });
+  };
+  cache.buys.forEach(r=>add(r,1));
+  cache.sells.forEach(r=>add(r,-1));
+  const rows = Object.values(map).map(r=>{
+    r.bal = r.inQ - r.outQ;
+    const e = m[r.ckey];
+    r.avg = (e && e.qty>0) ? e.cost/e.qty : 0;
+    r.val = Math.max(0, r.bal) * r.avg;
+    return r;
+  });
+  ensureProductCodes(rows);
+  return rows;
+}
+function stockStatus(r){
+  if(r.bal <= 0) return '<span class="st st-no">'+t('st_out')+'</span>';
+  if(r.bal <= 5) return '<span class="st st-part">'+t('st_low')+'</span>';
+  return '<span class="st st-ok">'+t('st_ready')+'</span>';
+}
+function renderStockList(){
+  const body = $('stock-body'); if(!body) return;
+  let rows = stockRows();
+  if(!rows.length){ body.innerHTML = '<div class="empty">'+t('empty_stock')+'</div>'; return; }
+  const q = (stockQuery||'').trim().toLowerCase();
+  if(q) rows = rows.filter(r=> ((r.code||'')+' '+r.origin+' '+r.grade+' '+r.nick+' '+(r.nicks||[]).join(' ')+' '+(r.sups||[]).join(' ')+' '+typeTh(r.type)).toLowerCase().includes(q));
+  rows.sort((a,b)=> (a.origin||'ฮฮ').localeCompare(b.origin||'ฮฮ','th') || String(a.grade).localeCompare(String(b.grade),'th'));
+
+  const card = r =>
+    '<div class="rec"><div class="rec-top"><div class="rec-name"><span style="color:var(--mut);font-size:12px">['+esc(r.code||'')+']</span> '+esc(r.origin||t('k_noorigin'))+' — '+esc(r.grade)+
+    (r.nick?' <span style="color:var(--gold);font-weight:700">('+esc(r.nick)+')</span>':'')+'</div>'+stockStatus(r)+'</div>'+
+    '<div class="rec-mid"><span class="chip">'+typeTh(r.type)+'</span><span class="chip">'+t('h_grade')+' '+esc(r.grade)+'</span>'+
+    (r.lastBuy?'<span class="chip">'+t('inv_last')+' '+fdate(r.lastBuy)+'</span>':'')+'</div>'+
+    ((r.nicks&&r.nicks.length)?'<div class="rec-mid">'+r.nicks.map(n=>'<span class="chip">🏷️ '+esc(n)+'</span>').join('')+'</div>':'')+
+    ((r.sups&&r.sups.length)?'<div class="rec-mid"><span class="chip">👤 '+t('stk_from')+': <b>'+esc(r.sups.slice(0,3).join(', '))+(r.sups.length>3?' +'+(r.sups.length-3):'')+'</b></span></div>':'')+
+    '<table class="tb" style="margin-top:8px">'+
+      '<tr><td>'+t('inv_qty')+'</td><td class="r" style="font-weight:800;color:'+(r.bal<0?'var(--bad)':'var(--gold)')+'">'+fmt(r.bal)+' '+unitTh(r.unit)+'</td></tr>'+
+      '<tr><td>'+t('inv_avg')+'</td><td class="r">'+fmt(r.avg)+' ฿</td></tr>'+
+      '<tr><td>'+t('inv_val')+'</td><td class="r" style="font-weight:700">'+fmt(r.val)+' ฿</td></tr>'+
+      '<tr><td>'+t('h_buyq')+' / '+t('h_sellq')+'</td><td class="r">'+fmt(r.inQ)+' / '+fmt(r.outQ)+'</td></tr>'+
+    '</table></div>';
+
+  const section = (ty, title, icon)=>{
+    const rs = rows.filter(r=>r.type===ty);
+    if(!rs.length) return '';
+    const totalBal = rs.reduce((a,r)=>a+r.bal,0);
+    const totalVal = rs.reduce((a,r)=>a+r.val,0);
+    return '<div class="sec-head"><span class="sec-title">'+icon+' '+title+'</span>'+
+      '<span class="sec-count">'+t('k_balsum')+' '+fmt(totalBal)+' '+unitTh(rs[0].unit)+' • '+t('inv_total_val')+' '+fmt(totalVal)+' ฿</span></div>'+
+      rs.map(card).join('');
+  };
+  const html = section('wood', t('k_wood'), '🪵') + section('oil', t('k_oil'), '🧴');
+  body.innerHTML = html || '<div class="empty">—</div>';
+}
+function renderStock(){ renderStockList(); }
+// ── เครื่องคิดกำไรกลาง: ใช้ชุดเดียวกันทั้ง หน้ากำไร / Dashboard / รายงาน ──
+function classifyExtra(name){
+  const s = String(name||'').toLowerCase();
+  if(/คอม|commission|comm/.test(s)) return 'comm';
+  if(/ขนส่ง|ค่าส่ง|จัดส่ง|ship|logist|transport|deliver/.test(s)) return 'ship';
+  return 'other';
+}
+function sellBreakdown(rec, costMap){
+  const n = parseNote(rec.note);
+  const items = recItems(rec);
+  const itemsTotal = items.reduce((a,it)=>a+num(it.amt),0); // ยอดขาย
+  let cost = items.reduce((a,it)=>{
+    const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+    const e = costMap[k];
+    return a + ((e && e.qty>0) ? (e.cost/e.qty)*num(it.qty) : 0);
+  }, 0);
+  if(cost<=0 && n.pf && num(n.pf.cost)>0) cost = num(n.pf.cost); // สำรองจากบิลเก่า
+  let comm=0, ship=0, other=0; const commPct=[];
+  (n.extras||[]).forEach(x=>{
+    const cl = classifyExtra(x.name);
+    const a = num(x.amt) - num(x.cost); // หักต้นทุนจริง (ถ้ามี) ออกก่อน — เหลือเฉพาะกำไรสุทธิของรายการนั้น
+    if(cl==='comm'){ comm+=a; if(x.pct!=null && num(x.pct)>0 && !commPct.includes(num(x.pct))) commPct.push(num(x.pct)); }
+    else if(cl==='ship') ship+=a;
+    else other+=a;
+  });
+  // รวมบิลรูปแบบเก่าที่กรอก % ในช่องรายละเอียดกำไรด้วย (คอม=cP, ขนส่ง=sP)
+  if(n.pf){ comm += num(n.pf.cP); ship += num(n.pf.sP); }
+  const mP = itemsTotal - cost;                    // ① กำไรส่วนต่าง = ยอดขาย − ต้นทุน
+  const net = mP + comm + ship + other;            // กำไรสุทธิ = ① + ② คอมมิชชั่น + ③ ขนส่ง (+ อื่นๆ)
+  return {id:rec.id, date:rec.date, customer:rec.customer||'-', revenue:itemsTotal, itemsTotal, cost, mP, comm, ship, other, commPct, net};
+}
+function profitAll(sells, from, to){
+  const cm = buildCostMap();
+  let src = sells || cache.sells;
+  if(from) src = src.filter(r=>{ const d=String(r.date||'').split('T')[0]; return d>=from; });
+  if(to)   src = src.filter(r=>{ const d=String(r.date||'').split('T')[0]; return d<=to; });
+  const rows = src.map(r=>sellBreakdown(r, cm));
+  const sum = f => rows.reduce((a,r)=>a+r[f],0);
+  const pcts = [];
+  rows.forEach(r=>r.commPct.forEach(p=>{ if(!pcts.includes(p)) pcts.push(p); }));
+  return {rows, revenue:sum('revenue'), cost:sum('cost'), mP:sum('mP'), comm:sum('comm'), ship:sum('ship'), other:sum('other'), net:sum('net'), pcts};
+}
+function customerProfitGroups(rows){
+  const g = {};
+  rows.forEach(r=>{
+    const name = r.customer||'-';
+    if(!g[name]) g[name] = {name, count:0, revenue:0, cost:0, mP:0, comm:0, ship:0, other:0, net:0, rows:[]};
+    const x = g[name];
+    x.count++; x.revenue+=r.revenue; x.cost+=r.cost; x.mP+=r.mP; x.comm+=r.comm; x.ship+=r.ship; x.other+=r.other; x.net+=r.net;
+    x.rows.push(r);
+  });
+  return Object.values(g).sort((a,b)=>b.net-a.net);
+}
+let prFrom = '', prTo = '', prQ = '';
+function prSetRange(){ prFrom=$('pr-from').value; prTo=$('pr-to').value; renderProfit(); }
+function prSetSearch(){ prQ=$('pr-q').value.trim().toLowerCase(); renderProfit(); }
+function prClear(){ prFrom=''; prTo=''; prQ=''; const f=$('pr-from'),tt=$('pr-to'),q=$('pr-q'); if(f)f.value=''; if(tt)tt.value=''; if(q)q.value=''; renderProfit(); }
+function renderProfit(){
+  const cashIn = cache.sells.reduce((a,r)=>a+num(r.paid),0);
+  const cashOut = cache.buys.reduce((a,r)=>a+num(r.paid),0);
+  const P = profitAll(null, prFrom, prTo);
+  const pctTxt = P.pcts.length ? ' ('+P.pcts.map(x=>fmt(x)+'%').join(', ')+')' : '';
+  let groups = customerProfitGroups(P.rows);
+  if(prQ) groups = groups.filter(g=>g.name.toLowerCase().includes(prQ));
+
+  const custRows = groups.map(g=>
+    '<details style="margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card2)">'+
+      '<summary style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">'+
+        '<span><b style="font-size:13.5px">'+esc(g.name)+'</b><span style="color:var(--mut);font-size:11.5px"> · '+g.count+' '+t('pr_bills_of')+'</span></span>'+
+        '<b style="color:'+(g.net>=0?'var(--gold)':'var(--bad)')+'">'+fmt(g.net)+' ฿</b>'+
+      '</summary>'+
+      '<table class="tb" style="margin-top:8px">'+
+        '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(g.revenue)+'</td></tr>'+
+        '<tr><td>'+t('p_l1')+'</td><td class="r">'+fmt(g.mP)+'</td></tr>'+
+        '<tr><td>'+t('p_l2')+'</td><td class="r">'+fmt(g.comm)+'</td></tr>'+
+        '<tr><td>'+t('p_l3')+'</td><td class="r">'+fmt(g.ship)+'</td></tr>'+
+      '</table>'+
+      '<div style="margin-top:8px;font-size:12px;color:var(--mut);font-weight:700">'+t('pr_bill')+':</div>'+
+      g.rows.map(r=>'<div class="rec-mid" style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><span class="chip"><b style="color:var(--gold)">'+esc(r.id)+'</b> '+fdate(r.date)+' → <b style="color:'+(r.net>=0?'var(--ok)':'var(--bad)')+'">'+fmt(r.net)+' ฿</b></span></div>').join('')+
+      '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-weight:800">'+
+        '<span>'+t('pr_total_net')+'</span><span style="color:var(--gold)">'+fmt(g.net)+' ฿</span></div>'+
+    '</details>'
+  ).join('');
+
+  $('profit-body').innerHTML =
+    '<div class="card"><div class="row2">'+
+      '<div><label style="margin-top:0">'+t('pr_from')+'</label><input type="date" id="pr-from" value="'+esc(prFrom)+'" onchange="prSetRange()"></div>'+
+      '<div><label style="margin-top:0">'+t('pr_to')+'</label><input type="date" id="pr-to" value="'+esc(prTo)+'" onchange="prSetRange()"></div>'+
+    '</div>'+
+    '<input id="pr-q" placeholder="'+t('pr_search')+'" value="'+esc(prQ)+'" oninput="prSetSearch()" style="margin-top:10px">'+
+    ((prFrom||prTo||prQ) ? '<button class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:8px" onclick="prClear()">✕ '+t('pr_clear')+'</button>' : '')+
+    '</div>'+
+    '<div class="stat-grid" style="margin-top:12px">'+
+      '<div class="stat"><div class="l">'+t('pr_cust_n')+'</div><div class="v">'+groups.length+'</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_bill_n')+'</div><div class="v">'+P.rows.length+'</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_rev')+'</div><div class="v" style="color:var(--ok)">'+fmt(P.revenue)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('pr_cost')+'</div><div class="v" style="color:var(--bad)">'+fmt(P.cost)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l1')+'</div><div class="v">'+fmt(P.mP)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l2')+pctTxt+'</div><div class="v">'+fmt(P.comm)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_l3')+'</div><div class="v">'+fmt(P.ship)+' ฿</div></div>'+
+      '<div class="stat"><div class="l">'+t('p_lnet')+'</div><div class="v" style="color:var(--gold)">'+fmt(P.net)+' ฿</div></div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:12px"><div class="sec-title" style="margin-bottom:8px">'+t('pr_overview')+'</div>'+
+      '<table class="tb">'+
+      '<tr><td>'+t('pr_cust_n')+'</td><td class="r">'+groups.length+'</td></tr>'+
+      '<tr><td>'+t('pr_bill_n')+'</td><td class="r">'+P.rows.length+'</td></tr>'+
+      '<tr><td>'+t('pr_rev')+'</td><td class="r">'+fmt(P.revenue)+'</td></tr>'+
+      '<tr><td>'+t('pr_cost')+'</td><td class="r">'+fmt(P.cost)+'</td></tr>'+
+      '<tr><td>'+t('p_l1')+'</td><td class="r" style="font-weight:800">'+fmt(P.mP)+'</td></tr>'+
+      '<tr><td>'+t('p_l2')+pctTxt+'</td><td class="r" style="font-weight:800">'+fmt(P.comm)+'</td></tr>'+
+      '<tr><td>'+t('p_l3')+'</td><td class="r" style="font-weight:800">'+fmt(P.ship)+'</td></tr>'+
+      (P.other ? '<tr><td>'+t('p_l4')+'</td><td class="r" style="font-weight:800">'+fmt(P.other)+'</td></tr>' : '')+
+      '<tr><td style="color:var(--gold);font-weight:800">'+t('p_lnet')+'</td><td class="r" style="color:var(--gold);font-weight:800;font-size:16px">'+fmt(P.net)+' ฿</td></tr>'+
+      '</table></div>'+
+    '<div class="card"><div class="sec-title">'+t('pr_bycust')+'</div>'+(custRows || '<div class="empty">'+t('pr_none')+'</div>')+'</div>'+
+    '<div class="card"><details><summary style="cursor:pointer;font-weight:700;color:var(--gold)">'+t('pr_detail')+' ('+P.rows.length+')</summary>'+
+      (P.rows.length ?
+        '<div style="overflow-x:auto;margin-top:10px"><table class="tb" style="min-width:640px"><tr><th>'+t('pr_bill')+'</th><th>'+t('rp_date')+'</th><th class="r">'+t('pr_rev')+'</th><th class="r">'+t('pr_cost')+'</th><th class="r">①</th><th class="r">②</th><th class="r">③</th><th class="r">'+t('pr_net')+'</th></tr>'+
+        P.rows.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=>'<tr style="cursor:pointer" onclick="openReceipt(\'s\',\''+esc(r.id)+'\')"><td><b style="color:var(--gold)">'+esc(r.id)+'</b><div style="font-size:10.5px;color:var(--mut)">'+esc(r.customer||'')+'</div></td><td>'+fdate(r.date)+'</td><td class="r">'+fmt(r.revenue)+'</td><td class="r">'+fmt(r.cost)+'</td><td class="r">'+fmt(r.mP)+'</td><td class="r">'+(r.comm?fmt(r.comm):'-')+'</td><td class="r">'+(r.ship?fmt(r.ship):'-')+'</td><td class="r" style="font-weight:800;color:'+(r.net>=0?'var(--ok)':'var(--bad)')+'">'+fmt(r.net)+'</td></tr>').join('')+
+        '</table></div>'
+      : '<div class="empty">'+t('pr_none')+'</div>')+
+    '</details></div>'+
+    '<div class="card"><table class="tb">'+
+      '<tr><td>'+t('p_cin')+'</td><td class="r">'+fmt(cashIn)+' ฿</td></tr>'+
+      '<tr><td>'+t('p_cout')+'</td><td class="r">'+fmt(cashOut)+' ฿</td></tr>'+
+    '</table></div>';
+}
+function renderDebt(kind){
+  const isAR = kind==='ar';
+  const arr = isAR ? cache.sells : cache.buys;
+  const groups = {};
+  arr.forEach(r=>{
+    const d = num(r.debt);
+    if(d<=0) return;
+    const name = (isAR?r.customer:r.supplier)||'-';
+    if(!groups[name]) groups[name] = {total:0, rows:[]};
+    groups[name].total += d;
+    groups[name].rows.push(r);
+  });
+  const names = Object.keys(groups);
+  const body = $(isAR?'ar-body':'ap-body');
+  if(!names.length){ body.innerHTML = '<div class="empty">'+t('d_none')+'</div>'; return; }
+  const grand = names.reduce((a,n)=>a+groups[n].total,0);
+  body.innerHTML = '<div class="stat" style="margin-bottom:12px"><div class="l">'+(isAR?t('d_ar_sum'):t('d_ap_sum'))+'</div><div class="v" style="color:var(--bad)">'+fmt(grand)+' ฿</div></div>'+
+    names.map(n=>{
+      const g = groups[n];
+      return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(n)+'</b><b style="color:var(--bad)">'+fmt(g.total)+' ฿</b></div>'+
+        '<table class="tb" style="margin-top:8px">'+g.rows.map(r=>
+          '<tr><td>'+fdate(r.date)+'</td><td style="font-size:11.5px;color:var(--mut)">'+esc(r.id)+'</td><td class="r">'+fmt(r.debt)+' ฿</td>'+
+          '<td class="r" style="width:36px"><button class="ract gold" style="padding:5px 8px" onclick="openReceipt(\''+(isAR?'s':'b')+'\',\''+esc(r.id)+'\')">🧾</button></td></tr>'
+        ).join('')+'</table></div>';
+    }).join('');
+}
+function renderAR(){ renderDebt('ar'); }
+function renderAP(){ renderDebt('ap'); }
+
+// ═══════════ EXPENSES (ค่าใช้จ่าย) ═══════════
+const E_CATS = ['ครอบครัว','ส่วนตัว','บ้าน','ซ่อมแซม','ธุรกิจ','การเดินทาง','ค่าน้ำ','ค่าไฟ','ค่าอินเทอร์เน็ต','ค่าโทรศัพท์','ค่าอาหาร','เงินเดือน','ภาษี','โอนเข้าบัญชีส่วนตัว','อื่นๆ'];
+function allECats(){
+  let arr=[]; try{ arr = JSON.parse(localStorage.getItem('bt_ecats')||'[]'); }catch(e){}
+  const set=[]; const add=v=>{ v=String(v||'').trim(); if(v&&!set.includes(v)) set.push(v); };
+  E_CATS.forEach(add); arr.forEach(add);
+  (cache.expenses||[]).forEach(r=>add(r.category));
+  return set;
+}
+function learnECat(v){
+  v=String(v||'').trim();
+  if(!v || E_CATS.includes(v)) return;
+  let arr=[]; try{ arr = JSON.parse(localStorage.getItem('bt_ecats')||'[]'); }catch(e){}
+  if(!arr.includes(v)){ arr.unshift(v); localStorage.setItem('bt_ecats', JSON.stringify(arr.slice(0,80))); fillNames(); }
+}
+async function saveExpense(){
+  const cat = $('e-cat').value.trim();
+  const amt = num($('e-amt').value);
+  if(!cat || amt<=0){ showToast(t('tt_e_need'), true); return; }
+  const payload = { date: $('e-date').value, category: cat, desc: $('e-desc').value.trim(), amount: amt, note:'' };
+  try{
+    const res = await api('addExpense', payload);
+    if(res && res.success){
+      cache.expenses.unshift(Object.assign({id:res.id}, payload));
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      learnECat(cat);
+      $('e-cat').value=''; $('e-desc').value=''; $('e-amt').value='';
+      renderExpPage(); renderDash();
+      showToast(t('tt_saved'));
+    }else showToast(t('tt_savefail')+': '+((res&&res.error)||'Script v7'), true);
+  }catch(e){ showToast(t('tt_savefail'), true); }
+}
+async function delExpense(id){
+  if(!confirm(t('cf_del')+' '+id+' ?')) return;
+  try{
+    const res = await api('deleteExpense', {id});
+    if(res && res.success){
+      const i = cache.expenses.findIndex(r=>String(r.id)===String(id));
+      if(i>-1) cache.expenses.splice(i,1);
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      renderExpPage(); renderDash();
+      showToast(t('tt_deleted'));
+    }else showToast(t('tt_delfail'), true);
+  }catch(e){ showToast(t('tt_delfail'), true); }
+}
+function renderExpPage(){
+  const arr = cache.expenses||[];
+  $('e-count').textContent = arr.length + ' ' + t('items_ct');
+  $('e-list').innerHTML = arr.length ? arr.slice(0,50).map(r=>
+    '<div class="rec"><div class="rec-top"><div class="rec-name">'+esc(r.category||'-')+'</div><div class="rec-date">'+fdate(r.date)+'</div></div>'+
+    (r.desc?'<div class="rec-mid"><span class="chip">'+esc(r.desc)+'</span></div>':'')+
+    '<div class="rec-bot"><div class="rec-total" style="color:var(--bad)">-'+fmt(r.amount)+' ฿</div>'+
+    '<button class="ract red" style="flex:0 0 auto;padding:6px 12px;margin-left:auto" onclick="delExpense(\''+esc(r.id)+'\')">🗑️</button></div></div>'
+  ).join('') : '<div class="empty">—</div>';
+}
+
+// ═══════════ LOANS (เงินยืม) ═══════════
+async function saveLoan(){
+  const person = $('ln-person').value.trim();
+  const amt = num($('ln-amt').value);
+  if(!person || amt<=0){ showToast(t('tt_ln_need'), true); return; }
+  const paid = num($('ln-paid').value);
+  const payload = { date:$('ln-date').value, type:$('ln-type').value, person:person, amount:amt, total:amt, paid:paid, due:$('ln-due').value, status:statusOf(amt,paid), note:$('ln-note').value.trim() };
+  try{
+    const res = await api('addLoan', payload);
+    if(res && res.success){
+      cache.loans.unshift(Object.assign({id:res.id, debt:Math.max(0,amt-paid)}, payload));
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      $('ln-person').value=''; $('ln-amt').value=''; $('ln-paid').value=''; $('ln-note').value='';
+      renderLoanPage(); renderDash();
+      showToast(t('tt_saved'));
+    }else showToast(t('tt_savefail')+': '+((res&&res.error)||'Script v7'), true);
+  }catch(e){ showToast(t('tt_savefail'), true); }
+}
+async function repayLoan(id){
+  const rec = (cache.loans||[]).find(r=>String(r.id)===String(id));
+  if(!rec) return;
+  const ans = prompt(t('ln_repay_q'), '');
+  if(ans===null) return;
+  const x = num(ans);
+  if(x<=0) return;
+  const amt = num(rec.amount)||num(rec.total);
+  const newPaid = num(rec.paid) + x;
+  const payload = { id:rec.id, date:String(rec.date||'').split('T')[0], type:rec.type, person:rec.person, amount:amt, total:amt, paid:newPaid, due:String(rec.due||'').split('T')[0], status:statusOf(amt,newPaid), note:rec.note||'' };
+  try{
+    const res = await api('updateLoan', payload);
+    if(res && res.success){
+      Object.assign(rec, payload, {debt:Math.max(0,amt-newPaid)});
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      renderLoanPage(); renderDash();
+      showToast(t('tt_edited'));
+    }else showToast(t('tt_savefail'), true);
+  }catch(e){ showToast(t('tt_savefail'), true); }
+}
+async function delLoan(id){
+  if(!confirm(t('cf_del')+' '+id+' ?')) return;
+  try{
+    const res = await api('deleteLoan', {id});
+    if(res && res.success){
+      const i = cache.loans.findIndex(r=>String(r.id)===String(id));
+      if(i>-1) cache.loans.splice(i,1);
+      localStorage.setItem('bt_cache', JSON.stringify(cache));
+      renderLoanPage(); renderDash();
+      showToast(t('tt_deleted'));
+    }else showToast(t('tt_delfail'), true);
+  }catch(e){ showToast(t('tt_delfail'), true); }
+}
+function loanCard(r){
+  const amt = num(r.amount)||num(r.total);
+  const debt = Math.max(0, amt - num(r.paid));
+  return '<div class="rec"><div class="rec-top"><div class="rec-name">'+esc(r.person||'-')+'</div><div class="rec-date">'+fdate(r.date)+(r.due?' → '+fdate(r.due):'')+'</div></div>'+
+    '<div class="rec-mid"><span class="chip">'+t('ln_amt').replace(' (บาท)','').replace(' (THB)','')+' '+fmt(amt)+'</span><span class="chip">'+t('rs_paid')+' '+fmt(r.paid)+'</span></div>'+
+    '<div class="rec-bot"><div class="rec-total" style="color:'+(debt>0?'var(--bad)':'var(--ok)')+'">'+fmt(debt)+' ฿</div>'+
+    '<span class="'+stClass(r.status)+'">'+esc(stTxt(r.status)||'-')+'</span></div>'+
+    '<div class="rec-actions">'+
+      '<button class="ract gold" onclick="repayLoan(\''+esc(r.id)+'\')">'+t('ln_repay')+'</button>'+
+      '<button class="ract red" style="flex:0 0 70px" onclick="delLoan(\''+esc(r.id)+'\')">🗑️</button>'+
+    '</div></div>';
+}
+function renderLoanPage(){
+  const arr = cache.loans||[];
+  const lend = arr.filter(r=>r.type==='lend');
+  const borrow = arr.filter(r=>r.type==='borrow');
+  const sumDebt = a => a.reduce((s,r)=>s+Math.max(0,(num(r.amount)||num(r.total))-num(r.paid)),0);
+  $('ln-lend-sum').textContent = fmt(sumDebt(lend))+' ฿';
+  $('ln-borrow-sum').textContent = fmt(sumDebt(borrow))+' ฿';
+  $('ln-lend-list').innerHTML = lend.length ? lend.map(loanCard).join('') : '<div class="empty">—</div>';
+  $('ln-borrow-list').innerHTML = borrow.length ? borrow.map(loanCard).join('') : '<div class="empty">—</div>';
+}
+
+// ═══════════ EXECUTIVE DASHBOARD ═══════════
+let dashPeriod = 'month';
+let dashMonth = null; // 'YYYY-MM' for monthly report
+function dOf(r){ const d = new Date(r.date); return isNaN(d) ? null : d; }
+function ym(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthSums(key){ // key 'YYYY-MM'
+  const inM = r => { const d=dOf(r); return d && ym(d)===key; };
+  const buys = cache.buys.filter(inM), sells = cache.sells.filter(inM);
+  const exps = (cache.expenses||[]).filter(inM), loans = (cache.loans||[]).filter(inM);
+  const buy = buys.reduce((a,r)=>a+num(r.total),0);
+  const sell = sells.reduce((a,r)=>a+num(r.total),0);
+  const _cm = buildCostMap();
+  let profit = 0; sells.forEach(r=>{ profit += sellBreakdown(r, _cm).net; });
+  const exp = exps.reduce((a,r)=>a+num(r.amount),0);
+  const lend = loans.filter(r=>r.type==='lend').reduce((a,r)=>a+(num(r.amount)||num(r.total)),0);
+  const borrow = loans.filter(r=>r.type==='borrow').reduce((a,r)=>a+(num(r.amount)||num(r.total)),0);
+  return {buy, sell, profit, exp, lend, borrow, buyCount:buys.length, sellCount:sells.length, buys, sells};
+}
+function cashBalance(){
+  let cash = 0;
+  cache.sells.forEach(r=> cash += num(r.paid));
+  cache.buys.forEach(r=> cash -= num(r.paid));
+  (cache.expenses||[]).forEach(r=> cash -= num(r.amount));
+  (cache.loans||[]).forEach(r=>{
+    const amt = num(r.amount)||num(r.total);
+    if(r.type==='lend') cash += -amt + num(r.paid);
+    else cash += amt - num(r.paid);
+  });
+  return cash;
+}
+function invValue(){
+  const m = buildCostMap();
+  const bal = {};
+  const add=(rec,s)=>recItems(rec).forEach(it=>{ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); bal[k]=(bal[k]||0)+s*num(it.qty); });
+  cache.buys.forEach(r=>add(r,1)); cache.sells.forEach(r=>add(r,-1));
+  let v=0;
+  Object.keys(bal).forEach(k=>{ if(bal[k]>0 && m[k] && m[k].qty>0) v += bal[k]*(m[k].cost/m[k].qty); });
+  return v;
+}
+function aggBuckets(){
+  const now = new Date();
+  const buckets = [];
+  const mk = (label, from, to) => buckets.push({label, from, to, inc:0, out:0});
+  if(dashPeriod==='day'){
+    for(let i=13;i>=0;i--){ const d=new Date(now); d.setDate(d.getDate()-i); const f=new Date(d); f.setHours(0,0,0,0); const e=new Date(d); e.setHours(23,59,59,999); mk(d.getDate()+'/'+(d.getMonth()+1), f, e); }
+  }else if(dashPeriod==='week'){
+    const start = new Date(now); start.setHours(0,0,0,0); start.setDate(start.getDate()-start.getDay()+1); // monday this week
+    for(let i=7;i>=0;i--){ const f=new Date(start); f.setDate(f.getDate()-7*i); const e=new Date(f); e.setDate(e.getDate()+6); e.setHours(23,59,59,999); mk(f.getDate()+'/'+(f.getMonth()+1), f, e); }
+  }else if(dashPeriod==='year'){
+    const years = new Set();
+    cache.buys.concat(cache.sells).concat(cache.expenses||[]).forEach(r=>{ const d=dOf(r); if(d) years.add(d.getFullYear()); });
+    Array.from(years).sort().slice(-6).forEach(y=>{ mk(String(y+ (LANG==='th'?543:0)), new Date(y,0,1), new Date(y,11,31,23,59,59)); });
+    if(!buckets.length){ const y=now.getFullYear(); mk(String(y), new Date(y,0,1), new Date(y,11,31,23,59,59)); }
+  }else{
+    for(let i=11;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); const e=new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59); mk(d.toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{month:'short'}), d, e); }
+  }
+  const put = (r, field, val) => {
+    const d = dOf(r); if(!d) return;
+    for(const b of buckets){ if(d>=b.from && d<=b.to){ b[field]+=val; return; } }
+  };
+  cache.sells.forEach(r=>put(r,'inc',num(r.total)));
+  cache.buys.forEach(r=>put(r,'out',num(r.total)));
+  (cache.expenses||[]).forEach(r=>put(r,'out',num(r.amount)));
+  return buckets;
+}
+function chartHTML(){
+  const bs = aggBuckets();
+  const max = Math.max(1, ...bs.map(b=>Math.max(b.inc,b.out)));
+  const bars = bs.map(b=>{
+    const hI = Math.round(b.inc/max*100), hO = Math.round(b.out/max*100);
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">'+
+      '<div style="display:flex;align-items:flex-end;gap:2px;height:110px">'+
+        '<div title="'+fmt(b.inc)+'" style="width:9px;height:'+Math.max(2,hI)+'%;background:linear-gradient(180deg,#3ba36b,#1e8e5a);border-radius:3px 3px 0 0"></div>'+
+        '<div title="'+fmt(b.out)+'" style="width:9px;height:'+Math.max(2,hO)+'%;background:linear-gradient(180deg,#d96a5b,#c0392b);border-radius:3px 3px 0 0"></div>'+
+      '</div>'+
+      '<div style="font-size:9.5px;color:var(--mut);white-space:nowrap;overflow:hidden;max-width:100%">'+b.label+'</div>'+
+    '</div>';
+  }).join('');
+  const totI = bs.reduce((a,b)=>a+b.inc,0), totO = bs.reduce((a,b)=>a+b.out,0);
+  const per = [['day',t('d_day')],['week',t('d_week')],['month',t('d_monthp')],['year',t('d_year')]].map(([k,l])=>
+    '<button class="ract'+(dashPeriod===k?' gold':'')+'" style="flex:0 0 auto;padding:6px 13px" onclick="dashPeriod=\''+k+'\';renderDash()">'+l+'</button>').join('');
+  return '<div class="card"><div class="sec-title" style="margin-bottom:8px">📊 '+t('d_chart')+'</div>'+
+    '<div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap">'+per+'</div>'+
+    '<div style="display:flex;gap:3px;align-items:flex-end">'+bars+'</div>'+
+    '<div style="display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--mut)">'+
+      '<span><span style="display:inline-block;width:10px;height:10px;background:#1e8e5a;border-radius:2px"></span> '+t('d_inc')+' '+fmt(totI)+'</span>'+
+      '<span><span style="display:inline-block;width:10px;height:10px;background:#c0392b;border-radius:2px"></span> '+t('d_out')+' '+fmt(totO)+'</span>'+
+      '<span style="color:var(--gold);font-weight:700">'+t('d_pf')+' '+fmt(totI-totO)+'</span>'+
+    '</div></div>';
+}
+async function setTarget(kind){
+  const key = kind==='y' ? 'target_y' : 'target_m';
+  const cur = num(cache.settings[key]);
+  const ans = prompt(t(kind==='y'?'d_t_ask_y':'d_t_ask_m'), cur||'');
+  if(ans===null) return;
+  const v = num(ans);
+  cache.settings[key] = String(v);
+  localStorage.setItem('bt_cache', JSON.stringify(cache));
+  renderDash();
+  try{ await api('setSetting', {key:key, value:String(v)}); }catch(e){}
+}
+function targetBar(label, actual, target, onSet){
+  const pct = target>0 ? Math.min(100, Math.round(actual/target*100)) : 0;
+  const left = Math.max(0, target-actual);
+  return '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px">'+
+    '<b>'+label+'</b><span>'+fmt(actual)+' / '+(target>0?fmt(target):'—')+' ฿'+
+    ' <a href="#" onclick="event.preventDefault();'+onSet+'" style="color:var(--gold)">'+t('d_tset')+'</a></span></div>'+
+    '<div style="background:var(--card2);border:1px solid var(--line);border-radius:20px;height:16px;margin-top:5px;overflow:hidden">'+
+      '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:20px;transition:.4s"></div></div>'+
+    '<div style="font-size:11.5px;color:var(--mut);margin-top:4px">'+(target>0 ? (pct>=100? t('d_reach') : pct+'% • '+t('d_left')+' '+fmt(left)+' ฿') : '')+'</div></div>';
+}
+function topList(title, map, unit){
+  const rows = Object.keys(map).map(k=>({k, v:map[k]})).sort((a,b)=>b.v-a.v).slice(0,5);
+  if(!rows.length) return '';
+  return '<div style="margin-top:12px"><b style="font-size:13px;color:var(--gold)">'+title+'</b>'+
+    '<table class="tb" style="margin-top:4px">'+rows.map((r,i)=>'<tr><td style="width:24px;color:var(--mut)">'+(i+1)+'</td><td>'+esc(r.k)+'</td><td class="r" style="font-weight:700">'+fmt(r.v)+(unit||'')+'</td></tr>').join('')+'</table></div>';
+}
+function breakList(map){
+  const rows = Object.keys(map).map(k=>({k, v:map[k]})).sort((a,b)=>b.v-a.v).slice(0,6);
+  return rows.map(r=>'<span class="chip">'+esc(r.k)+' <b style="color:var(--gold)">'+fmt(r.v)+'</b></span>').join(' ');
+}
+// ═══ แจ้งเตือนกำหนดชำระ (7 วันล่วงหน้า + เกินกำหนด) ═══
+function dueAlerts(){
+  const out = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const push = (kind, name, amt, due, goPage)=>{
+    if(!due) return;
+    const d = new Date(String(due).split('T')[0]); if(isNaN(d)) return;
+    d.setHours(0,0,0,0);
+    const days = Math.round((d - today) / 86400000);
+    if(days > 7) return;
+    out.push({kind, name, amt, due, days, goPage});
+  };
+  cache.sells.forEach(r=>{ if(num(r.debt)>0) push('ar', r.customer, num(r.debt), r.due, 'pg-ar'); });
+  cache.buys.forEach(r=>{ if(num(r.debt)>0){ const n=parseNote(r.note); push('ap', r.supplier, num(r.debt), n.bdue, 'pg-ap'); } });
+  (cache.loans||[]).forEach(r=>{
+    const amt = num(r.amount)||num(r.total);
+    const debt = Math.max(0, amt - num(r.paid));
+    if(debt>0) push(r.type==='lend'?'lend':'borrow', r.person, debt, r.due, 'pg-loan');
+  });
+  out.sort((a,b)=>a.days-b.days);
+  return out;
+}
+function alertBadge(days){
+  if(days < 0) return '<span class="st st-no">'+t('n_over').replace('{d}', Math.abs(days))+'</span>';
+  if(days === 0) return '<span class="st st-no">'+t('n_today')+'</span>';
+  return '<span class="st '+(days<=5?'st-part':'st-ok')+'">'+t('n_days').replace('{d}', days)+'</span>';
+}
+function alertsHTML(){
+  const al = dueAlerts();
+  if(!al.length) return '';
+  const icon = {ar:'👥', ap:'🏦', lend:'💵', borrow:'💵'};
+  const lbl = {ar:t('n_ar'), ap:t('n_ap'), lend:t('n_lend'), borrow:t('n_borrow')};
+  return '<div class="card" style="border-color:rgba(192,57,43,.5);box-shadow:0 0 0 1px rgba(192,57,43,.15)">'+
+    '<div class="sec-title" style="color:var(--bad)">'+t('n_title')+' ('+al.length+')</div>'+
+    al.slice(0,10).map(a=>
+      '<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="go(\''+a.goPage+'\')">'+
+        '<span style="font-size:19px">'+icon[a.kind]+'</span>'+
+        '<div style="flex:1;min-width:0"><b style="font-size:13.5px">'+esc(a.name||'-')+'</b>'+
+        '<div style="font-size:11px;color:var(--mut)">'+lbl[a.kind]+' • '+fmt(a.amt)+' ฿ • '+fdate(a.due)+'</div></div>'+
+        alertBadge(a.days)+
+      '</div>').join('')+
+    '</div>';
+}
+let alertToastShown = false;
+function maybeAlertToast(){
+  if(alertToastShown) return;
+  const n = dueAlerts().length;
+  if(n>0){ showToast(t('n_toast').replace('{n}', n)); alertToastShown = true; }
+}
+
+function renderDash(){
+  const el = $('dash'); if(!el) return;
+  const nowKey = ym(new Date());
+  const m = monthSums(nowKey);
+  const arT = cache.sells.reduce((a,r)=>a+num(r.debt),0);
+  const apT = cache.buys.reduce((a,r)=>a+num(r.debt),0);
+  const cash = cashBalance();
+  const inv = invValue();
+  // month sale target
+  const yearSell = cache.sells.filter(r=>{ const d=dOf(r); return d && d.getFullYear()===new Date().getFullYear(); }).reduce((a,r)=>a+num(r.total),0);
+
+  const stat = (lbl, v, color) => '<div class="stat"><div class="l">'+lbl+'</div><div class="v" style="color:'+(color||'var(--ink)')+'">'+fmt(v)+' ฿</div></div>';
+
+  // month breakdowns
+  const bOrg={}, bGrade={}, bType={}, sOrg={}, sGrade={}, sType={};
+  m.buys.forEach(r=>recItems(r).forEach(it=>{ bOrg[it.origin||'-']=(bOrg[it.origin||'-']||0)+num(it.amt); bGrade[it.grade||'-']=(bGrade[it.grade||'-']||0)+num(it.amt); bType[typeTh(it.type)]=(bType[typeTh(it.type)]||0)+num(it.amt); }));
+  m.sells.forEach(r=>recItems(r).forEach(it=>{ sOrg[it.origin||'-']=(sOrg[it.origin||'-']||0)+num(it.amt); sGrade[it.grade||'-']=(sGrade[it.grade||'-']||0)+num(it.amt); sType[typeTh(it.type)]=(sType[typeTh(it.type)]||0)+num(it.amt); }));
+
+  // tops (all time)
+  const tpProd={}, tpCust={}, tpSup={}, tpOrg={}, tpGrade={};
+  const pcm = productCodeMap();
+  cache.sells.forEach(r=>{ tpCust[r.customer||'-']=(tpCust[r.customer||'-']||0)+num(r.total); recItems(r).forEach(it=>{ const ck=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); const k=(pcm[ck]?'['+pcm[ck]+'] ':'')+(it.origin||'-')+' '+(it.grade||'')+(it.nick?' ('+it.nick+')':''); tpProd[k]=(tpProd[k]||0)+num(it.amt); tpGrade[it.grade||'-']=(tpGrade[it.grade||'-']||0)+num(it.amt); }); });
+  cache.buys.forEach(r=>{ tpSup[r.supplier||'-']=(tpSup[r.supplier||'-']||0)+num(r.total); recItems(r).forEach(it=>{ tpOrg[it.origin||'-']=(tpOrg[it.origin||'-']||0)+num(it.amt); }); });
+
+  // monthly report month options
+  const months = new Set();
+  cache.buys.concat(cache.sells).concat(cache.expenses||[]).concat(cache.loans||[]).forEach(r=>{ const d=dOf(r); if(d) months.add(ym(d)); });
+  const mlist = Array.from(months).sort().reverse();
+  if(!dashMonth || !mlist.includes(dashMonth)) dashMonth = mlist[0] || nowKey;
+  const mr = monthSums(dashMonth);
+  const mLabel = k => { const [y,mm]=k.split('-'); return new Date(+y, +mm-1, 1).toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{month:'long',year:'numeric'}); };
+  const opts = mlist.map(k=>'<option value="'+k+'"'+(k===dashMonth?' selected':'')+'>'+mLabel(k)+'</option>').join('');
+
+  el.innerHTML =
+    alertsHTML()+
+    '<div class="sec-head"><span class="sec-title">📈 '+t('d_month')+'</span></div>'+
+    '<div class="stat-grid">'+
+      stat(t('d_buym'), m.buy, 'var(--bad)') + stat(t('d_sellm'), m.sell, 'var(--ok)') +
+      stat(t('d_profitm'), m.profit, 'var(--gold)') + stat(t('d_expm'), m.exp, 'var(--bad)') +
+      stat(t('d_cash'), cash, cash>=0?'var(--ok)':'var(--bad)') + stat(t('d_inv'), inv) +
+      stat(t('d_arr'), arT, 'var(--warn)') + stat(t('d_app'), apT, 'var(--warn)') +
+    '</div>'+
+    '<div class="card" style="margin-top:12px"><div class="sec-title">'+t('d_target')+'</div>'+
+      targetBar(t('d_t_m'), m.sell, num(cache.settings.target_m), "setTarget('m')")+
+      targetBar(t('d_t_y'), yearSell, num(cache.settings.target_y), "setTarget('y')")+
+    '</div>'+
+    chartHTML()+
+    '<div class="card"><div class="sec-title">'+t('d_buysum')+'</div>'+
+      '<div style="font-size:13px;margin-top:6px">'+m.buyCount+' '+t('d_count')+' • <b style="color:var(--bad)">'+fmt(m.buy)+' ฿</b></div>'+
+      '<div class="rec-mid" style="margin-top:8px">'+breakList(bType)+'</div>'+
+      '<div class="rec-mid">'+breakList(bGrade)+'</div>'+
+      '<div class="rec-mid">'+breakList(bOrg)+'</div>'+
+    '</div>'+
+    '<div class="card"><div class="sec-title">'+t('d_sellsum')+'</div>'+
+      '<div style="font-size:13px;margin-top:6px">'+m.sellCount+' '+t('d_count')+' • <b style="color:var(--ok)">'+fmt(m.sell)+' ฿</b> • '+t('d_pf')+' <b style="color:var(--gold)">'+fmt(m.profit)+' ฿</b></div>'+
+      '<div class="rec-mid" style="margin-top:8px">'+breakList(sType)+'</div>'+
+      '<div class="rec-mid">'+breakList(sGrade)+'</div>'+
+      '<div class="rec-mid">'+breakList(sOrg)+'</div>'+
+    '</div>'+
+    '<div class="card"><div class="sec-title">'+t('d_monthly')+'</div>'+
+      '<select style="margin-top:8px" onchange="dashMonth=this.value;renderDash()">'+opts+'</select>'+
+      '<table class="tb" style="margin-top:8px">'+
+        '<tr><td>'+t('d_r_inc')+'</td><td class="r" style="color:var(--ok);font-weight:700">'+fmt(mr.sell)+'</td></tr>'+
+        '<tr><td>'+t('d_r_out')+'</td><td class="r" style="color:var(--bad);font-weight:700">'+fmt(mr.buy+mr.exp)+'</td></tr>'+
+        '<tr><td>'+t('d_r_buy')+'</td><td class="r">'+fmt(mr.buy)+'</td></tr>'+
+        '<tr><td>'+t('d_r_sell')+'</td><td class="r">'+fmt(mr.sell)+'</td></tr>'+
+        '<tr><td>'+t('d_r_pf')+'</td><td class="r" style="color:var(--gold);font-weight:700">'+fmt(mr.profit)+'</td></tr>'+
+        '<tr><td>'+t('d_r_exp')+'</td><td class="r">'+fmt(mr.exp)+'</td></tr>'+
+        '<tr><td>'+t('d_r_lend')+'</td><td class="r">'+fmt(mr.lend)+'</td></tr>'+
+        '<tr><td>'+t('d_r_borrow')+'</td><td class="r">'+fmt(mr.borrow)+'</td></tr>'+
+        '<tr><td style="font-weight:800">'+t('d_r_bal')+'</td><td class="r" style="font-weight:800;color:'+((mr.sell-mr.buy-mr.exp)>=0?'var(--ok)':'var(--bad)')+'">'+fmt(mr.sell-mr.buy-mr.exp)+'</td></tr>'+
+      '</table></div>'+
+    '<div class="card"><div class="sec-title">'+t('d_top')+'</div>'+
+      topList('🏆 '+t('d_top_prod'), tpProd, ' ฿')+
+      topList('👥 '+t('d_top_cust'), tpCust, ' ฿')+
+      topList('🛒 '+t('d_top_sup'), tpSup, ' ฿')+
+      topList('📍 '+t('d_top_org'), tpOrg, ' ฿')+
+      topList('⭐ '+t('d_top_grade'), tpGrade, ' ฿')+
+    '</div>';
+}
+
+// ═══════════ RECEIPT ═══════════
+function openReceipt(p, id){
+  const isBuy = p==='b';
+  const rec = (isBuy?cache.buys:cache.sells).find(r=>String(r.id)===String(id));
+  if(!rec){ showToast(t('tt_notfound'), true); return; }
+  const n = parseNote(rec.note);
+  const items = recItems(rec);
+  const extras = n.extras||[];
+  const itemsTotal = items.reduce((a,b)=>a+num(b.amt),0);
+  const extrasTotal = extras.reduce((a,b)=>a+num(b.amt),0);
+  const total = num(rec.total)||itemsTotal+extrasTotal;
+  const paid = num(rec.paid), debt = num(rec.debt);
+  const q = num(rec.qty);
+  const pays = n.pays || [];
+  const bcomm = n.bcomm || null;
+  const cpuVal = (n.cpu!=null) ? num(n.cpu) : (q>0 ? total/q : 0);
+  const docType = isBuy ? t('doc_buy') : (debt>0 ? t('doc_inv') : t('doc_rec'));
+  const docEn = LANG==='en' ? (isBuy ? 'ใบบันทึกซื้อ' : (debt>0 ? 'ใบแจ้งหนี้' : 'ใบเสร็จรับเงิน')) : (isBuy ? 'PURCHASE RECORD' : (debt>0 ? 'INVOICE' : 'RECEIPT')); // ar ใช้หัวอาหรับ + ซับอังกฤษ
+  const party = isBuy ? ((rec.supplier||'-') + (n.supnick?' ('+n.supnick+')':'')) : (rec.customer||'-');
+  const partyLabel = isBuy ? t('rp_supplier') : t('rp_customer');
+
+  const pcMap = productCodeMap();
+  let rows = items.map((it,i)=>
+    '<tr><td>'+(i+1)+'</td>'+
+    '<td>'+(function(){ const k=(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||''); return pcMap[k]?'<span style="color:#999;font-size:10px">['+esc(pcMap[k])+']</span> ':''; })()+esc(it.origin||typeTh(it.type))+(it.grade?' — '+t('h_grade')+' '+esc(it.grade):'')+(it.nick?' <span style="color:#b8892b">('+esc(it.nick)+')</span>':'')+(it.origin?'<div style="font-size:10.5px;color:#888">'+typeTh(it.type)+'</div>':'')+'</td>'+
+    '<td class="r">'+fmt(it.qty)+' '+unitTh(it.unit)+'</td>'+
+    '<td class="r">'+fmt(it.price!=null?it.price:(num(it.qty)>0?num(it.amt)/num(it.qty):0))+'</td>'+
+    '<td class="r"><b>'+fmt(it.amt)+'</b></td></tr>').join('');
+  rows += extras.map((x,i)=>
+    '<tr><td>'+(items.length+i+1)+'</td><td style="color:#7a6a35">＋ '+esc(x.name)+((x.pct!=null&&x.pct>0)?' ('+fmt(x.pct)+'%)':'')+'</td><td class="r">-</td><td class="r">-</td><td class="r"><b>'+fmt(x.amt)+'</b></td></tr>').join('');
+
+  // หมายเหตุ: ไม่แสดงข้อมูลกำไรบนใบเสร็จ (ข้อมูลภายในกิจการ ดูได้ในหน้ากำไรของแอป)
+  let pfHtml = '';
+
+  $('rp-paper').innerHTML =
+    '<div class="rp-topline"></div>'+
+    '<div class="rp-head">'+
+      '<img class="rp-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAZADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD48oooqyAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigApV+8PrSUq/eH1oASiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK6Pwb4ak1/TfEd2u7Gk6YbsEd2DqMf8AfO/8q5yvpf4TeDZvDXwF8Qa5q8Bhn1yxmmVGGGW2WJhGT/vEs30Irix+J+r0uZbtpL7/API6MNS9rOz2OV+GHwu0v4pfB7UrvQttl4x8PT7XTd+61CFwWjDD+F+HUMODtGfUeK3EMtvcSW9xE8U0TlJEcYZWBwQR2INfQ/7B+oPD418S6ZuPl3WjiUj1aOVQD+TmuT/aw8PxaR8TW1K3jCQ6tD57ADA81Ttf8/lP1NYUsTKGMlh5bPVf5DdLmo+0XQ8hooor1DmCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiitCz0PW7yPzLPRtSuEP8UVq7j8wKUpKO7Gk3sZ9FWL+wv9PcJf2N1aMeizwtGT/wB9AVXoTT1QmmtwooopgFFFFABRRW78PvD8nirxnpegISq3c4WVx1WMcuf++QampONOLnLZDjFyaiup7B+yt8Ez411KDxZ4ngx4ctpcw27Dm/kU9D/0zB6+vT1r2P8AbJ12HQvAF5ZxlUn1IiygReML1fA9AoI/EV674LtbHSdEtrO1jitLGzhCIo4WONR/IAda+Fv2hviBc/Fb4oH+x4pZdOgl+xaTAoy02Wx5mP7znH4bRXyOBr1M1xXtZ6Qi7+i6ff1PUrQWEjyx3aO+/YP0aabxP4o18oRb2mmrahuxeWQNj8oz+dP/AGzoIzpuh3JA8xbuWMH2KAn/ANBFfRHwP8AQfDn4UQ6HhG1CUfadRlX+OdgMgH0UAKPpnvXy1+2Lr0V14p07w7A4Y2MbT3GD915MbR9doz/wKtaNb63maqU9lf7krfiLl9lhpRlueD0UUV9WeWFFFFAB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9ZvtVuic+ZczF9vsoPCj2AFZNFFe8koqyORu4UUUUwCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDX8HeJtb8I+IbbXvD9/JZX1ufldeQy90YdGU9wab4t8R614r1+513X7+W9v7lsvI54A7Ko6Ko7AcCsqio9nDn57a9x8ztboFFFFWIKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAClX7w+tJSr94fWgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKVfvD60lKv3h9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigApV+8PrSUq/eH1oASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASilw390/lRhv7p/KgBKKXDf3T+VGG/un8qAEopcN/dP5UYb+6fyoASlX7w+tGG/un8qFVtw+U9fSgD//2Q==" onerror="this.style.display=\'none\';document.getElementById(\'rp-fb\').style.display=\'flex\'">'+
+      '<div class="rp-logo-fb" id="rp-fb">🌿</div>'+
+      '<div class="rp-co"><div class="rp-co-name">'+COMPANY.name+'</div><div class="rp-co-en" style="font-family:'+String.fromCharCode(39)+'Noto Sans Thai'+String.fromCharCode(39)+',sans-serif;letter-spacing:0">'+COMPANY.th+'</div>'+
+      '<div class="rp-co-meta">'+COMPANY.addr+'<br>โทร '+COMPANY.tel+' • '+COMPANY.email+'<br>เลขทะเบียน/ผู้เสียภาษี '+COMPANY.tax+'</div></div>'+
+      '<div class="rp-doc"><div class="rp-doc-type">'+docType+'</div><div style="font-size:10px;color:#b8892b;letter-spacing:2px">'+docEn+'</div>'+
+      '<div class="rp-doc-no">'+t('rp_no')+': <b>'+esc(rec.id)+'</b><br>'+t('rp_date')+': '+fdate(rec.date)+(rec.due?'<br>'+t('rp_due')+': '+fdate(rec.due):'')+'</div></div>'+
+    '</div>'+
+    '<div class="rp-party">'+
+      '<div class="pt"><div class="pl">'+partyLabel+'</div><div class="pv">'+esc(party)+'</div></div>'+
+      '<div class="pt"><div class="pl">'+t('rp_pay')+'</div><div class="pv" style="color:'+(debt>0?'#c0392b':'#1e8e5a')+'">'+esc(stTxt(rec.status)||'-')+'</div></div>'+
+    '</div>'+
+    '<table class="rp-t"><tr><th style="width:34px">#</th><th>'+t('rh_item')+'</th><th class="r">'+t('rh_qty')+'</th><th class="r">'+t('rh_price')+'</th><th class="r">'+t('rh_total')+'</th></tr>'+rows+'</table>'+
+    '<div class="rp-sumwrap"><div class="rp-sum">'+
+      '<div class="sr"><span>'+t('rs_items')+'</span><span>'+fmt(itemsTotal)+'</span></div>'+
+      (extrasTotal? '<div class="sr"><span>'+t('rs_extras')+'</span><span>'+fmt(extrasTotal)+'</span></div>':'')+
+      (bcomm && bcomm.amt ? '<div class="sr"><span>'+t('comm_lbl')+' '+fmt(bcomm.pct)+'% '+(bcomm.mode==='include'?t('rp_incost'):t('rp_sepcost'))+'</span><span>'+fmt(bcomm.amt)+'</span></div>' : '')+
+      '<div class="sr tot"><span>'+t('rs_grand')+'</span><span>'+fmt(total)+' ฿</span></div>'+
+      (isBuy && q>0 ? '<div class="sr"><span>'+t('rs_cpu')+'</span><span>'+fmt(cpuVal)+' ฿/'+unitTh(rec.unit)+'</span></div>' : '')+
+      '<div class="sr"><span>'+t('rs_paid')+'</span><span>'+fmt(paid)+'</span></div>'+
+      (debt>0? '<div class="sr debt"><span>'+t('rs_debt')+'</span><span>'+fmt(debt)+' ฿</span></div>':'')+
+    '</div></div>'+
+    (pays.length ?
+      '<div class="rp-pf"><div class="rp-pf-h">'+t('rp_payhist')+' ('+pays.length+' '+t('inst_ct')+')</div>'+
+      '<table class="rp-t" style="margin-top:0"><tr><th style="width:36px">'+t('rp_inst')+'</th><th>'+t('rp_date')+'</th><th class="r">'+t('x_amt')+'</th><th>'+t('rp_method_ref')+'</th><th>'+t('rp_slip')+'</th><th>'+t('rp_status')+'</th></tr>'+
+      pays.map(function(x,i){
+        var mmap = {'เงินสด':'pm_cash','โอน':'pm_transfer','โอนเงิน':'pm_transfer','เช็ค':'pm_cheque','อื่นๆ':'pm_other'};
+        var mth = (LANG==='en' && mmap[x.method] ? t(mmap[x.method]) : esc(x.method||'-')) + (x.bank ? ' ('+esc(x.bank)+')' : '');
+        var sub = (x.ref ? '<div style="font-size:10px;color:#888">'+t('rp_ref')+': '+esc(x.ref)+'</div>' : '') + (x.note ? '<div style="font-size:10px;color:#888">'+esc(x.note)+'</div>' : '');
+        var slip = (x.slip && x.slip.url) ? '<a class="slip-view no-print" href="'+esc(x.slip.url)+'" target="_blank">'+t('slip_view')+'</a><span style="display:none" class="only-print">📎</span>' : '-';
+        return '<tr><td>'+(i+1)+'</td><td>'+fdate(x.date)+'</td><td class="r"><b>'+fmt(x.amt)+'</b></td><td>'+mth+sub+'</td><td>'+slip+'</td><td style="color:#1e8e5a;font-weight:700">'+t('rp_ok')+'</td></tr>';
+      }).join('')+
+      '<tr><td colspan="2" style="font-weight:800;color:#0a1628">'+t('rp_paysum')+'</td><td class="r" style="font-weight:800">'+fmt(paid)+'</td><td colspan="3" style="font-weight:800;color:'+(debt>0?'#c0392b':'#1e8e5a')+'">'+(debt>0?t('rp_left')+' '+fmt(debt)+' ฿':t('rp_paidfull'))+'</td></tr>'+
+      '</table>'+
+      (pays.some(function(x){return x.slip&&x.slip.url;}) ? '<div style="font-size:10.5px;color:#7a6a35;padding:7px 12px;background:#faf7ef">'+t('rp_slipnote')+'</div>' : '')+
+      '</div>'
+    : '')+
+    pfHtml+
+    (n.memo? '<div class="rp-note">'+t('rp_note')+': '+esc(n.memo)+'</div>':'')+
+    '<div class="rp-sign"><div><div class="rp-sig-line">'+t('rp_sign1')+' / '+(isBuy?t('rp_payer'):t('rp_cust2'))+'</div></div>'+
+    '<div><div class="rp-sig-line">'+t('rp_sign2')+'<br>'+COMPANY.name+'</div></div></div>'+
+    '<div class="rp-footer">'+t('rp_footer')+' • '+t('rp_docno')+' '+esc(rec.id)+' • '+t('rp_taxid')+' '+COMPANY.tax+'</div>';
+
+  currentReceiptId = rec.id;
+  window._rc = {p:p, id:rec.id};
+  try{ history.replaceState(null,'','#rc-'+p+'-'+encodeURIComponent(rec.id)); }catch(e){}
+  go('pg-receipt');
+}
+function closeReceipt(){ try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} go(lastListPage||'pg-home'); }
+let lastListPage = 'pg-home';
+let currentReceiptId = null;
+document.addEventListener('click', e=>{
+  const act = document.querySelector('.page.active');
+  if(act && act.id!=='pg-receipt') lastListPage = act.id;
+}, true);
+function shareReceipt(){
+  if(navigator.share){
+    navigator.share({ title:'เอกสาร Bigtree Agarwood', text:'เอกสารจาก '+COMPANY.name, url: location.href }).catch(()=>{});
+  } else doPrint();
+}
+// ═══ สร้าง PDF จริง (jsPDF + html2canvas, ไทยแสดงผลถูกต้อง, แบ่งหน้าอัตโนมัติ) ═══
+async function makeReceiptPDF(){
+  if(typeof html2canvas === 'undefined' || !window.jspdf){ showToast(t('tt_pdf_fail'), true); return null; }
+  const el = document.getElementById('rp-paper');
+  const canvas = await html2canvas(el, {scale:2, backgroundColor:'#ffffff', useCORS:true});
+  const jsPDF = window.jspdf.jsPDF;
+  const pdf = new jsPDF('p','mm','a4');
+  const pageW = 210, pageH = 297, margin = 8;
+  const imgW = pageW - margin*2;
+  const pxPerMm = canvas.width / imgW;
+  const pageInnerH = pageH - margin*2 - 6; // เผื่อหัวกระดาษ
+  const pagePx = Math.floor(pageInnerH * pxPerMm);
+  const total = Math.max(1, Math.ceil(canvas.height / pagePx));
+  for(let p=0; p<total; p++){
+    if(p>0) pdf.addPage();
+    const sliceH = Math.min(pagePx, canvas.height - p*pagePx);
+    const cv = document.createElement('canvas');
+    cv.width = canvas.width; cv.height = sliceH;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.drawImage(canvas, 0, p*pagePx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+    const img = cv.toDataURL('image/jpeg', 0.92);
+    pdf.setFontSize(8); pdf.setTextColor(150);
+    pdf.text('Bigtree Agarwood - '+(currentReceiptId||'')+'  (page '+(p+1)+'/'+total+')', margin, 5.5);
+    pdf.addImage(img, 'JPEG', margin, margin+1.5, imgW, sliceH/pxPerMm);
+  }
+  return { blob: pdf.output('blob'), filename: 'bigtree_'+(currentReceiptId||'receipt')+'.pdf' };
+}
+function triggerDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 30000);
+}
+async function downloadPDF(){
+  showToast(t('tt_pdf_making'));
+  try{
+    const r = await makeReceiptPDF(); if(!r) return;
+    triggerDownload(r.blob, r.filename);
+    showToast(t('tt_pdf_ok'));
+  }catch(e){ showToast(t('tt_pdf_fail'), true); }
+}
+async function sharePDF(){
+  showToast(t('tt_pdf_making'));
+  try{
+    const r = await makeReceiptPDF(); if(!r) return;
+    const file = new File([r.blob], r.filename, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'Bigtree Agarwood'}); return; }
+      catch(e){ if(e && e.name==='AbortError') return; }
+    }
+    triggerDownload(r.blob, r.filename); // เครื่องที่แชร์ไฟล์ไม่ได้ -> ดาวน์โหลดแทน
+    showToast(t('tt_pdf_ok'));
+  }catch(e){ showToast(t('tt_pdf_fail'), true); }
+}
+
+function doPrint(){
+  if(/Line\//i.test(navigator.userAgent)){
+    // เบราว์เซอร์ใน LINE พิมพ์ไม่ได้ -> เปิดเบราว์เซอร์ภายนอก พร้อมเปิดบิลใบเดิมอัตโนมัติ
+    try{
+      const u = new URL(location.href);
+      u.searchParams.set('openExternalBrowser','1');
+      showToast('กำลังเปิดเบราว์เซอร์ภายนอกเพื่อพิมพ์...');
+      location.href = u.toString();
+      return;
+    }catch(e){}
+  }
+  window.print();
+}
+async function saveReceiptImg(){
+  if(typeof html2canvas === 'undefined'){ showToast('โหลดตัวสร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง', true); return; }
+  showToast('กำลังสร้างรูปบิล...');
+  try{
+    const canvas = await html2canvas(document.getElementById('rp-paper'), {scale:2, backgroundColor:'#ffffff', useCORS:true});
+    const name = 'bigtree_' + (currentReceiptId||'receipt') + '.png';
+    canvas.toBlob(async blob=>{
+      if(!blob){ showToast('สร้างรูปไม่สำเร็จ', true); return; }
+      const file = new File([blob], name, {type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file], title:'บิล Bigtree Agarwood'}); return; }catch(e){}
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('✅ บันทึกรูปบิลแล้ว (ดูในอัลบั้ม/ไฟล์ดาวน์โหลด)');
+    }, 'image/png');
+  }catch(e){ showToast('สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง', true); }
+}
+
+// ═══════════ INIT ═══════════
+function initApp(){
+  applyLang();
+  const td = new Date().toISOString().split('T')[0];
+  ['b-date','s-date','s-due','e-date','ln-date','ln-due'].forEach(id=>{ const el=$(id); if(el) el.value=td; });
+  fillNames();
+  addItem('b'); addItem('s');
+
+  const h = (location.hash||'').replace('#','');
+  const map = {buy:'pg-buy', sell:'pg-sell', stock:'pg-stock', profit:'pg-profit', ar:'pg-ar', ap:'pg-ap', exp:'pg-exp', loan:'pg-loan'};
+
+  const rc = h.match(/^rc-(b|s)-(.+)$/);
+  if(rc){
+    const p = rc[1], id = decodeURIComponent(rc[2]);
+    lastListPage = p==='b' ? 'pg-buy' : 'pg-sell';
+    const arr = p==='b' ? cache.buys : cache.sells;
+    if(arr.find(r=>String(r.id)===String(id))){
+      openReceipt(p, id);
+    }else{
+      go(lastListPage);
+      refreshAll(false).then(()=>{
+        const a2 = p==='b' ? cache.buys : cache.sells;
+        if(a2.find(r=>String(r.id)===String(id))) openReceipt(p, id);
+      });
+      return;
+    }
+  }else{
+    go(map[h] || 'pg-home');
+  }
+
+  refreshAll(false);
+}
+window.addEventListener('hashchange', ()=>{
+  const h = (location.hash||'').replace('#','');
+  const map = {buy:'pg-buy', sell:'pg-sell', stock:'pg-stock', profit:'pg-profit', ar:'pg-ar', ap:'pg-ap', exp:'pg-exp', loan:'pg-loan'};
+  if(map[h]) go(map[h]);
+});
+initApp();
+</script>
+</body>
+</html>
