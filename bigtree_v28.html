@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root{
   --bg:#f7f5ef; --card:#ffffff; --card2:#f3efe4; --line:#e2dac5;
@@ -101,7 +102,9 @@ label{display:block;font-size:12.5px;color:var(--mut);margin:10px 0 5px;font-wei
 details.xtr{margin-top:12px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 details.xtr summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(--mut)}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px;position:relative}
+.stat-ico{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px}
+.rec-ico{width:34px;height:34px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .stat .v{font-weight:800;font-size:18px;margin-top:4px}
 .stat .l{font-size:11.5px;color:var(--mut)}
 .slip-drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;text-align:center;font-size:12.5px;color:var(--mut);cursor:pointer;background:var(--card);margin-top:4px}
@@ -357,6 +360,10 @@ table.rp-t td{padding:5px 6px;border-bottom:1px solid #eee}
     <button class="icon-btn" style="margin-left:8px" onclick="refreshAll(true)">↻</button>
   </div>
   <div class="body">
+    <div style="display:flex;gap:7px;margin-bottom:9px">
+      <button class="ract gold" id="grp-type" style="flex:0 0 auto;padding:7px 13px" onclick="stockGroupBy='type';renderStockList()" data-i18n="grp_by_type">📁 ตามประเภท</button>
+      <button class="ract" id="grp-sup" style="flex:0 0 auto;padding:7px 13px" onclick="stockGroupBy='supplier';renderStockList()" data-i18n="grp_by_sup">👤 ตามบริษัทที่ซื้อ</button>
+    </div>
     <input id="stock-q" data-i18n-ph="inv_search" placeholder="🔍 ค้นหา ชื่อ / ชื่อเล่น / เกรด / แหล่ง..." oninput="stockQuery=this.value;renderStockList()" style="margin-bottom:12px">
     <div id="stock-body"><div class="empty" data-i18n="loading">กำลังโหลด...</div></div>
   </div>
@@ -619,6 +626,7 @@ const I18N = {
  d_monthly:['📅 สรุปรายเดือน','📅 Monthly Report'],
  d_r_inc:['รายรับ (ยอดขาย)','Income (Sales)'], d_r_out:['รายจ่าย (ซื้อ+ค่าใช้จ่าย)','Outgoing (Purchases+Expenses)'], d_r_buy:['ยอดซื้อ','Purchases'], d_r_sell:['ยอดขาย','Sales'],
  d_r_pf:['กำไร','Profit'], d_r_exp:['ค่าใช้จ่ายส่วนตัว','Personal Expenses'], d_r_lend:['ให้คนอื่นยืม','Lent Out'], d_r_borrow:['ยืมคนอื่น','Borrowed'], d_r_bal:['คงเหลือสุทธิ','Net Balance'],
+ d_mix:['🪷 สัดส่วนสินค้าที่ขาย','🪷 Sales Mix by Product'],
  d_top:['📊 วิเคราะห์ธุรกิจ (Top 5)','📊 Business Analytics (Top 5)'],
  b_due:['กำหนดจ่ายให้ผู้ขาย (Due Date)','Payment Due to Supplier'],
  f_nick:['ชื่อเล่นสินค้า (ถ้ามี)','Nickname (optional)'], ph_nick:['เช่น Premium A','e.g. Premium A'],
@@ -629,6 +637,9 @@ const I18N = {
  pick_stock:['— 📦 เลือกสินค้าจากสต็อก (ไม่บังคับ) —','— 📦 Pick from stock (optional) —'],
  stk_left:['คงเหลือในสต็อก','In stock'], stk_lastp:['ซื้อล่าสุด','Last buy'], stk_from:['ซื้อจาก','Bought from'], b_supnick:['ชื่อเล่นพ่อค้า (ถ้ามี)','Supplier Nickname (optional)'], ph_supnick:['เช่น เฮียชาคีร์','e.g. Shakir'], stk_nicks:['ชื่อเล่น','Nicknames'], stk_avg:['ทุนเฉลี่ย','Avg. cost'],
  stk_over:['⚠️ เกินสต็อก! ขายได้สูงสุด {q}','⚠️ Exceeds stock! Max {q}'],
+ grp_by_type:['📁 ตามประเภท','📁 By Type'], grp_by_sup:['👤 ตามบริษัทที่ซื้อ','👤 By Supplier'], grp_no_sup:['ไม่ระบุบริษัท','No Supplier'],
+ stk_hist:['📜 ประวัติผู้รับสินค้า','📜 Recipient History'], stk_hist_none:['ยังไม่มีประวัติการขาย/เบิก','No sales/withdrawal history yet'],
+ stk_h_date:['วันที่','Date'], stk_h_qty:['จำนวน','Qty'], stk_h_recv:['ผู้รับ','Recipient'], stk_h_note:['หมายเหตุ','Note'], stk_h_sale:['ขาย','Sale'],
  tt_overstock:['จำนวนสินค้าที่ขายเกินกว่าสินค้าคงเหลือในสต็อก กรุณาตรวจสอบจำนวนอีกครั้ง','Quantity exceeds available stock — please check again'],
  btn_pdf:['📄 ดาวน์โหลด PDF','📄 Download PDF'], btn_sendpdf:['📤 ส่ง PDF','📤 Send PDF'],
  tt_pdf_making:['⏳ กำลังสร้าง PDF...','⏳ Creating PDF...'], tt_pdf_ok:['✅ สร้าง PDF สำเร็จ','✅ PDF created'], tt_pdf_fail:['สร้าง PDF ไม่สำเร็จ ลองใหม่อีกครั้ง','PDF creation failed, please retry'],
@@ -708,8 +719,8 @@ const I18N_AR = {
  d_cash:'الرصيد النقدي', d_arr:'الذمم المدينة', d_app:'الذمم الدائنة', d_inv:'قيمة المخزون',
  d_inc:'الإيرادات', d_out:'المصروفات', d_pf:'الربح', d_target:'🎯 هدف المبيعات', d_left:'المتبقي',
  n_title:'🔔 تنبيهات الاستحقاق', n_today:'مستحق اليوم!', n_days:'باقٍ {d} يوم للاستحقاق', n_over:'متأخر {d} يوم',
- n_ar:'العميل مدين لنا', n_ap:'مستحق للمورّد', b_due:'تاريخ الاستحقاق للمورّد',
- stk_from:'المورّد', b_supnick:'الاسم المستعار للمورّد (اختياري)', stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
+ n_ar:'العميل مدين لنا', n_ap:'مستحق للمورّد', b_due:'تاريخ الاستحقاق للمورّد', d_mix:'🪷 مزيج المبيعات',
+ stk_from:'المورّد', b_supnick:'الاسم المستعار للمورّد (اختياري)', grp_by_type:'📁 حسب النوع', grp_by_sup:'👤 حسب المورّد', stk_hist:'📜 سجل المستلمين', stk_left:'المتوفر بالمخزون', stk_over:'⚠️ يتجاوز المخزون! الحد الأقصى {q}', tt_overstock:'الكمية تتجاوز المخزون المتاح — يرجى التحقق',
  btn_pdf:'📄 تحميل PDF', btn_sendpdf:'📤 إرسال PDF', tt_pdf_making:'⏳ جارٍ إنشاء PDF...', tt_pdf_ok:'✅ تم إنشاء PDF',
  f_nick:'الاسم المستعار (اختياري)', inv_qty:'الرصيد', inv_avg:'متوسط التكلفة/وحدة', inv_val:'قيمة المخزون', inv_last:'آخر شراء', st_ready:'متوفر', st_out:'نفد'
 };
@@ -1588,7 +1599,7 @@ function recCard(p, rec, isLatest){
   const debt = num(rec.debt);
   return '<div class="rec'+(isLatest?' latest':'')+'">'+
     (isLatest?'<div class="rec-badge">'+t('k_latest')+'</div>':'')+
-    '<div class="rec-top"><div class="rec-name">'+esc(name||'-')+'</div><div class="rec-date">'+fdate(rec.date)+'</div></div>'+
+    '<div class="rec-top"><div class="rec-ico">'+(isBuy?'🛒':'💰')+'</div><div style="flex:1;min-width:0"><div class="rec-name">'+esc(name||'-')+'</div><div class="rec-date">'+fdate(rec.date)+'</div></div></div>'+
     '<div class="rec-mid">'+itemChips+'</div>'+
     '<div class="rec-bot"><div><div class="rec-total">'+fmt(rec.total)+' ฿</div>'+(debt>0?'<div class="rec-debt">'+t('k_owe')+' '+fmt(debt)+' ฿'+((rec.due||n.bdue)?' • '+t('k_due')+' '+fdate(rec.due||n.bdue):'')+'</div>':'')+'</div>'+
     '<span class="'+stClass(rec.status)+'">'+esc(stTxt(rec.status)||'-')+'</span></div>'+
@@ -1632,7 +1643,7 @@ function renderList(p){
 }
 function renderHome(){
   renderDash();
-  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' • v28.1';
+  $('home-date').textContent = new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='ar'?'ar-EG':'th-TH'),{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' • v28.3';
   const b = cache.buys[0], s = cache.sells[0];
   let h = '';
   renderDash();
@@ -1649,6 +1660,21 @@ function recItems(rec){
   return [{type:rec.unit==='tl'?'oil':'wood', origin:ORIGINS.includes(rec.type)?rec.type:'', grade:rec.grade||'-', qty:num(rec.qty), unit:rec.unit||'kg', amt:num(rec.total)}];
 }
 let stockQuery = '';
+let stockGroupBy = 'type'; // ค่าเริ่มต้น: จัดกลุ่มตามประเภท เหมือนของเดิมทุกประการ
+// ── ประวัติผู้รับสินค้า (ขาย/เบิก) ต่อรายการสินค้า — ดึงจากบิลขายจริง ไม่เพิ่มฟิลด์ฐานข้อมูลใหม่ ──
+function stockMovements(ckey){
+  const out = [];
+  cache.sells.forEach(rec=>{
+    recItems(rec).forEach(it=>{
+      const k = (it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||'');
+      if(k===ckey && num(it.qty)>0){
+        out.push({date:rec.date, qty:num(it.qty), recv:rec.customer||'-', note:parseNote(rec.note).memo||'', id:rec.id});
+      }
+    });
+  });
+  out.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return out;
+}
 // ── รหัสสินค้าอัตโนมัติ BT-0001 (ไม่ซ้ำ เก็บถาวรใน Settings + เครื่อง) ──
 let _pcSaveTimer = null;
 function productCodeMap(){
@@ -1684,14 +1710,16 @@ function stockRows(){
     recItems(rec).forEach(it=>{
       const t2 = it.type==='oil' ? 'oil' : 'wood';
       const key = t2+'|'+(it.origin||'')+'|'+(it.grade||'-')+'|'+(it.unit||(t2==='oil'?'tl':'kg'));
-      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], sups:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
+      if(!map[key]) map[key] = {type:t2, origin:it.origin||'', grade:it.grade||'-', unit:it.unit||(t2==='oil'?'tl':'kg'), nick:'', nicks:[], sups:[], supNames:[], lastPrice:0, inQ:0, outQ:0, lastBuy:null, ckey:(it.origin||'')+'|'+(it.grade||'')+'|'+(it.unit||(t2==='oil'?'tl':'kg'))};
       const row = map[key];
       if(sign>0){
         row.inQ += num(it.qty);
         if(it.nick && !row.nicks.includes(it.nick)) row.nicks.push(it.nick);
         const sn = parseNote(rec.note).supnick;
-        const sup = String(rec.supplier||'').trim() + (sn ? ' ('+sn+')' : '');
-        if(String(rec.supplier||'').trim() && !row.sups.includes(sup)) row.sups.push(sup);
+        const supPlain = String(rec.supplier||'').trim();
+        const sup = supPlain + (sn ? ' ('+sn+')' : '');
+        if(supPlain && !row.sups.includes(sup)) row.sups.push(sup);
+        if(supPlain && !row.supNames.includes(supPlain)) row.supNames.push(supPlain);
         if(d && (!row.lastBuy || d > row.lastBuy)){ row.lastBuy = d; if(it.nick) row.nick = it.nick; if(num(it.price)>0) row.lastPrice = num(it.price); }
         else if(it.nick && !row.nick) row.nick = it.nick;
       } else {
@@ -1717,8 +1745,19 @@ function stockStatus(r){
   if(r.bal <= 5) return '<span class="st st-part">'+t('st_low')+'</span>';
   return '<span class="st st-ok">'+t('st_ready')+'</span>';
 }
+function movementsHTML(ckey){
+  const mv = stockMovements(ckey);
+  if(!mv.length) return '<div style="font-size:11.5px;color:var(--mut);padding:6px 0">'+t('stk_hist_none')+'</div>';
+  return '<table class="tb" style="margin-top:6px">'+
+    '<tr><th>'+t('stk_h_date')+'</th><th class="r">'+t('stk_h_qty')+'</th><th>'+t('stk_h_recv')+'</th><th>'+t('stk_h_note')+'</th></tr>'+
+    mv.slice(0,20).map(m=>'<tr><td>'+fdate(m.date)+'</td><td class="r">'+fmt(m.qty)+'</td><td>'+esc(m.recv)+'</td><td style="color:var(--mut);font-size:11px">'+(m.note?esc(m.note):t('stk_h_sale'))+'</td></tr>').join('')+
+    '</table>'+(mv.length>20?'<div style="font-size:10.5px;color:var(--mut);margin-top:4px">+'+(mv.length-20)+' รายการก่อนหน้า</div>':'');
+}
 function renderStockList(){
   const body = $('stock-body'); if(!body) return;
+  const gt = $('grp-type'), gs = $('grp-sup');
+  if(gt) gt.classList.toggle('gold', stockGroupBy==='type');
+  if(gs) gs.classList.toggle('gold', stockGroupBy==='supplier');
   let rows = stockRows();
   if(!rows.length){ body.innerHTML = '<div class="empty">'+t('empty_stock')+'</div>'; return; }
   const q = (stockQuery||'').trim().toLowerCase();
@@ -1737,18 +1776,36 @@ function renderStockList(){
       '<tr><td>'+t('inv_avg')+'</td><td class="r">'+fmt(r.avg)+' ฿</td></tr>'+
       '<tr><td>'+t('inv_val')+'</td><td class="r" style="font-weight:700">'+fmt(r.val)+' ฿</td></tr>'+
       '<tr><td>'+t('h_buyq')+' / '+t('h_sellq')+'</td><td class="r">'+fmt(r.inQ)+' / '+fmt(r.outQ)+'</td></tr>'+
-    '</table></div>';
+    '</table>'+
+    '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:var(--gold)">'+t('stk_hist')+'</summary>'+movementsHTML(r.ckey)+'</details>'+
+    '</div>';
 
-  const section = (ty, title, icon)=>{
-    const rs = rows.filter(r=>r.type===ty);
-    if(!rs.length) return '';
-    const totalBal = rs.reduce((a,r)=>a+r.bal,0);
-    const totalVal = rs.reduce((a,r)=>a+r.val,0);
-    return '<div class="sec-head"><span class="sec-title">'+icon+' '+title+'</span>'+
-      '<span class="sec-count">'+t('k_balsum')+' '+fmt(totalBal)+' '+unitTh(rs[0].unit)+' • '+t('inv_total_val')+' '+fmt(totalVal)+' ฿</span></div>'+
-      rs.map(card).join('');
-  };
-  const html = section('wood', t('k_wood'), '🪵') + section('oil', t('k_oil'), '🧴');
+  let html;
+  if(stockGroupBy==='supplier'){
+    const groups = {};
+    rows.forEach(r=>{
+      const names = (r.supNames && r.supNames.length) ? r.supNames : [t('grp_no_sup')];
+      names.forEach(n=>{ if(!groups[n]) groups[n]=[]; groups[n].push(r); });
+    });
+    html = Object.keys(groups).sort((a,b)=>a.localeCompare(b,'th')).map(name=>{
+      const rs = groups[name];
+      const totalVal = rs.reduce((a,r)=>a+r.val,0);
+      return '<div class="sec-head"><span class="sec-title">🏢 '+esc(name)+'</span>'+
+        '<span class="sec-count">'+rs.length+' '+t('items_ct')+' • '+t('inv_total_val')+' '+fmt(totalVal)+' ฿</span></div>'+
+        rs.map(card).join('');
+    }).join('');
+  }else{
+    const section = (ty, title, icon)=>{
+      const rs = rows.filter(r=>r.type===ty);
+      if(!rs.length) return '';
+      const totalBal = rs.reduce((a,r)=>a+r.bal,0);
+      const totalVal = rs.reduce((a,r)=>a+r.val,0);
+      return '<div class="sec-head"><span class="sec-title">'+icon+' '+title+'</span>'+
+        '<span class="sec-count">'+t('k_balsum')+' '+fmt(totalBal)+' '+unitTh(rs[0].unit)+' • '+t('inv_total_val')+' '+fmt(totalVal)+' ฿</span></div>'+
+        rs.map(card).join('');
+    };
+    html = section('wood', t('k_wood'), '🪵') + section('oil', t('k_oil'), '🧴');
+  }
   body.innerHTML = html || '<div class="empty">—</div>';
 }
 function renderStock(){ renderStockList(); }
@@ -2104,6 +2161,32 @@ function aggBuckets(){
   (cache.expenses||[]).forEach(r=>put(r,'out',num(r.amount)));
   return buckets;
 }
+let _mixChartInst = null;
+function mixDonutHTML(){
+  const agg = {};
+  cache.sells.forEach(r=>recItems(r).forEach(it=>{ const k=typeTh(it.type); agg[k]=(agg[k]||0)+num(it.amt); }));
+  const keys = Object.keys(agg);
+  if(!keys.length) return '';
+  const total = keys.reduce((a,k)=>a+agg[k],0);
+  const colors = ['#b8892b','#3b6d11','#0c447c','#993c1d'];
+  const legend = keys.map((k,i)=>'<span class="chip"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+colors[i%colors.length]+';margin-right:5px;vertical-align:-1px"></span>'+esc(k)+' '+Math.round(agg[k]/total*100)+'%</span>').join(' ');
+  return '<div class="card"><div class="sec-title" style="margin-bottom:8px">'+t('d_mix')+'</div>'+
+    '<div style="position:relative;width:100%;height:170px"><canvas id="mixDonut" role="img" aria-label="สัดส่วนยอดขายตามประเภทสินค้า"></canvas></div>'+
+    '<div style="text-align:center;margin-top:8px">'+legend+'</div></div>';
+}
+function drawMixDonut(){
+  const cv = $('mixDonut'); if(!cv || typeof Chart==='undefined') return;
+  const agg = {};
+  cache.sells.forEach(r=>recItems(r).forEach(it=>{ const k=typeTh(it.type); agg[k]=(agg[k]||0)+num(it.amt); }));
+  const keys = Object.keys(agg); if(!keys.length) return;
+  const colors = ['#b8892b','#3b6d11','#0c447c','#993c1d'];
+  if(_mixChartInst) _mixChartInst.destroy();
+  _mixChartInst = new Chart(cv, {
+    type:'doughnut',
+    data:{ labels:keys, datasets:[{ data:keys.map(k=>agg[k]), backgroundColor:colors, borderColor:'#fff', borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:false } } }
+  });
+}
 function chartHTML(){
   const bs = aggBuckets();
   const max = Math.max(1, ...bs.map(b=>Math.max(b.inc,b.out)));
@@ -2221,7 +2304,7 @@ function renderDash(){
   // month sale target
   const yearSell = cache.sells.filter(r=>{ const d=dOf(r); return d && d.getFullYear()===new Date().getFullYear(); }).reduce((a,r)=>a+num(r.total),0);
 
-  const stat = (lbl, v, color) => '<div class="stat"><div class="l">'+lbl+'</div><div class="v" style="color:'+(color||'var(--ink)')+'">'+fmt(v)+' ฿</div></div>';
+  const stat = (lbl, v, color, icon) => '<div class="stat">'+(icon?'<div class="stat-ico">'+icon+'</div>':'')+'<div class="l">'+lbl+'</div><div class="v" style="color:'+(color||'var(--ink)')+'">'+fmt(v)+' ฿</div></div>';
 
   // month breakdowns
   const bOrg={}, bGrade={}, bType={}, sOrg={}, sGrade={}, sType={};
@@ -2247,16 +2330,17 @@ function renderDash(){
     alertsHTML()+
     '<div class="sec-head"><span class="sec-title">📈 '+t('d_month')+'</span></div>'+
     '<div class="stat-grid">'+
-      stat(t('d_buym'), m.buy, 'var(--bad)') + stat(t('d_sellm'), m.sell, 'var(--ok)') +
-      stat(t('d_profitm'), m.profit, 'var(--gold)') + stat(t('d_expm'), m.exp, 'var(--bad)') +
-      stat(t('d_cash'), cash, cash>=0?'var(--ok)':'var(--bad)') + stat(t('d_inv'), inv) +
-      stat(t('d_arr'), arT, 'var(--warn)') + stat(t('d_app'), apT, 'var(--warn)') +
+      stat(t('d_buym'), m.buy, 'var(--bad)', '🛒') + stat(t('d_sellm'), m.sell, 'var(--ok)', '💰') +
+      stat(t('d_profitm'), m.profit, 'var(--gold)', '📊') + stat(t('d_expm'), m.exp, 'var(--bad)', '💸') +
+      stat(t('d_cash'), cash, cash>=0?'var(--ok)':'var(--bad)', '🏦') + stat(t('d_inv'), inv, null, '📦') +
+      stat(t('d_arr'), arT, 'var(--warn)', '👥') + stat(t('d_app'), apT, 'var(--warn)', '🏦') +
     '</div>'+
     '<div class="card" style="margin-top:12px"><div class="sec-title">'+t('d_target')+'</div>'+
       targetBar(t('d_t_m'), m.sell, num(cache.settings.target_m), "setTarget('m')")+
       targetBar(t('d_t_y'), yearSell, num(cache.settings.target_y), "setTarget('y')")+
     '</div>'+
     chartHTML()+
+    mixDonutHTML()+
     '<div class="card"><div class="sec-title">'+t('d_buysum')+'</div>'+
       '<div style="font-size:13px;margin-top:6px">'+m.buyCount+' '+t('d_count')+' • <b style="color:var(--bad)">'+fmt(m.buy)+' ฿</b></div>'+
       '<div class="rec-mid" style="margin-top:8px">'+breakList(bType)+'</div>'+
@@ -2289,6 +2373,7 @@ function renderDash(){
       topList('📍 '+t('d_top_org'), tpOrg, ' ฿')+
       topList('⭐ '+t('d_top_grade'), tpGrade, ' ฿')+
     '</div>';
+  drawMixDonut();
 }
 
 // ═══════════ RECEIPT ═══════════
